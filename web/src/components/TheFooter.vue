@@ -22,7 +22,7 @@ const perusahaan = ['Tentang Kami', 'Portofolio', 'Karir', 'Blog']
       <div>
         <h4>Perusahaan</h4>
         <ul>
-          <li v-for="p in perusahaan" :key="p"><a href="#">{{ p }}</a></li>
+          <li v-for="p in perusahaann" :key="p"><a href="#">{{ p }}</a></li>
         </ul>
       </div>
 
