@@ -1,8 +1,15 @@
 <script setup>
+const props = defineProps({
+  limit: { type: Number, default: null },
+  showViewAll: { type: Boolean, default: false },
+})
+
 const projects = [
   { title: 'Nama Project 1', category: 'Web Development', img: '/portfolio/project-1.jpg' },
   { title: 'Nama Project 2', category: 'Mobile App', img: '/portfolio/project-2.jpg' },
 ]
+
+const displayedProjects = props.limit ? projects.slice(0, props.limit) : projects
 </script>
 
 <template>
@@ -12,13 +19,17 @@ const projects = [
       <h2>Project yang pernah kami kerjakan</h2>
 
       <div class="portfolio__grid">
-        <a href="#" class="portfolio-card" v-for="p in projects" :key="p.title">
+        <a href="#" class="portfolio-card" v-for="p in displayedProjects" :key="p.title">
           <img :src="p.img" :alt="p.title" />
           <div class="portfolio-card__body">
             <span class="portfolio-card__category">{{ p.category }}</span>
             <h3>{{ p.title }}</h3>
           </div>
         </a>
+      </div>
+
+      <div v-if="showViewAll" class="view-all">
+        <router-link to="/portofolio" class="btn btn-outline">Lihat Semua Portofolio →</router-link>
       </div>
     </div>
   </section>
@@ -44,6 +55,25 @@ const projects = [
 .portfolio-card__body { padding: 16px; }
 .portfolio-card__category { font-size: 12px; color: var(--color-deep-orange); font-weight: 600; }
 .portfolio-card h3 { font-size: 17px; margin-top: 4px; }
+
+.view-all {
+  text-align: center;
+  margin-top: 32px;
+}
+.btn-outline {
+  display: inline-block;
+  border: 1px solid var(--color-red);
+  color: var(--color-red);
+  padding: 10px 24px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 14px;
+}
+.btn-outline:hover {
+  background: var(--color-red);
+  color: white;
+}
 
 @media (max-width: 768px) {
   .portfolio__grid { grid-template-columns: 1fr; }

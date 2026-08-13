@@ -1,25 +1,32 @@
 <script setup>
 const menu = [
-  { label: 'Layanan', href: '#layanan' },
-  { label: 'Portofolio', href: '#portofolio' },
-  { label: 'Tentang Kami', href: '#tentang' },
-  { label: 'Blog', href: '#blog' },
+   { label: 'Home', to: '/' },
+  { label: 'Layanan', to: '/layanan' },
+  { label: 'Portofolio', to: '/portofolio' },
+  { label: 'Tentang Kami', to: '/tentang-kami' },
+  { label: 'Blog', to: '/blog' },
 ]
 </script>
 
 <template>
   <header class="header">
     <div class="container header__inner">
-      <a href="/" class="header__logo">
+      <router-link to="/" class="header__logo">
         <!-- ganti src dengan logo asli kamu -->
-      <!--  <img src="/logo.svg" alt="Nama Software House" height="32" />-->
-      </a>
+        <!-- <img src="/logo.svg" alt="Nama Software House" height="32" /> -->
+      </router-link>
 
       <nav class="header__nav">
-        <a v-for="item in menu" :key="item.label" :href="item.href">{{ item.label }}</a>
+        <router-link
+          v-for="item in menu"
+          :key="item.label"
+          :to="item.to"
+        >
+          {{ item.label }}
+        </router-link>
       </nav>
 
-      <a href="#kontak" class="btn btn-primary">Konsultasi Gratis</a>
+      <router-link to="/#kontak" class="btn btn-primary">Konsultasi Gratis</router-link>
     </div>
   </header>
 </template>
@@ -49,6 +56,11 @@ const menu = [
   font-weight: 500;
 }
 .header__nav a:hover { color: var(--color-red); }
+
+.header__nav a.router-link-active {
+  color: var(--color-red);
+  font-weight: 700;
+}
 
 @media (max-width: 768px) {
   .header__nav { display: none; }

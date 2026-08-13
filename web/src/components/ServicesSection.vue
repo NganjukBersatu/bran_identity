@@ -1,4 +1,9 @@
 <script setup>
+const props = defineProps({
+  limit: { type: Number, default: null },
+  showViewAll: { type: Boolean, default: false },
+})
+
 const services = [
   { title: 'Web Development', desc: 'Website company profile, landing page, hingga aplikasi web custom.' },
   { title: 'Mobile App Development', desc: 'Aplikasi Android & iOS sesuai kebutuhan bisnis Anda.' },
@@ -6,6 +11,8 @@ const services = [
   { title: 'System / ERP Development', desc: 'Sistem internal untuk mengelola operasional bisnis Anda.' },
   { title: 'Maintenance & Support', desc: 'Perawatan dan dukungan teknis berkelanjutan pasca rilis.' },
 ]
+
+const displayedServices = props.limit ? services.slice(0, props.limit) : services
 </script>
 
 <template>
@@ -15,11 +22,15 @@ const services = [
       <h2>Solusi digital lengkap untuk bisnis Anda</h2>
 
       <div class="services__grid">
-        <div class="service-card" v-for="s in services" :key="s.title">
+        <div class="service-card" v-for="s in displayedServices" :key="s.title">
           <h3>{{ s.title }}</h3>
           <p>{{ s.desc }}</p>
           <a href="#" class="service-card__link">Selengkapnya →</a>
         </div>
+      </div>
+
+      <div v-if="showViewAll" class="view-all">
+        <router-link to="/layanan" class="btn btn-outline">Lihat Semua Layanan →</router-link>
       </div>
     </div>
   </section>
@@ -45,6 +56,25 @@ const services = [
   font-weight: 600;
   font-size: 14px;
   text-decoration: none;
+}
+
+.view-all {
+  text-align: center;
+  margin-top: 32px;
+}
+.btn-outline {
+  display: inline-block;
+  border: 1px solid var(--color-red);
+  color: var(--color-red);
+  padding: 10px 24px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 14px;
+}
+.btn-outline:hover {
+  background: var(--color-red);
+  color: white;
 }
 
 @media (max-width: 900px) {
