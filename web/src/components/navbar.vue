@@ -66,7 +66,7 @@ onUnmounted(() => {
 
   <header class="header" :class="{ 'header--scrolled': showSolidHeader }">
 
-    <div class="container header__inner">
+    <div class="header__inner">
 
       <router-link to="/" class="header__logo" @click="closeLayanan">
         <img src="/logos/image.png" alt="BRAN Identity" class="logo-image" />
@@ -167,16 +167,18 @@ onUnmounted(() => {
   backdrop-filter: blur(10px);
 }
 
-.container {
-  width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 30px;
-  box-sizing: border-box;
-}
-
+/*
+  Dulu pakai .container (max-width: 1200px; margin: 0 auto)
+  sehingga isi navbar menyempit ke tengah dan menyisakan
+  jarak kosong di kiri-kanan pada layar lebar.
+  Sekarang diganti full-width dengan padding responsif saja,
+  supaya logo mepet ke tepi kiri dan tombol mepet ke tepi kanan.
+*/
 .header__inner {
+  width: 100%;
   height: 90px;
+  padding: 0 clamp(20px, 4vw, 64px);
+  box-sizing: border-box;
   display: flex;
   align-items: center;
   gap: 30px;
@@ -346,8 +348,7 @@ onUnmounted(() => {
 }
 
 @media (max-width: 768px) {
-  .container { padding: 0 20px; }
-  .header__inner { height: 72px; gap: 15px; }
+  .header__inner { padding: 0 20px; height: 72px; gap: 15px; }
   .header__nav { display: none; }
   .logo-image { width: 38px; height: 38px; }
   .logo-name { font-size: 17px; }
@@ -356,8 +357,7 @@ onUnmounted(() => {
 }
 
 @media (min-width: 769px) and (max-width: 1000px) {
-  .container { padding: 0 20px; }
-  .header__inner { gap: 15px; }
+  .header__inner { padding: 0 20px; gap: 15px; }
   .header__nav { gap: 0; }
   .nav-link,
   .layanan-button { padding: 0 9px; font-size: 13px; }
