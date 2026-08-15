@@ -33,7 +33,7 @@ const faqs = [
 <template>
   <div class="perencanaan">
 
-    <!-- HERO: split dua kolom, kartu blueprint di kanan -->
+    <!-- HERO: teks kiri tetap seperti semula, kotak blueprint kanan dihapus -->
     <section class="hero">
       <div class="hero__text">
         <span class="eyebrow">Layanan · 02</span>
@@ -49,24 +49,6 @@ const faqs = [
         <router-link to="/#kontak" class="hero__cta">
           Konsultasi Gratis
         </router-link>
-      </div>
-
-      <div class="hero__blueprint" aria-hidden="true">
-        <div class="blueprint__row">
-          <span class="blueprint__dot"></span>
-          <span class="blueprint__line"></span>
-          <span class="blueprint__label">Scope</span>
-        </div>
-        <div class="blueprint__row">
-          <span class="blueprint__dot"></span>
-          <span class="blueprint__line blueprint__line--short"></span>
-          <span class="blueprint__label">Timeline</span>
-        </div>
-        <div class="blueprint__row">
-          <span class="blueprint__dot"></span>
-          <span class="blueprint__line blueprint__line--long"></span>
-          <span class="blueprint__label">Budget</span>
-        </div>
       </div>
     </section>
 
@@ -150,14 +132,14 @@ const faqs = [
   color: var(--red);
 }
 
-/* ---------- HERO (split) ---------- */
+/* ---------- HERO (satu kolom, kiri tetap left-aligned) ---------- */
 .hero {
-  display: grid;
-  grid-template-columns: 1.1fr 0.9fr;
-  gap: 50px;
-  align-items: center;
   padding: 170px clamp(20px, 6vw, 80px) 100px;
   background: #fffdf5;
+}
+
+.hero__text {
+  max-width: 620px;
 }
 
 .hero__text h1 {
@@ -198,55 +180,6 @@ const faqs = [
 .hero__cta:hover {
   background: var(--orange);
   transform: translateY(-2px);
-}
-
-.hero__blueprint {
-  border: 2px dashed var(--orange-light);
-  border-radius: 18px;
-  padding: 34px 28px;
-  background:
-    repeating-linear-gradient(0deg, transparent 0 27px, #fef3ce 27px 28px),
-    repeating-linear-gradient(90deg, transparent 0 27px, #fef3ce 27px 28px),
-    #fffbe9;
-  display: flex;
-  flex-direction: column;
-  gap: 26px;
-}
-
-.blueprint__row {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.blueprint__dot {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background: var(--orange);
-  flex-shrink: 0;
-}
-
-.blueprint__line {
-  height: 2px;
-  flex: 1;
-  background: repeating-linear-gradient(
-    to right,
-    var(--orange-light) 0,
-    var(--orange-light) 6px,
-    transparent 6px,
-    transparent 12px
-  );
-}
-
-.blueprint__line--short { opacity: 0.7; }
-.blueprint__line--long { opacity: 1; }
-
-.blueprint__label {
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--red);
-  flex-shrink: 0;
 }
 
 /* ---------- SHARED SECTION HEAD ---------- */
@@ -423,9 +356,6 @@ const faqs = [
 
 /* ---------- RESPONSIVE ---------- */
 @media (max-width: 900px) {
-  .hero {
-    grid-template-columns: 1fr;
-  }
   .roadmap__track {
     grid-template-columns: 1fr;
     gap: 30px;

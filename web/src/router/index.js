@@ -6,6 +6,7 @@ import TentangKamiView from '../views/tentangkami.vue'
 import BlogView from '../views/blog.vue'
 import KonsultasiView from '../views/konsultasi.vue'
 import PerencanaanView from '../views/perencanaan.vue'
+import DevelopmentView from '../views/development.vue'
 
 const router = createRouter({
   history: createWebHistory(),
@@ -17,6 +18,7 @@ const router = createRouter({
     { path: '/blog', name: 'blog', component: BlogView },
     { path: '/layanan/perencanaan', name: 'perencanaan', component: PerencanaanView },
     { path: '/layanan/konsultasi', name: 'konsultasi', component: KonsultasiView },
+    { path: '/layanan/development', name: 'development', component: DevelopmentView },
   ],
   scrollBehavior() {
     return { top: 0 }
