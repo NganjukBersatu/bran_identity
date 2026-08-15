@@ -28,12 +28,19 @@ const faqs = [
   { q: 'Apakah scope bisa berubah di tengah jalan?', a: 'Bisa, dampaknya ke timeline dan biaya dibahas ulang dulu.' },
   { q: 'Apakah dokumen ini mengikat secara kontrak?', a: 'Ya, dokumen ini jadi lampiran resmi di perjanjian kerja sama.' }
 ]
+
+// kartu mockup di sisi kanan hero — dipetakan dari data documents di atas
+const heroCards = [
+  { label: 'SOW', title: 'Scope of Work', rotate: -9, offsetX: 0, offsetY: 10, z: 1 },
+  { label: 'Timeline', title: 'Timeline Project', rotate: 5, offsetX: 60, offsetY: -30, z: 2 },
+  { label: 'Budget', title: 'Estimasi Biaya', rotate: -3, offsetX: 30, offsetY: 90, z: 3 }
+]
 </script>
 
 <template>
   <div class="perencanaan">
 
-    <!-- HERO: teks kiri tetap seperti semula, kotak blueprint kanan dihapus -->
+    <!-- HERO: teks kiri + stack kartu dokumen miring di kanan -->
     <section class="hero">
       <div class="hero__text">
         <span class="eyebrow">Layanan · 02</span>
@@ -49,6 +56,64 @@ const faqs = [
         <router-link to="/#kontak" class="hero__cta">
           Konsultasi Gratis
         </router-link>
+      </div>
+
+      <div class="hero__visual">
+        <svg class="blueprint" viewBox="0 0 380 440" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Diagram blueprint perencanaan project">
+          <defs>
+            <pattern id="dotgrid" width="18" height="18" patternUnits="userSpaceOnUse">
+              <circle cx="1.2" cy="1.2" r="1.2" fill="#e6d9a8" />
+            </pattern>
+          </defs>
+
+          <!-- frame -->
+          <rect x="10" y="10" width="360" height="420" rx="16" fill="url(#dotgrid)" />
+          <rect x="10" y="10" width="360" height="420" rx="16" stroke="#c9b877" stroke-width="1.5" stroke-dasharray="5 5" />
+
+          <!-- corner crop marks -->
+          <path d="M28 44 V28 H44" stroke="#202020" stroke-width="1.6" />
+          <path d="M352 44 V28 H336" stroke="#202020" stroke-width="1.6" />
+          <path d="M28 406 V422 H44" stroke="#202020" stroke-width="1.6" />
+          <path d="M352 406 V422 H336" stroke="#202020" stroke-width="1.6" />
+
+          <!-- ruler ticks kiri -->
+          <g stroke="#c9b877" stroke-width="1">
+            <line x1="20" y1="90" x2="30" y2="90" />
+            <line x1="20" y1="130" x2="26" y2="130" />
+            <line x1="20" y1="170" x2="30" y2="170" />
+            <line x1="20" y1="210" x2="26" y2="210" />
+            <line x1="20" y1="250" x2="30" y2="250" />
+          </g>
+
+          <!-- zone 01: Scope -->
+          <rect x="52" y="70" width="120" height="72" rx="6" fill="#fffdf5" stroke="#e6521f" stroke-width="1.5" stroke-dasharray="4 4" />
+          <circle cx="52" cy="70" r="11" fill="#ea2f14" />
+          <text x="52" y="74" text-anchor="middle" font-family="monospace" font-size="10" fill="#fff">01</text>
+          <text x="62" y="196" font-family="monospace" font-size="11" letter-spacing="1" fill="#202020">SCOPE</text>
+
+          <!-- zone 02: Timeline -->
+          <rect x="200" y="130" width="140" height="60" rx="6" fill="#fffdf5" stroke="#fb9e3a" stroke-width="1.5" stroke-dasharray="4 4" />
+          <circle cx="200" cy="130" r="11" fill="#ea2f14" />
+          <text x="200" y="134" text-anchor="middle" font-family="monospace" font-size="10" fill="#fff">02</text>
+          <text x="200" y="209" font-family="monospace" font-size="11" letter-spacing="1" fill="#202020">TIMELINE</text>
+
+          <!-- zone 03: Budget -->
+          <rect x="90" y="240" width="130" height="66" rx="6" fill="#fffdf5" stroke="#e6521f" stroke-width="1.5" stroke-dasharray="4 4" />
+          <circle cx="90" cy="240" r="11" fill="#ea2f14" />
+          <text x="90" y="244" text-anchor="middle" font-family="monospace" font-size="10" fill="#fff">03</text>
+          <text x="100" y="322" font-family="monospace" font-size="11" letter-spacing="1" fill="#202020">BUDGET</text>
+
+          <!-- garis penghubung antar zona -->
+          <path d="M172 106 L200 130" stroke="#202020" stroke-width="1" stroke-dasharray="3 3" />
+          <path d="M155 142 L155 240" stroke="#202020" stroke-width="1" stroke-dasharray="3 3" />
+          <path d="M270 190 L220 260" stroke="#202020" stroke-width="1" stroke-dasharray="3 3" />
+
+          <!-- garis dimensi bawah -->
+          <line x1="52" y1="360" x2="340" y2="360" stroke="#202020" stroke-width="1" />
+          <line x1="52" y1="354" x2="52" y2="366" stroke="#202020" stroke-width="1" />
+          <line x1="340" y1="354" x2="340" y2="366" stroke="#202020" stroke-width="1" />
+          <text x="196" y="382" text-anchor="middle" font-family="monospace" font-size="11" fill="#5b4a2a">3–7 HARI KERJA</text>
+        </svg>
       </div>
     </section>
 
@@ -132,10 +197,15 @@ const faqs = [
   color: var(--red);
 }
 
-/* ---------- HERO (satu kolom, kiri tetap left-aligned) ---------- */
+/* ---------- HERO (dua kolom: teks kiri, stack kartu kanan) ---------- */
 .hero {
-  padding: 170px clamp(20px, 6vw, 80px) 100px;
+  padding: 170px clamp(20px, 6vw, 80px) 140px;
   background: #fffdf5;
+  display: grid;
+  grid-template-columns: 1.05fr 0.95fr;
+  align-items: center;
+  gap: 40px;
+  overflow: hidden;
 }
 
 .hero__text {
@@ -180,6 +250,21 @@ const faqs = [
 .hero__cta:hover {
   background: var(--orange);
   transform: translateY(-2px);
+}
+
+/* ---------- HERO VISUAL: stack kartu dokumen miring ---------- */
+.hero__visual {
+  position: relative;
+  height: 420px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.blueprint {
+  width: 100%;
+  max-width: 380px;
+  height: auto;
 }
 
 /* ---------- SHARED SECTION HEAD ---------- */
@@ -355,6 +440,18 @@ const faqs = [
 }
 
 /* ---------- RESPONSIVE ---------- */
+@media (max-width: 1024px) {
+  .hero {
+    grid-template-columns: 1fr;
+    padding-top: 130px;
+  }
+
+  .hero__visual {
+    height: 320px;
+    margin-top: 20px;
+  }
+}
+
 @media (max-width: 900px) {
   .roadmap__track {
     grid-template-columns: 1fr;
@@ -368,6 +465,10 @@ const faqs = [
 @media (max-width: 768px) {
   .hero {
     padding: 130px 20px 60px;
+  }
+  .hero__card {
+    width: 170px;
+    padding: 12px 14px 16px;
   }
   .roadmap,
   .documents,
