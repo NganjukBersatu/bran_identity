@@ -79,26 +79,65 @@ const clients = [
   transform: scale(1.05);
 }
 
+/* Tablet: logo & jarak sedikit dikecilkan */
 @media (max-width: 768px) {
   .logos {
     padding: 40px 0;
   }
+  .logos__label {
+    font-size: 13px;
+    margin-bottom: 24px;
+  }
   .logos__row {
-    gap: 24px;
+    gap: 20px;
   }
   .logos__card {
-    width: 150px;
-    height: 90px;
+    width: 140px;
+    height: 84px;
   }
   .logos__card img {
-    max-height: 60px;
+    max-height: 56px;
   }
 }
 
+/* Mobile: grid 3 kolom rapi, bukan flex-wrap acak */
 @media (max-width: 480px) {
+  .logos {
+    padding: 32px 0;
+  }
+  .logos__label {
+    font-size: 11.5px;
+    margin-bottom: 18px;
+    padding: 0 12px;
+  }
+  .logos__row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    justify-items: center;
+  }
   .logos__card {
-    width: 45%;
-    height: 70px;
+    width: 100%;
+    height: 60px;
+  }
+  .logos__card img {
+    max-height: 40px;
+  }
+  /* selalu tampilkan logo jelas di HP, hover tidak relevan di touch device */
+  .logos__card img {
+    filter: grayscale(40%);
+    opacity: 0.85;
+  }
+}
+
+/* HP sangat kecil: 2 kolom supaya logo tidak terlalu kecil */
+@media (max-width: 360px) {
+  .logos__row {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+  }
+  .logos__card {
+    height: 56px;
   }
 }
 </style>

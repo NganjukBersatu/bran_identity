@@ -31,7 +31,7 @@ const points = [
 <style scoped>
 .whyus__inner {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1.1fr 0.9fr;
   gap: 48px;
   align-items: center;
 }
@@ -60,8 +60,32 @@ const points = [
   object-fit: cover;
 }
 
-@media (max-width: 768px) {
-  .whyus__inner { grid-template-columns: 1fr; }
-  .whyus__photo { order: -1; }
+/* Tablet: sedikit perkecil gap, tetap 2 kolom berdampingan */
+@media (max-width: 900px) {
+  .whyus__inner {
+    grid-template-columns: 1fr 1fr;
+    gap: 28px;
+  }
+  .whyus__text h2 { font-size: 24px; }
+}
+
+/* Mobile: tetap side-by-side, hanya perkecil ukuran teks & spacing */
+@media (max-width: 600px) {
+  .whyus__inner {
+    grid-template-columns: 1fr 0.8fr;
+    gap: 16px;
+  }
+  .whyus__text h2 { font-size: 18px; margin: 6px 0 14px; }
+  .eyebrow { font-size: 12px; }
+  .whyus__list { gap: 10px; }
+  .whyus__list li { font-size: 12px; gap: 8px; }
+  .whyus__number {
+    width: 22px;
+    height: 22px;
+    font-size: 11px;
+  }
+  .whyus__photo img {
+    aspect-ratio: 3 / 4;
+  }
 }
 </style>
