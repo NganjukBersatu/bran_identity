@@ -5,12 +5,12 @@ const props = defineProps({
 })
 
 const services = [
-  { number: '01', icon: 'chat', title: 'Konsultasi', desc: 'Diskusi kebutuhan dan tujuan project Anda bersama tim ahli kami.' },
-  { number: '02', icon: 'clipboard', title: 'Perencanaan', desc: 'Menyusun scope, timeline, dan estimasi biaya secara detail dan terstruktur.' },
-  { number: '03', icon: 'code', title: 'Development', desc: 'Proses pengembangan dengan teknologi terbaru dan update berkala.' },
-  { number: '04', icon: 'rocket', title: 'Deploy', desc: 'Peluncuran produk ke server produksi dengan performa optimal.' },
-  { number: '05', icon: 'headset', title: 'Support', desc: 'Dukungan teknis dan pemeliharaan berkelanjutan setelah project selesai.' },
-  { number: '06', icon: 'chart', title: 'Optimasi', desc: 'Meningkatkan performa dan fitur produk agar selalu relevan dan kompetitif.' },
+  { number: '01', icon: 'chat', title: 'Konsultasi', slug: 'konsultasi', desc: 'Diskusi kebutuhan dan tujuan project Anda bersama tim ahli kami.' },
+  { number: '02', icon: 'clipboard', title: 'Perencanaan', slug: 'perencanaan', desc: 'Menyusun scope, timeline, dan estimasi biaya secara detail dan terstruktur.' },
+  { number: '03', icon: 'code', title: 'Development', slug: null, desc: 'Proses pengembangan dengan teknologi terbaru dan update berkala.' },
+  { number: '04', icon: 'rocket', title: 'Deploy', slug: null, desc: 'Peluncuran produk ke server produksi dengan performa optimal.' },
+  { number: '05', icon: 'headset', title: 'Support', slug: null, desc: 'Dukungan teknis dan pemeliharaan berkelanjutan setelah project selesai.' },
+  { number: '06', icon: 'chart', title: 'Optimasi', slug: null, desc: 'Meningkatkan performa dan fitur produk agar selalu relevan dan kompetitif.' },
 ]
 
 const displayedServices = props.limit ? services.slice(0, props.limit) : services
@@ -45,7 +45,9 @@ const displayedServices = props.limit ? services.slice(0, props.limit) : service
             <h3>{{ service.title }}</h3>
             <div class="service-line"></div>
             <p>{{ service.desc }}</p>
-            <router-link to="/layanan" class="service-link">Selengkapnya <span>→</span></router-link>
+            <router-link :to="service.slug ? `/layanan/${service.slug}` : '/layanan'" class="service-link">
+              Selengkapnya <span>→</span>
+            </router-link>
           </div>
           <div class="dot-pattern">
             <span v-for="n in 9" :key="n"></span>
