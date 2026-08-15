@@ -25,10 +25,12 @@ const menu = [
 ]
 
 const layananMenu = [
-  { label: 'Web Development', to: '/layanan/web-development' },
-  { label: 'Mobile App Development', to: '/layanan/mobile-app-development' },
-  { label: 'UI/UX Design', to: '/layanan/ui-ux-design' },
-  { label: 'System / ERP Development', to: '/layanan/system-erp-development' }
+  { label: 'Konsultasi', to: '/layanan/konsultasi' },
+  { label: 'Perencanaan', to: '/layanan/perencanaan' },
+  { label: 'Development', to: '/layanan/development' },
+  { label: 'Deploy', to: '/layanan/deploy' },
+  { label: 'Support', to: '/layanan/support' },
+  { label: 'Optimasi', to: '/layanan/optimasi' }
 ]
 
 const handleScroll = () => {
