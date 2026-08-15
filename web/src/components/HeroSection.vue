@@ -51,6 +51,27 @@ function handleNextClick() {
   restartAutoplay()
 }
 
+// ---- Swipe gesture untuk mobile ----
+let touchStartX = 0
+let touchEndX = 0
+const SWIPE_THRESHOLD = 40
+
+function handleTouchStart(e) {
+  touchStartX = e.changedTouches[0].screenX
+}
+
+function handleTouchEnd(e) {
+  touchEndX = e.changedTouches[0].screenX
+  const diff = touchStartX - touchEndX
+  if (Math.abs(diff) < SWIPE_THRESHOLD) return
+  if (diff > 0) {
+    nextPhoto()
+  } else {
+    prevPhoto()
+  }
+  restartAutoplay()
+}
+
 onMounted(startAutoplay)
 onBeforeUnmount(stopAutoplay)
 </script>
@@ -60,6 +81,8 @@ onBeforeUnmount(stopAutoplay)
     class="hero"
     @mouseenter="stopAutoplay"
     @mouseleave="startAutoplay"
+    @touchstart.passive="handleTouchStart"
+    @touchend.passive="handleTouchEnd"
   >
     <!-- Foto full-width sebagai background -->
     <div class="hero__bg">
@@ -87,7 +110,7 @@ onBeforeUnmount(stopAutoplay)
       </div>
     </div>
 
-    <!-- Panah geser -->
+    <!-- Panah geser (disembunyikan di layar sangat kecil, swipe menggantikannya) -->
     <button
       class="hero__nav hero__nav--prev"
       type="button"
@@ -129,6 +152,9 @@ onBeforeUnmount(stopAutoplay)
   align-items: center;
   overflow: hidden;
   background: #111;
+  /* jarak aman dari navbar fixed (90px desktop / 72px mobile, lihat media query) */
+  padding-top: 90px;
+  box-sizing: border-box;
 }
 
 /* ---- Background foto full-width ---- */
@@ -144,6 +170,7 @@ onBeforeUnmount(stopAutoplay)
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: center;
   opacity: 0;
   transform: scale(1.06);
   transition: opacity 1s ease, transform 7s ease;
@@ -172,23 +199,26 @@ onBeforeUnmount(stopAutoplay)
 .hero__content {
   position: relative;
   z-index: 3;
+  width: 100%;
   max-width: 620px;
-  padding: 140px 0 100px;
+  padding: 60px 0 90px;
 }
 
 .hero__content h1 {
   color: #fff;
-  font-size: 48px;
-  line-height: 1.15;
+  /* skala mulus dari 26px (layar kecil) sampai 48px (layar besar) */
+  font-size: clamp(26px, 4.2vw, 48px);
+  line-height: 1.18;
   margin-bottom: 16px;
   text-shadow: 0 2px 12px rgba(0, 0, 0, 0.35);
 }
 
 .hero__subtitle {
-  font-size: 18px;
+  font-size: clamp(14.5px, 1.6vw, 18px);
   color: rgba(255, 255, 255, 0.9);
   max-width: 460px;
   margin-bottom: 28px;
+  line-height: 1.6;
   text-shadow: 0 1px 6px rgba(0, 0, 0, 0.3);
 }
 
@@ -236,7 +266,7 @@ onBeforeUnmount(stopAutoplay)
 /* ---- Dot indicator ---- */
 .hero__dots {
   position: absolute;
-  bottom: 28px;
+  bottom: 20px;
   left: 0;
   right: 0;
   z-index: 4;
@@ -262,28 +292,32 @@ onBeforeUnmount(stopAutoplay)
   border-radius: 4px;
 }
 
-/* ---- Responsive ---- */
-@media (max-width: 992px) {
-  .hero__content h1 {
-    font-size: 38px;
-  }
-  .hero__content {
-    padding: 120px 0 90px;
+/* =====================================
+   RESPONSIVE
+   Breakpoint: 1024 (tablet lanskap),
+   768 (tablet potret), 480 (mobile),
+   360 (mobile kecil)
+   Prinsip: min-height dikecilkan bertahap
+   & padding dirapatkan supaya tidak ada
+   sisa area foto kosong di bawah tombol.
+===================================== */
+
+@media (max-width: 1024px) {
+  .hero {
+    min-height: 560px;
   }
 }
 
 @media (max-width: 768px) {
   .hero {
-    min-height: 520px;
+    min-height: 0; /* tinggi mengikuti konten, bukan dipaksa 560px */
+    padding-top: 72px; /* samakan dengan tinggi navbar mobile */
   }
   .hero__content {
-    padding: 100px 0 80px;
+    padding: 44px 0 64px;
     max-width: 100%;
     text-align: center;
     margin: 0 auto;
-  }
-  .hero__content h1 {
-    font-size: 30px;
   }
   .hero__subtitle {
     margin-left: auto;
@@ -293,31 +327,58 @@ onBeforeUnmount(stopAutoplay)
     justify-content: center;
   }
   .hero__nav {
-    width: 40px;
-    height: 40px;
-    font-size: 14px;
+    width: 38px;
+    height: 38px;
+    font-size: 13px;
   }
-  .hero__nav--prev { left: 12px; }
-  .hero__nav--next { right: 12px; }
+  .hero__nav--prev { left: 10px; }
+  .hero__nav--next { right: 10px; }
+  .hero__dots {
+    bottom: 14px;
+  }
 }
 
 @media (max-width: 480px) {
-  .hero {
-    min-height: 480px;
+  .hero__content {
+    padding: 36px 0 52px;
   }
   .hero__content h1 {
-    font-size: 26px;
+    margin-bottom: 12px;
   }
   .hero__subtitle {
-    font-size: 15px;
+    margin-bottom: 20px;
   }
   .hero__actions {
     flex-direction: column;
     width: 100%;
+    gap: 10px;
   }
   .hero__actions .btn {
     width: 100%;
     text-align: center;
+  }
+  /* di layar sangat kecil, panah kadang menumpuk konten —
+     sembunyikan dan andalkan swipe + dot indicator */
+  .hero__nav {
+    display: none;
+  }
+  .hero__dots {
+    bottom: 12px;
+  }
+}
+
+@media (max-width: 360px) {
+  .hero {
+    padding-top: 64px;
+  }
+  .hero__content {
+    padding: 28px 0 46px;
+  }
+  .hero__content h1 {
+    font-size: 22px;
+  }
+  .hero__subtitle {
+    font-size: 13px;
   }
 }
 </style>

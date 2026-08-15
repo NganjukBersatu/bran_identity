@@ -426,12 +426,51 @@ const team = [
 }
 
 @media (max-width: 480px) {
+  .about-hero__title {
+    font-size: 26px;
+  }
+
   .about-stats__grid {
     grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
   }
+  .about-stats__item h3 {
+    font-size: 24px;
+  }
+
+  /* Tetap 2 kolom per baris, hanya diperkecil supaya pas di layar HP */
   .about-values__grid,
   .about-team__grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+  }
+
+  .about-values__card {
+    padding: 18px 12px;
+  }
+  .about-values__icon {
+    width: 38px;
+    height: 38px;
+    margin-bottom: 10px;
+  }
+  .about-values__icon svg {
+    width: 18px;
+    height: 18px;
+  }
+  .about-values__card h3 {
+    font-size: 14px;
+    margin-bottom: 6px;
+  }
+  .about-values__card p {
+    font-size: 12px;
+    line-height: 1.5;
+  }
+
+  .about-team__card h3 {
+    font-size: 13px;
+  }
+  .about-team__card p {
+    font-size: 12px;
   }
 }
 </style>

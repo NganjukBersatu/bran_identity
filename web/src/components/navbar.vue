@@ -1,11 +1,13 @@
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 
 const route = useRoute()
 
 const isScrolled = ref(false)
-const isLayananOpen = ref(false)
+const isLayananOpen = ref(false)       // dropdown Layanan versi desktop
+const isMobileMenuOpen = ref(false)    // panel menu versi mobile
+const isMobileLayananOpen = ref(false) // accordion Layanan versi mobile
 
 /*
   Navbar hanya boleh transparan di halaman Home.
@@ -15,7 +17,7 @@ const isLayananOpen = ref(false)
 */
 const isHomePage = computed(() => route.path === '/')
 
-const showSolidHeader = computed(() => isScrolled.value || !isHomePage.value)
+const showSolidHeader = computed(() => isScrolled.value || !isHomePage.value || isMobileMenuOpen.value)
 
 const menu = [
   { label: 'Home', to: '/' },
@@ -52,6 +54,25 @@ const handleOutsideClick = (event) => {
   }
 }
 
+const toggleMobileMenu = () => {
+  isMobileMenuOpen.value = !isMobileMenuOpen.value
+}
+
+const closeMobileMenu = () => {
+  isMobileMenuOpen.value = false
+  isMobileLayananOpen.value = false
+}
+
+const toggleMobileLayanan = () => {
+  isMobileLayananOpen.value = !isMobileLayananOpen.value
+}
+
+// tutup menu mobile otomatis setiap kali pindah halaman
+watch(() => route.path, () => {
+  closeMobileMenu()
+  closeLayanan()
+})
+
 onMounted(() => {
   window.addEventListener('scroll', handleScroll)
   document.addEventListener('click', handleOutsideClick)
@@ -70,7 +91,7 @@ onUnmounted(() => {
 
     <div class="header__inner">
 
-      <router-link to="/" class="header__logo" @click="closeLayanan">
+      <router-link to="/" class="header__logo" @click="closeMobileMenu">
         <img src="/logos/image.png" alt="BRAN Identity" class="logo-image" />
         <div class="logo-text">
           <div class="logo-name">BRAN <span>IDENTITY</span></div>
@@ -78,6 +99,7 @@ onUnmounted(() => {
         </div>
       </router-link>
 
+      <!-- ===== Nav Desktop ===== -->
       <nav class="header__nav">
 
         <router-link to="/" class="nav-link" @click="closeLayanan">
@@ -126,11 +148,71 @@ onUnmounted(() => {
 
       </nav>
 
-      <router-link to="/#kontak" class="consult-button" @click="closeLayanan">
+      <router-link to="/#kontak" class="consult-button" @click="closeMobileMenu">
         Konsultasi Gratis
       </router-link>
 
+      <!-- ===== Tombol Hamburger (mobile only) ===== -->
+      <button
+        type="button"
+        class="hamburger"
+        :class="{ active: isMobileMenuOpen }"
+        aria-label="Buka menu"
+        @click.stop="toggleMobileMenu"
+      >
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+
     </div>
+
+    <!-- ===== Panel Menu Mobile ===== -->
+    <transition name="mobile-menu">
+      <div v-if="isMobileMenuOpen" class="mobile-menu" @click.stop>
+        <router-link to="/" class="mobile-link" @click="closeMobileMenu">
+          Home
+        </router-link>
+
+        <div class="mobile-accordion">
+          <button
+            type="button"
+            class="mobile-link mobile-accordion__trigger"
+            :class="{ active: isMobileLayananOpen }"
+            @click="toggleMobileLayanan"
+          >
+            <span>Layanan</span>
+            <span class="arrow" :class="{ open: isMobileLayananOpen }"></span>
+          </button>
+
+          <div v-if="isMobileLayananOpen" class="mobile-accordion__panel">
+            <router-link
+              v-for="item in layananMenu"
+              :key="item.label"
+              :to="item.to"
+              class="mobile-sublink"
+              @click="closeMobileMenu"
+            >
+              {{ item.label }}
+            </router-link>
+          </div>
+        </div>
+
+        <router-link
+          v-for="item in menu.slice(1)"
+          :key="item.label"
+          :to="item.to"
+          class="mobile-link"
+          @click="closeMobileMenu"
+        >
+          {{ item.label }}
+        </router-link>
+
+        <router-link to="/#kontak" class="mobile-consult-button" @click="closeMobileMenu">
+          Konsultasi Gratis
+        </router-link>
+      </div>
+    </transition>
 
   </header>
 
@@ -170,12 +252,40 @@ onUnmounted(() => {
 }
 
 /*
-  Dulu pakai .container (max-width: 1200px; margin: 0 auto)
-  sehingga isi navbar menyempit ke tengah dan menyisakan
-  jarak kosong di kiri-kanan pada layar lebar.
-  Sekarang diganti full-width dengan padding responsif saja,
-  supaya logo mepet ke tepi kiri dan tombol mepet ke tepi kanan.
+  Saat header MASIH transparan (di atas hero gelap, belum discroll):
+  teks logo & menu diputihkan + diberi shadow tipis supaya tetap
+  terbaca di atas foto apapun. Begitu header--scrolled aktif,
+  warnanya otomatis kembali gelap seperti biasa (lihat rule di atas).
 */
+.header:not(.header--scrolled) .logo-name,
+.header:not(.header--scrolled) .logo-tagline,
+.header:not(.header--scrolled) .nav-link,
+.header:not(.header--scrolled) .layanan-button,
+.header:not(.header--scrolled) .hamburger span {
+  color: #ffffff;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.45);
+}
+
+.header:not(.header--scrolled) .logo-name span {
+  color: #ffb27a; /* oranye terang biar tetap kebaca di atas foto gelap */
+}
+
+.header:not(.header--scrolled) .hamburger span {
+  background: #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+
+.header:not(.header--scrolled) .nav-link:hover,
+.header:not(.header--scrolled) .layanan-button:hover,
+.header:not(.header--scrolled) .nav-link.router-link-active,
+.header:not(.header--scrolled) .layanan-button.active {
+  color: #ffb27a;
+}
+
+.header:not(.header--scrolled) .arrow {
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.4));
+}
+
 .header__inner {
   width: 100%;
   height: 90px;
@@ -211,6 +321,7 @@ onUnmounted(() => {
   font-size: 20px;
   font-weight: 800;
   line-height: 1;
+  transition: color 0.3s ease;
 }
 
 .logo-name span {
@@ -222,6 +333,7 @@ onUnmounted(() => {
   color: #777;
   font-size: 8px;
   line-height: 1.2;
+  transition: color 0.3s ease;
 }
 
 .header__nav {
@@ -246,7 +358,7 @@ onUnmounted(() => {
   font-weight: 500;
   line-height: 1;
   box-sizing: border-box;
-  transition: color 0.2s ease, background 0.2s ease;
+  transition: color 0.3s ease, background 0.2s ease;
 }
 
 .nav-link:hover,
@@ -282,7 +394,6 @@ onUnmounted(() => {
   color: #f4511e;
 }
 
-/* Panah sejajar teks, statis, tidak berputar */
 .arrow {
   display: inline-block;
   width: 0;
@@ -291,6 +402,11 @@ onUnmounted(() => {
   border-left: 4px solid transparent;
   border-right: 4px solid transparent;
   border-top: 5px solid currentColor;
+  transition: transform 0.2s ease;
+}
+
+.arrow.open {
+  transform: rotate(180deg);
 }
 
 .layanan-dropdown {
@@ -349,13 +465,150 @@ onUnmounted(() => {
   transform: translateY(-2px);
 }
 
+/* =====================================
+   HAMBURGER (mobile only, tersembunyi
+   di desktop lewat media query di bawah)
+===================================== */
+
+.hamburger {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  width: 42px;
+  height: 42px;
+  border: none;
+  background: transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.2s ease;
+}
+
+.hamburger:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.hamburger span {
+  display: block;
+  width: 22px;
+  height: 2px;
+  border-radius: 2px;
+  background: #202020;
+  transition: transform 0.25s ease, opacity 0.25s ease;
+}
+
+.hamburger.active span:nth-child(1) {
+  transform: translateY(7px) rotate(45deg);
+}
+.hamburger.active span:nth-child(2) {
+  opacity: 0;
+}
+.hamburger.active span:nth-child(3) {
+  transform: translateY(-7px) rotate(-45deg);
+}
+
+/* =====================================
+   PANEL MENU MOBILE
+===================================== */
+
+.mobile-menu {
+  display: none;
+}
+
+.mobile-menu-enter-active,
+.mobile-menu-leave-active {
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+.mobile-menu-enter-from,
+.mobile-menu-leave-to {
+  opacity: 0;
+  transform: translateY(-8px);
+}
+
+.mobile-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 14px 4px;
+  border: none;
+  background: transparent;
+  color: #202020;
+  text-decoration: none;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  text-align: left;
+  border-bottom: 1px solid #f0f0f0;
+  cursor: pointer;
+}
+
+.mobile-link.router-link-active {
+  color: #f4511e;
+}
+
+.mobile-accordion__trigger .arrow {
+  border-top-color: #202020;
+}
+
+.mobile-accordion__panel {
+  display: flex;
+  flex-direction: column;
+  padding: 4px 0 8px 14px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.mobile-sublink {
+  padding: 11px 4px;
+  color: #555;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.mobile-sublink:hover,
+.mobile-sublink.router-link-active {
+  color: #f4511e;
+}
+
+.mobile-consult-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 18px;
+  height: 46px;
+  border-radius: 10px;
+  background: #f4511e;
+  color: #ffffff;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+/* =====================================
+   RESPONSIVE
+===================================== */
+
 @media (max-width: 768px) {
-  .header__inner { padding: 0 20px; height: 72px; gap: 15px; }
+  .header__inner { padding: 0 20px; height: 72px; gap: 12px; }
   .header__nav { display: none; }
+  .consult-button { display: none; }
+  .hamburger { display: flex; margin-left: auto; }
+
   .logo-image { width: 38px; height: 38px; }
   .logo-name { font-size: 17px; }
   .logo-tagline { display: none; }
-  .consult-button { margin-left: auto; height: 42px; padding: 0 14px; font-size: 12px; }
+
+  .mobile-menu {
+    display: flex;
+    flex-direction: column;
+    padding: 8px 20px 24px;
+    background: #ffffff;
+    border-top: 1px solid #eeeeee;
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
+  }
 }
 
 @media (min-width: 769px) and (max-width: 1000px) {
