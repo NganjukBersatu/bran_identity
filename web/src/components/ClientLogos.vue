@@ -46,38 +46,35 @@ const clients = [
   flex-wrap: wrap;
 }
 
+/* card dibuat polos: tanpa background, border, shadow, atau padding
+   supaya yang tampil hanya logo-nya saja */
 .logos__card {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 160px;
-  height: 90px;
-  padding: 16px 20px;
-  background: #fffaf0;
-  border: 1px solid rgba(234, 88, 12, 0.15);
-  border-radius: 16px;
-  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+  width: 190px;
+  height: 110px;
+  transition: transform 0.25s ease;
 }
 
 .logos__card:hover {
   transform: translateY(-6px);
-  box-shadow: 0 14px 28px rgba(234, 88, 12, 0.15);
-  border-color: var(--color-orange, #ea580c);
 }
 
 .logos__card img {
-  max-height: 56px;
+  max-height: 80px;
   max-width: 100%;
   width: auto;
   height: auto;
   object-fit: contain;
-  /* logo tampil berwarna penuh, sedikit redup saat idle, jernih saat hover */
-  filter: none;
-  opacity: 0.85;
-  transition: opacity 0.25s ease, transform 0.25s ease;
+  /* logo tampak abu-abu/redup saat idle, berwarna penuh & jernih saat hover */
+  filter: grayscale(100%);
+  opacity: 0.6;
+  transition: filter 0.25s ease, opacity 0.25s ease, transform 0.25s ease;
 }
 
 .logos__card:hover img {
+  filter: grayscale(0%);
   opacity: 1;
   transform: scale(1.05);
 }
@@ -87,15 +84,14 @@ const clients = [
     padding: 40px 0;
   }
   .logos__row {
-    gap: 16px;
+    gap: 24px;
   }
   .logos__card {
-    width: 130px;
-    height: 76px;
-    padding: 12px 16px;
+    width: 150px;
+    height: 90px;
   }
   .logos__card img {
-    max-height: 44px;
+    max-height: 60px;
   }
 }
 
