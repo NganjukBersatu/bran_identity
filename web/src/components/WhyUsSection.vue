@@ -22,8 +22,7 @@ const points = [
       </div>
 
       <div class="whyus__photo">
-        <!-- ganti dengan foto tim / kantor asli -->
-      <!--   <img src="/team-photo.jpg" alt="Foto tim kami" />-->
+        <img src="/team/team-2.jpg" alt="Foto tim kami" />
       </div>
     </div>
   </section>
@@ -55,6 +54,7 @@ const points = [
 }
 .whyus__photo img {
   width: 100%;
+  aspect-ratio: 4 / 3;
   border-radius: var(--radius);
   display: block;
   object-fit: cover;
