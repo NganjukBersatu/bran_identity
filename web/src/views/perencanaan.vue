@@ -1,171 +1,260 @@
 <script setup>
 /*
   Halaman detail layanan: Perencanaan
-  Tema visual: "blueprint" - garis putus-putus, grid, timeline horizontal.
-  Sengaja dibedakan dari konsultasi.vue (yang bertema kartu + blob).
-
-  Palet warna (Color Hunt):
+  Hero visual: flat illustration orang + dokumen (checklist perencanaan).
+  Tanpa warna gelap/hitam pada background — murni dari palet:
     #FCEF91 - krem kuning
     #FB9E3A - oranye muda
     #E6521F - oranye bakar (aksen utama)
     #EA2F14 - merah (penekanan)
 */
+import { ref, onMounted } from 'vue'
 
-const roadmap = [
-  { no: '01', title: 'Scope & Kebutuhan', desc: 'Fitur dan batasan project didefinisikan jelas.' },
-  { no: '02', title: 'Timeline & Milestone', desc: 'Jadwal dipecah per tahap dengan target realistis.' },
-  { no: '03', title: 'Estimasi Biaya', desc: 'Rincian biaya berdasarkan kompleksitas fitur.' }
+const process = [
+  { no: '01', title: 'Discovery', desc: 'Menggali kebutuhan bisnis, target pengguna, dan masalah yang ingin diselesaikan lewat sesi diskusi mendalam.' },
+  { no: '02', title: 'Scope Definition', desc: 'Menentukan batasan fitur secara jelas — apa yang dikerjakan di fase ini, apa yang masuk fase berikutnya.' },
+  { no: '03', title: 'Timeline & Milestone', desc: 'Memecah project menjadi sprint dengan target waktu realistis dan titik evaluasi di setiap tahap.' },
+  { no: '04', title: 'Estimasi Budget', desc: 'Menyusun rincian biaya berdasarkan scope dan kompleksitas, tanpa biaya tersembunyi di tengah jalan.' },
+  { no: '05', title: 'Proposal Final', desc: 'Semua poin dirangkum jadi satu dokumen yang bisa langsung Anda gunakan sebagai acuan kerja.' },
 ]
 
-const documents = [
-  { no: '01', title: 'Scope of Work (SOW)', desc: 'Cakupan kerja: fitur yang dibangun, dan yang di luar cakupan.' },
-  { no: '02', title: 'Timeline Project', desc: 'Gantt sederhana yang menunjukkan target tiap fase.' },
-  { no: '03', title: 'Rincian Estimasi Biaya', desc: 'Breakdown biaya per fitur, bukan angka pukul rata.' }
+const deliverables = [
+  { icon: 'doc', title: 'Dokumen Scope', desc: 'Rincian fitur dan batasan pekerjaan yang disepakati bersama.' },
+  { icon: 'calendar', title: 'Timeline Project', desc: 'Jadwal per-sprint lengkap dengan milestone dan tenggat.' },
+  { icon: 'wallet', title: 'Estimasi Budget', desc: 'Breakdown biaya per fase, transparan sejak awal.' },
+  { icon: 'file', title: 'Proposal Teknis', desc: 'Ringkasan pendekatan teknis dan rekomendasi stack yang dipakai.' },
 ]
 
-const faqs = [
-  { q: 'Berapa lama proses perencanaan biasanya?', a: 'Umumnya 3–7 hari kerja sejak sesi konsultasi selesai.' },
-  { q: 'Apakah scope bisa berubah di tengah jalan?', a: 'Bisa, dampaknya ke timeline dan biaya dibahas ulang dulu.' },
-  { q: 'Apakah dokumen ini mengikat secara kontrak?', a: 'Ya, dokumen ini jadi lampiran resmi di perjanjian kerja sama.' }
-]
+const isVisible = ref(false)
+onMounted(() => {
+  requestAnimationFrame(() => { isVisible.value = true })
 
-// kartu mockup di sisi kanan hero — dipetakan dari data documents di atas
-const heroCards = [
-  { label: 'SOW', title: 'Scope of Work', rotate: -9, offsetX: 0, offsetY: 10, z: 1 },
-  { label: 'Timeline', title: 'Timeline Project', rotate: 5, offsetX: 60, offsetY: -30, z: 2 },
-  { label: 'Budget', title: 'Estimasi Biaya', rotate: -3, offsetX: 30, offsetY: 90, z: 3 }
-]
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('is-revealed')
+        observer.unobserve(entry.target)
+      }
+    })
+  }, { threshold: 0.15, rootMargin: '0px 0px -80px 0px' })
+
+  document.querySelectorAll('.reveal').forEach((el) => observer.observe(el))
+})
 </script>
 
 <template>
   <div class="perencanaan">
 
-    <!-- HERO: teks kiri + stack kartu dokumen miring di kanan -->
+    <!-- HERO -->
     <section class="hero">
-      <div class="hero__text">
-        <span class="eyebrow">Layanan · 02</span>
-        <h1>
-          Rencana yang Jelas,<br />
-          Sebelum <span>Eksekusi</span> Dimulai.
-        </h1>
-        <p>
-          Project yang berantakan biasanya bukan karena timnya kurang jago,
-          tapi karena perencanaannya terlewat. Kami susun scope, timeline,
-          dan estimasi biaya sebelum development dimulai.
-        </p>
-        <router-link to="/#kontak" class="hero__cta">
-          Konsultasi Gratis
+      <div class="hero__mesh" aria-hidden="true">
+        <div class="mesh__orb mesh__orb--1"></div>
+        <div class="mesh__orb mesh__orb--2"></div>
+      </div>
+
+      <div class="hero__inner">
+        <div class="hero__text" :class="{ 'is-visible': isVisible }">
+          <span class="hero__badge">
+            <span class="hero__badge-dot"></span>
+            Layanan · 02
+          </span>
+          <h1>
+            Rencana yang Jelas,<br />
+            Sebelum <span>Eksekusi</span> Dimulai.
+          </h1>
+          <p>
+            Project yang berantakan biasanya bukan karena timnya kurang jago,
+            tapi karena perencanaannya terlewat. Kami susun scope, timeline,
+            dan estimasi biaya sebelum development dimulai.
+          </p>
+          <div class="hero__actions">
+            <router-link to="/#kontak" class="btn btn--primary">
+              Konsultasi Gratis <span>→</span>
+            </router-link>
+            <a href="#proses" class="btn btn--outline">Lihat Prosesnya</a>
+          </div>
+        </div>
+
+        <!-- ILUSTRASI: ORANG + DOKUMEN CHECKLIST -->
+        <div class="hero__illustration" :class="{ 'is-visible': isVisible }">
+          <svg viewBox="0 0 480 420" class="illu" xmlns="http://www.w3.org/2000/svg">
+
+            <!-- shape belakang -->
+            <ellipse cx="250" cy="380" rx="180" ry="18" fill="#e6521f" opacity="0.08" />
+            <circle cx="120" cy="70" r="46" fill="#fb9e3a" opacity="0.18" />
+            <circle cx="420" cy="110" r="30" fill="#ea2f14" opacity="0.14" />
+            <rect x="330" y="300" width="70" height="70" rx="16" fill="#fcef91" opacity="0.7" transform="rotate(12 365 335)" />
+
+            <!-- meja -->
+            <rect x="60" y="300" width="360" height="16" rx="8" fill="#f3d9a0" />
+            <rect x="80" y="316" width="18" height="60" rx="4" fill="#e9c583" />
+            <rect x="382" y="316" width="18" height="60" rx="4" fill="#e9c583" />
+
+            <!-- kursi -->
+            <path d="M150 300 L150 350 Q150 366 166 366 L182 366 Q198 366 198 350 L198 300" fill="none" stroke="#c98b3a" stroke-width="6" stroke-linecap="round" />
+
+            <!-- badan orang duduk -->
+            <g>
+              <!-- kaki -->
+              <path d="M172 296 Q172 330 158 356" stroke="#20201f" stroke-width="10" stroke-linecap="round" fill="none" />
+              <path d="M198 296 Q202 330 214 354" stroke="#20201f" stroke-width="10" stroke-linecap="round" fill="none" />
+
+              <!-- badan / baju -->
+              <path d="M140 210 Q140 170 185 168 Q232 168 232 212 L228 300 L146 300 Z" fill="#e6521f" />
+
+              <!-- lengan kiri memegang dokumen -->
+              <path d="M150 220 Q120 240 118 268" stroke="#e6521f" stroke-width="16" stroke-linecap="round" fill="none" />
+              <!-- lengan kanan menunjuk pensil -->
+              <path d="M222 220 Q256 232 268 258" stroke="#e6521f" stroke-width="16" stroke-linecap="round" fill="none" />
+
+              <!-- tangan -->
+              <circle cx="116" cy="272" r="11" fill="#f4c99a" />
+              <circle cx="270" cy="262" r="11" fill="#f4c99a" />
+
+              <!-- leher -->
+              <rect x="172" y="150" width="24" height="24" rx="8" fill="#f4c99a" />
+
+              <!-- kepala -->
+              <circle cx="184" cy="128" r="34" fill="#f4c99a" />
+              <!-- rambut -->
+              <path d="M150 122 Q150 90 184 90 Q220 90 220 124 Q212 108 184 106 Q158 108 150 122 Z" fill="#20201f" />
+              <!-- wajah minimal -->
+              <circle cx="172" cy="130" r="3" fill="#20201f" />
+              <circle cx="196" cy="130" r="3" fill="#20201f" />
+              <path d="M174 144 Q184 150 194 144" stroke="#20201f" stroke-width="3" stroke-linecap="round" fill="none" />
+            </g>
+
+            <!-- pensil di tangan kanan -->
+            <g transform="translate(270 262) rotate(35)">
+              <rect x="0" y="-4" width="46" height="8" rx="4" fill="#fb9e3a" />
+              <rect x="40" y="-4" width="10" height="8" fill="#20201f" />
+              <polygon points="50,-4 58,0 50,4" fill="#f4c99a" />
+            </g>
+
+            <!-- papan dokumen / clipboard besar -->
+            <g>
+              <rect x="60" y="230" width="120" height="150" rx="12" fill="#ffffff" stroke="#e6c98a" stroke-width="2" />
+              <rect x="100" y="222" width="40" height="16" rx="6" fill="#c98b3a" />
+
+              <!-- judul dokumen -->
+              <rect x="78" y="252" width="60" height="8" rx="4" fill="#e6521f" />
+
+              <!-- checklist item 1 -->
+              <circle cx="82" cy="280" r="7" fill="#2e9e5b" />
+              <path d="M79 280 L81.5 283 L86 277" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none" />
+              <rect x="96" y="277" width="66" height="6" rx="3" fill="#d8cba0" />
+
+              <!-- checklist item 2 -->
+              <circle cx="82" cy="304" r="7" fill="#2e9e5b" />
+              <path d="M79 304 L81.5 307 L86 301" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none" />
+              <rect x="96" y="301" width="50" height="6" rx="3" fill="#d8cba0" />
+
+              <!-- checklist item 3 (belum selesai) -->
+              <circle cx="82" cy="328" r="7" fill="none" stroke="#e6c98a" stroke-width="2" />
+              <rect x="96" y="325" width="58" height="6" rx="3" fill="#efe6c9" />
+
+              <!-- checklist item 4 (belum selesai) -->
+              <circle cx="82" cy="352" r="7" fill="none" stroke="#e6c98a" stroke-width="2" />
+              <rect x="96" y="349" width="40" height="6" rx="3" fill="#efe6c9" />
+            </g>
+
+            <!-- badge kalender melayang -->
+            <g transform="translate(300 60)">
+              <rect width="70" height="64" rx="14" fill="#ffffff" stroke="#f3d9a0" stroke-width="2" />
+              <rect x="0" y="0" width="70" height="18" rx="14" fill="#e6521f" />
+              <rect x="12" y="30" width="10" height="10" rx="2" fill="#fb9e3a" />
+              <rect x="30" y="30" width="10" height="10" rx="2" fill="#fce3b0" />
+              <rect x="48" y="30" width="10" height="10" rx="2" fill="#fce3b0" />
+              <rect x="12" y="46" width="10" height="10" rx="2" fill="#fce3b0" />
+              <rect x="30" y="46" width="10" height="10" rx="2" fill="#ea2f14" />
+              <rect x="48" y="46" width="10" height="10" rx="2" fill="#fce3b0" />
+            </g>
+
+            <!-- badge budget melayang -->
+            <g transform="translate(30 190)">
+              <circle cx="26" cy="26" r="26" fill="#fff" stroke="#f3d9a0" stroke-width="2" />
+              <circle cx="26" cy="26" r="15" fill="#fb9e3a" />
+              <text x="26" y="31" text-anchor="middle" font-size="16" font-weight="800" fill="#fff" font-family="Arial, sans-serif">Rp</text>
+            </g>
+
+            <!-- badge centang besar -->
+            <g transform="translate(360 210)">
+              <circle cx="24" cy="24" r="24" fill="#2e9e5b" />
+              <path d="M14 24 L21 31 L35 15" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none" />
+            </g>
+
+            <!-- garis putus dekoratif -->
+            <path d="M240 100 Q290 130 300 160" stroke="#e6521f" stroke-width="2" stroke-dasharray="5 6" fill="none" opacity="0.5" />
+            <path d="M100 220 Q70 210 56 194" stroke="#e6521f" stroke-width="2" stroke-dasharray="5 6" fill="none" opacity="0.5" />
+          </svg>
+        </div>
+      </div>
+    </section>
+
+    <!-- PROSES -->
+    <section id="proses" class="process">
+      <div class="section-head reveal">
+        <span class="eyebrow eyebrow--dark">Cara Kerja</span>
+        <h2>5 Tahap Menuju Rencana yang Matang</h2>
+        <p>Setiap tahap punya output jelas, jadi Anda tahu persis sedang di mana.</p>
+      </div>
+
+      <div class="process__list">
+        <div
+          class="process-item reveal"
+          v-for="(p, i) in process"
+          :key="p.no"
+          :style="{ transitionDelay: (i * 0.12) + 's' }"
+        >
+          <div class="process-item__marker">
+            <span class="process-item__no">{{ p.no }}</span>
+            <span v-if="i < process.length - 1" class="process-item__line"></span>
+          </div>
+          <div class="process-item__body">
+            <h3>{{ p.title }}</h3>
+            <p>{{ p.desc }}</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- DELIVERABLES -->
+    <section class="deliverables">
+      <div class="section-head reveal">
+        <span class="eyebrow eyebrow--dark">Output</span>
+        <h2>Apa yang Anda Terima</h2>
+      </div>
+
+      <div class="deliverables__grid">
+        <div
+          class="deliver-card reveal"
+          v-for="(d, i) in deliverables"
+          :key="d.title"
+          :style="{ transitionDelay: (i * 0.1) + 's' }"
+        >
+          <div class="deliver-card__icon">
+            <svg v-if="d.icon === 'doc'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="15" y2="17"/></svg>
+            <svg v-else-if="d.icon === 'calendar'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            <svg v-else-if="d.icon === 'wallet'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-5h-4a2 2 0 0 1 0-4z"/></svg>
+            <svg v-else viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          </div>
+          <h3>{{ d.title }}</h3>
+          <p>{{ d.desc }}</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="cta">
+      <div class="cta__decoration cta__decoration--1" aria-hidden="true"></div>
+      <div class="cta__decoration cta__decoration--2" aria-hidden="true"></div>
+      <div class="cta__content reveal">
+        <span class="eyebrow eyebrow--onred">Siap Merencanakan?</span>
+        <h2>Susun Rencana Project Anda Bersama Kami</h2>
+        <p>Konsultasikan kebutuhan Anda, kami bantu susun scope dan timeline yang realistis.</p>
+        <router-link to="/#kontak" class="btn btn--white">
+          Konsultasi Gratis <span>→</span>
         </router-link>
-      </div>
-
-      <div class="hero__visual">
-        <svg class="blueprint" viewBox="0 0 380 440" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Diagram blueprint perencanaan project">
-          <defs>
-            <pattern id="dotgrid" width="18" height="18" patternUnits="userSpaceOnUse">
-              <circle cx="1.2" cy="1.2" r="1.2" fill="#e6d9a8" />
-            </pattern>
-          </defs>
-
-          <!-- frame -->
-          <rect x="10" y="10" width="360" height="420" rx="16" fill="url(#dotgrid)" />
-          <rect x="10" y="10" width="360" height="420" rx="16" stroke="#c9b877" stroke-width="1.5" stroke-dasharray="5 5" />
-
-          <!-- corner crop marks -->
-          <path d="M28 44 V28 H44" stroke="#202020" stroke-width="1.6" />
-          <path d="M352 44 V28 H336" stroke="#202020" stroke-width="1.6" />
-          <path d="M28 406 V422 H44" stroke="#202020" stroke-width="1.6" />
-          <path d="M352 406 V422 H336" stroke="#202020" stroke-width="1.6" />
-
-          <!-- ruler ticks kiri -->
-          <g stroke="#c9b877" stroke-width="1">
-            <line x1="20" y1="90" x2="30" y2="90" />
-            <line x1="20" y1="130" x2="26" y2="130" />
-            <line x1="20" y1="170" x2="30" y2="170" />
-            <line x1="20" y1="210" x2="26" y2="210" />
-            <line x1="20" y1="250" x2="30" y2="250" />
-          </g>
-
-          <!-- zone 01: Scope -->
-          <rect x="52" y="70" width="120" height="72" rx="6" fill="#fffdf5" stroke="#e6521f" stroke-width="1.5" stroke-dasharray="4 4" />
-          <circle cx="52" cy="70" r="11" fill="#ea2f14" />
-          <text x="52" y="74" text-anchor="middle" font-family="monospace" font-size="10" fill="#fff">01</text>
-          <text x="62" y="196" font-family="monospace" font-size="11" letter-spacing="1" fill="#202020">SCOPE</text>
-
-          <!-- zone 02: Timeline -->
-          <rect x="200" y="130" width="140" height="60" rx="6" fill="#fffdf5" stroke="#fb9e3a" stroke-width="1.5" stroke-dasharray="4 4" />
-          <circle cx="200" cy="130" r="11" fill="#ea2f14" />
-          <text x="200" y="134" text-anchor="middle" font-family="monospace" font-size="10" fill="#fff">02</text>
-          <text x="200" y="209" font-family="monospace" font-size="11" letter-spacing="1" fill="#202020">TIMELINE</text>
-
-          <!-- zone 03: Budget -->
-          <rect x="90" y="240" width="130" height="66" rx="6" fill="#fffdf5" stroke="#e6521f" stroke-width="1.5" stroke-dasharray="4 4" />
-          <circle cx="90" cy="240" r="11" fill="#ea2f14" />
-          <text x="90" y="244" text-anchor="middle" font-family="monospace" font-size="10" fill="#fff">03</text>
-          <text x="100" y="322" font-family="monospace" font-size="11" letter-spacing="1" fill="#202020">BUDGET</text>
-
-          <!-- garis penghubung antar zona -->
-          <path d="M172 106 L200 130" stroke="#202020" stroke-width="1" stroke-dasharray="3 3" />
-          <path d="M155 142 L155 240" stroke="#202020" stroke-width="1" stroke-dasharray="3 3" />
-          <path d="M270 190 L220 260" stroke="#202020" stroke-width="1" stroke-dasharray="3 3" />
-
-          <!-- garis dimensi bawah -->
-          <line x1="52" y1="360" x2="340" y2="360" stroke="#202020" stroke-width="1" />
-          <line x1="52" y1="354" x2="52" y2="366" stroke="#202020" stroke-width="1" />
-          <line x1="340" y1="354" x2="340" y2="366" stroke="#202020" stroke-width="1" />
-          <text x="196" y="382" text-anchor="middle" font-family="monospace" font-size="11" fill="#5b4a2a">3–7 HARI KERJA</text>
-        </svg>
-      </div>
-    </section>
-
-    <!-- ROADMAP: timeline horizontal, bukan grid kartu -->
-    <section class="roadmap">
-      <div class="section-head">
-        <span class="eyebrow eyebrow--dark">Alur Kerja</span>
-        <h2>Tiga Fokus di Tahap Perencanaan</h2>
-      </div>
-
-      <div class="roadmap__track">
-        <div class="roadmap__item" v-for="s in roadmap" :key="s.no">
-          <div class="roadmap__marker">{{ s.no }}</div>
-          <h3>{{ s.title }}</h3>
-          <p>{{ s.desc }}</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- DOCUMENTS: daftar baris bernomor besar, bukan grid kartu -->
-    <section class="documents">
-      <div class="section-head">
-        <span class="eyebrow eyebrow--dark">Output Nyata</span>
-        <h2>Dokumen yang Anda Terima</h2>
-      </div>
-
-      <div class="documents__list">
-        <div class="doc-row" v-for="d in documents" :key="d.no">
-          <span class="doc-row__no">{{ d.no }}</span>
-          <div class="doc-row__body">
-            <h3>{{ d.title }}</h3>
-            <p>{{ d.desc }}</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- FAQ: daftar bernomor polos, bukan accordion kotak -->
-    <section class="faq">
-      <div class="section-head">
-        <span class="eyebrow eyebrow--dark">Pertanyaan Umum</span>
-        <h2>Yang Sering Ditanyakan</h2>
-      </div>
-
-      <div class="faq__list">
-        <div class="faq__row" v-for="(f, i) in faqs" :key="i">
-          <span class="faq__no">{{ String(i + 1).padStart(2, '0') }}</span>
-          <div>
-            <h3>{{ f.q }}</h3>
-            <p>{{ f.a }}</p>
-          </div>
-        </div>
       </div>
     </section>
 
@@ -173,7 +262,6 @@ const heroCards = [
 </template>
 
 <style scoped>
-
 .perencanaan {
   --cream: #FCEF91;
   --orange-light: #FB9E3A;
@@ -181,304 +269,272 @@ const heroCards = [
   --red: #EA2F14;
   --ink: #202020;
   color: var(--ink);
+  overflow-x: hidden;
+  background: #fffaf0;
 }
 
 .eyebrow {
   display: inline-block;
-  font-size: 12px;
-  font-weight: 700;
+  font-size: 12.5px;
+  font-weight: 800;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--orange);
   margin-bottom: 14px;
 }
+.eyebrow--dark { color: var(--red); }
+.eyebrow--onred { color: #fff5df; }
 
-.eyebrow--dark {
-  color: var(--red);
-}
-
-/* ---------- HERO (dua kolom: teks kiri, stack kartu kanan) ---------- */
-.hero {
-  padding: 170px clamp(20px, 6vw, 80px) 140px;
-  background: #fffdf5;
-  display: grid;
-  grid-template-columns: 1.05fr 0.95fr;
+.btn {
+  display: inline-flex;
   align-items: center;
-  gap: 40px;
+  gap: 10px;
+  height: 52px;
+  padding: 0 28px;
+  border-radius: 999px;
+  font-size: 14.5px;
+  font-weight: 800;
+  text-decoration: none;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease, border-color 0.25s ease;
+}
+.btn span { transition: transform 0.2s ease; }
+.btn:hover span { transform: translateX(3px); }
+
+.btn--primary {
+  background: linear-gradient(100deg, var(--orange-light), var(--red));
+  color: #fff;
+  box-shadow: 0 14px 30px rgba(234, 47, 20, 0.32);
+}
+.btn--primary:hover { transform: translateY(-3px); }
+
+.btn--outline {
+  background: #fff;
+  color: var(--ink);
+  border: 1.5px solid rgba(230, 82, 31, 0.25);
+}
+.btn--outline:hover { border-color: var(--orange); color: var(--orange); }
+
+.btn--white {
+  background: #fff;
+  color: var(--red);
+  box-shadow: 0 14px 30px rgba(0,0,0,0.15);
+}
+.btn--white:hover { transform: translateY(-3px); }
+
+/* ---------- HERO ---------- */
+.hero {
+  position: relative;
   overflow: hidden;
+  padding: 160px clamp(20px, 6vw, 80px) 0;
+  background: linear-gradient(160deg, var(--cream) 0%, #fff3cf 45%, #ffe6c2 100%);
 }
 
-.hero__text {
-  max-width: 620px;
+.hero__mesh { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
+.mesh__orb { position: absolute; border-radius: 50%; filter: blur(70px); opacity: 0.5; }
+.mesh__orb--1 { width: 420px; height: 420px; top: -160px; left: -120px; background: radial-gradient(circle, var(--orange-light), transparent 70%); }
+.mesh__orb--2 { width: 380px; height: 380px; top: -100px; right: -140px; background: radial-gradient(circle, var(--red), transparent 70%); opacity: 0.28; }
+
+.hero__inner {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: 1fr 1.05fr;
+  gap: 50px;
+  align-items: center;
+  max-width: 1220px;
+  margin: 0 auto;
+  padding-bottom: 110px;
+}
+
+.hero__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 8px 16px;
+  border-radius: 999px;
+  background: #fff;
+  border: 1px solid rgba(230, 82, 31, 0.2);
+  font-size: 12.5px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--red);
+  margin-bottom: 24px;
+}
+.hero__badge-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--orange);
+  box-shadow: 0 0 0 4px rgba(230,82,31,0.18);
 }
 
 .hero__text h1 {
-  font-size: clamp(30px, 4.4vw, 48px);
+  font-size: clamp(30px, 4.2vw, 48px);
   font-weight: 800;
-  line-height: 1.18;
+  line-height: 1.16;
   margin: 0 0 20px;
+  letter-spacing: -0.02em;
+  color: var(--ink);
 }
-
-.hero__text h1 span {
-  color: var(--orange);
-}
+.hero__text h1 span { color: var(--orange); }
 
 .hero__text p {
   font-size: 15.5px;
-  line-height: 1.7;
-  color: #4a4a4a;
-  margin: 0 0 30px;
+  line-height: 1.75;
+  color: #5b4a2a;
+  margin: 0 0 32px;
   max-width: 460px;
 }
 
-.hero__cta {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  height: 52px;
-  padding: 0 28px;
-  border-radius: 10px;
-  background: var(--red);
-  color: #fff;
-  text-decoration: none;
-  font-size: 15px;
-  font-weight: 700;
-  box-shadow: 0 10px 24px rgba(234, 47, 20, 0.25);
-  transition: transform 0.2s ease, background 0.2s ease;
-}
+.hero__actions { display: flex; gap: 14px; flex-wrap: wrap; }
 
-.hero__cta:hover {
-  background: var(--orange);
-  transform: translateY(-2px);
-}
-
-/* ---------- HERO VISUAL: stack kartu dokumen miring ---------- */
-.hero__visual {
+/* ---------- ILUSTRASI ORANG + DOKUMEN ---------- */
+.hero__illustration {
   position: relative;
-  height: 420px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.8s ease, transform 0.8s ease;
 }
+.hero__illustration.is-visible { opacity: 1; transform: translateY(0); }
 
-.blueprint {
+.illu {
   width: 100%;
-  max-width: 380px;
-  height: auto;
-}
-
-/* ---------- SHARED SECTION HEAD ---------- */
-.section-head {
-  text-align: center;
-  max-width: 560px;
-  margin: 0 auto 52px;
-}
-
-.section-head h2 {
-  font-size: clamp(24px, 3.2vw, 34px);
-  font-weight: 800;
-  margin: 0;
-  line-height: 1.25;
-}
-
-/* ---------- ROADMAP (timeline horizontal) ---------- */
-.roadmap {
-  padding: 100px clamp(20px, 6vw, 80px);
-  background: var(--cream);
-}
-
-.roadmap__track {
-  position: relative;
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 40px;
-  max-width: 1000px;
+  max-width: 480px;
+  display: block;
   margin: 0 auto;
 }
 
-.roadmap__track::before {
-  content: '';
-  position: absolute;
-  top: 22px;
-  left: 8%;
-  right: 8%;
-  height: 2px;
-  background: repeating-linear-gradient(
-    to right,
-    var(--orange) 0,
-    var(--orange) 8px,
-    transparent 8px,
-    transparent 16px
-  );
-  z-index: 0;
+.hero__text {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.8s ease 0.1s, transform 0.8s ease 0.1s;
+}
+.hero__text.is-visible { opacity: 1; transform: translateY(0); }
+
+/* ---------- SCROLL REVEAL (seluruh halaman) ---------- */
+.reveal {
+  opacity: 0;
+  transform: translateY(36px);
+  transition: opacity 0.75s ease, transform 0.75s ease;
+}
+.reveal.is-revealed { opacity: 1; transform: translateY(0); }
+
+/* ---------- SECTION HEAD ---------- */
+.section-head { text-align: center; max-width: 580px; margin: 0 auto 52px; }
+.section-head h2 { font-size: clamp(24px, 3.2vw, 34px); font-weight: 800; margin: 0 0 12px; line-height: 1.25; }
+.section-head p { font-size: 15px; color: #666; margin: 0; }
+
+/* ---------- PROSES (timeline vertikal) ---------- */
+.process { padding: 190px clamp(20px, 6vw, 80px) 110px; }
+
+.process__list {
+  max-width: 680px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
 }
 
-.roadmap__item {
-  position: relative;
-  z-index: 1;
-  text-align: center;
+.process-item {
+  display: flex;
+  gap: 24px;
 }
 
-.roadmap__marker {
+.process-item__marker {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0;
+}
+.process-item__no {
   width: 46px;
   height: 46px;
-  margin: 0 auto 18px;
   border-radius: 50%;
-  background: var(--red);
-  color: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 800;
-  font-size: 15px;
-  box-shadow: 0 0 0 6px var(--cream);
-}
-
-.roadmap__item h3 {
-  font-size: 16.5px;
-  font-weight: 700;
-  margin: 0 0 8px;
-}
-
-.roadmap__item p {
-  font-size: 13.5px;
-  line-height: 1.6;
-  color: #5b4a2a;
-  margin: 0;
-  max-width: 240px;
-  margin-inline: auto;
-}
-
-/* ---------- DOCUMENTS (list baris) ---------- */
-.documents {
-  padding: 100px clamp(20px, 6vw, 80px);
-}
-
-.documents__list {
-  max-width: 760px;
-  margin: 0 auto;
-  display: flex;
-  flex-direction: column;
-}
-
-.doc-row {
-  display: flex;
-  align-items: flex-start;
-  gap: 24px;
-  padding: 26px 0;
-  border-bottom: 1px solid #eee1bd;
-}
-
-.doc-row:first-child {
-  border-top: 1px solid #eee1bd;
-}
-
-.doc-row__no {
-  font-size: 30px;
-  font-weight: 800;
-  color: var(--orange-light);
-  flex-shrink: 0;
-  width: 56px;
-}
-
-.doc-row__body h3 {
-  font-size: 16.5px;
-  font-weight: 700;
-  margin: 0 0 6px;
-}
-
-.doc-row__body p {
   font-size: 14px;
-  line-height: 1.6;
-  color: #5b5b5b;
-  margin: 0;
-}
-
-/* ---------- FAQ (daftar bernomor, tanpa kotak) ---------- */
-.faq {
-  padding: 20px clamp(20px, 6vw, 80px) 110px;
-}
-
-.faq__list {
-  max-width: 700px;
-  margin: 0 auto;
-  display: flex;
-  flex-direction: column;
-}
-
-.faq__row {
-  display: flex;
-  gap: 20px;
-  padding: 22px 0;
-  border-bottom: 1px solid #eee;
-}
-
-.faq__row:first-child {
-  border-top: 1px solid #eee;
-}
-
-.faq__no {
-  font-size: 13px;
   font-weight: 800;
+  color: #fff;
+  background: linear-gradient(135deg, var(--orange-light), var(--red));
+  box-shadow: 0 8px 18px rgba(234, 47, 20, 0.28);
+  flex-shrink: 0;
+}
+.process-item__line {
+  flex: 1;
+  width: 2px;
+  min-height: 36px;
+  margin: 6px 0;
+  background: repeating-linear-gradient(180deg, rgba(230,82,31,0.35) 0 6px, transparent 6px 12px);
+}
+
+.process-item__body { padding-bottom: 40px; padding-top: 6px; }
+.process-item__body h3 { margin: 0 0 8px; font-size: 18px; font-weight: 800; }
+.process-item__body p { margin: 0; font-size: 14px; line-height: 1.7; color: #5b4a2a; max-width: 480px; }
+
+/* ---------- DELIVERABLES ---------- */
+.deliverables { padding: 110px clamp(20px, 6vw, 80px); background: var(--cream); }
+
+.deliverables__grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 22px;
+  max-width: 1180px;
+  margin: 0 auto;
+}
+
+.deliver-card {
+  padding: 30px 24px;
+  border-radius: 16px;
+  background: #fffdf5;
+  border: 1px solid rgba(230, 82, 31, 0.15);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+.deliver-card:hover { transform: translateY(-6px); box-shadow: 0 16px 34px rgba(239, 91, 35, 0.15); }
+
+.deliver-card__icon {
+  width: 52px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 14px;
+  background: #fff2d4;
   color: var(--orange);
-  flex-shrink: 0;
-  width: 26px;
-  padding-top: 2px;
+  margin-bottom: 18px;
 }
+.deliver-card__icon svg { width: 24px; height: 24px; }
 
-.faq__row h3 {
-  font-size: 15px;
-  font-weight: 700;
-  margin: 0 0 6px;
-}
+.deliver-card h3 { font-size: 15.5px; font-weight: 800; margin: 0 0 8px; }
+.deliver-card p { font-size: 13px; line-height: 1.6; color: #5b4a2a; margin: 0; }
 
-.faq__row p {
-  font-size: 14px;
-  line-height: 1.6;
-  color: #5b5b5b;
-  margin: 0;
+/* ---------- CTA ---------- */
+.cta {
+  position: relative;
+  overflow: hidden;
+  padding: 100px clamp(20px, 6vw, 80px);
+  background: linear-gradient(115deg, #fcef91 0%, #ffa447 45%, #f93827 100%);
+  text-align: center;
 }
+.cta__decoration { position: absolute; border-radius: 50%; background: rgba(255,255,255,0.15); pointer-events: none; }
+.cta__decoration--1 { width: 260px; height: 260px; left: 8%; top: -130px; }
+.cta__decoration--2 { width: 220px; height: 220px; right: 10%; bottom: -120px; }
+
+.cta__content { position: relative; z-index: 2; max-width: 600px; margin: 0 auto; }
+.cta__content h2 { font-size: clamp(24px, 3.4vw, 36px); font-weight: 800; margin: 0 0 14px; color: #201409; }
+.cta__content p { margin: 0 0 32px; font-size: 14.5px; color: rgba(32,20,9,0.75); line-height: 1.7; }
 
 /* ---------- RESPONSIVE ---------- */
-@media (max-width: 1024px) {
-  .hero {
-    grid-template-columns: 1fr;
-    padding-top: 130px;
-  }
-
-  .hero__visual {
-    height: 320px;
-    margin-top: 20px;
-  }
+@media (max-width: 950px) {
+  .hero__inner { grid-template-columns: 1fr; padding-bottom: 90px; }
+  .hero__illustration { max-width: 420px; margin: 40px auto 0; }
+  .deliverables__grid { grid-template-columns: repeat(2, 1fr); }
 }
 
-@media (max-width: 900px) {
-  .roadmap__track {
-    grid-template-columns: 1fr;
-    gap: 30px;
-  }
-  .roadmap__track::before {
-    display: none;
-  }
+@media (max-width: 650px) {
+  .hero { padding: 120px 20px 0; }
+  .hero__actions { flex-direction: column; }
+  .process { padding: 150px 20px 80px; }
+  .deliverables { padding: 70px 20px; }
+  .deliverables__grid { grid-template-columns: 1fr; }
+  .process-item__body p { max-width: none; }
 }
-
-@media (max-width: 768px) {
-  .hero {
-    padding: 130px 20px 60px;
-  }
-  .hero__card {
-    width: 170px;
-    padding: 12px 14px 16px;
-  }
-  .roadmap,
-  .documents,
-  .faq {
-    padding-left: 20px;
-    padding-right: 20px;
-  }
-  .doc-row {
-    gap: 16px;
-  }
-}
-
 </style>

@@ -39,6 +39,11 @@ const team = [
   <div class="about">
     <!-- Hero -->
     <section class="about-hero">
+      <div class="about-hero__mesh" aria-hidden="true">
+        <div class="mesh__orb mesh__orb--1"></div>
+        <div class="mesh__orb mesh__orb--2"></div>
+      </div>
+
       <div class="container">
         <p class="about-hero__label">Tentang Kami</p>
         <h1 class="about-hero__title">
@@ -153,17 +158,28 @@ const team = [
 </template>
 
 <style scoped>
+.about {
+  /* palet sama persis dengan halaman Layanan / Portofolio / Blog */
+  --cream: #FCEF91;
+  --orange-light: #FB9E3A;
+  --orange: #E6521F;
+  --red: #EA2F14;
+  --ink: #202020;
+}
+
 .container {
   max-width: 1140px;
   margin: 0 auto;
   padding: 0 24px;
+  position: relative;
+  z-index: 2;
 }
 
 .section-label {
-  color: var(--color-orange, #ea580c);
+  color: var(--red);
   font-size: 14px;
-  font-weight: 600;
-  letter-spacing: 0.5px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   margin-bottom: 8px;
 }
@@ -174,38 +190,48 @@ const team = [
 
 /* Hero */
 .about-hero {
-  padding: 90px 0 60px;
-  background: #fff7ed;
-  text-align: center;
+  position: relative;
+  overflow: hidden;
+  padding: 160px clamp(20px, 6vw, 80px) 90px;
+  /* gradient identik dengan hero Perencanaan / Portofolio / Blog */
+  background: linear-gradient(160deg, var(--cream) 0%, #fff3cf 45%, #ffe6c2 100%);
+  text-align: left;
 }
 
+.about-hero__mesh { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
+.mesh__orb { position: absolute; border-radius: 50%; filter: blur(70px); opacity: 0.5; }
+.mesh__orb--1 { width: 420px; height: 420px; top: -160px; left: -120px; background: radial-gradient(circle, var(--orange-light), transparent 70%); }
+.mesh__orb--2 { width: 380px; height: 380px; top: -100px; right: -140px; background: radial-gradient(circle, var(--red), transparent 70%); opacity: 0.28; }
+
 .about-hero__label {
-  color: var(--color-orange, #ea580c);
-  font-weight: 600;
+  color: var(--red);
+  font-weight: 800;
+  font-size: 12.5px;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-bottom: 16px;
+  letter-spacing: 0.08em;
+  margin-bottom: 14px;
 }
 
 .about-hero__title {
-  font-size: 42px;
+  font-size: clamp(30px, 4.2vw, 48px);
   font-weight: 800;
-  line-height: 1.2;
-  color: #1a1a1a;
+  line-height: 1.16;
+  letter-spacing: -0.02em;
+  color: var(--ink);
   max-width: 720px;
-  margin: 0 auto 20px;
+  margin: 0 0 20px;
 }
 
 .about-hero__title .highlight {
-  color: var(--color-orange, #ea580c);
+  color: var(--orange);
 }
 
 .about-hero__desc {
-  max-width: 620px;
-  margin: 0 auto;
-  color: #555;
-  font-size: 17px;
-  line-height: 1.7;
+  max-width: 460px;
+  margin: 0;
+  color: #5b4a2a;
+  font-size: 15.5px;
+  line-height: 1.75;
 }
 
 /* Stats */
@@ -225,7 +251,7 @@ const team = [
 .about-stats__item h3 {
   font-size: 32px;
   font-weight: 800;
-  color: var(--color-orange, #ea580c);
+  color: var(--orange);
   margin-bottom: 4px;
 }
 
@@ -308,8 +334,8 @@ const team = [
   align-items: center;
   justify-content: center;
   border-radius: 12px;
-  background: #fff7ed;
-  color: var(--color-orange, #ea580c);
+  background: #fff2d4;
+  color: var(--orange);
 }
 
 .about-values__icon svg {
@@ -369,45 +395,52 @@ const team = [
 
 .about-team__card p {
   font-size: 14px;
-  color: #ea580c;
+  color: var(--orange);
 }
 
 /* CTA */
 .about-cta {
-  padding: 70px 0;
-  background: #fff7ed;
-}
-
-.about-cta__box {
+  position: relative;
+  overflow: hidden;
+  padding: 100px clamp(20px, 6vw, 80px);
+  background: linear-gradient(115deg, #fcef91 0%, #ffa447 45%, #f93827 100%);
   text-align: center;
 }
 
+.about-cta__box {
+  position: relative;
+  z-index: 2;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
 .about-cta__box h2 {
-  font-size: 28px;
+  font-size: clamp(24px, 3.4vw, 36px);
   font-weight: 800;
-  margin-bottom: 12px;
-  color: #1a1a1a;
+  margin-bottom: 14px;
+  color: #201409;
 }
 
 .about-cta__box p {
-  color: #555;
-  margin-bottom: 24px;
+  color: rgba(32, 20, 9, 0.75);
+  margin-bottom: 32px;
+  line-height: 1.7;
 }
 
 .btn-primary {
   display: inline-block;
-  background: var(--color-orange, #ea580c);
-  color: #fff;
-  font-weight: 600;
-  padding: 14px 32px;
-  border-radius: 10px;
+  background: #fff;
+  color: var(--red);
+  font-weight: 800;
+  padding: 16px 32px;
+  border-radius: 999px;
   text-decoration: none;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.15);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
 
 .btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 20px rgba(234, 88, 12, 0.25);
+  transform: translateY(-3px);
 }
 
 /* Responsive */
@@ -420,14 +453,21 @@ const team = [
   .about-story__grid {
     grid-template-columns: 1fr;
   }
-  .about-hero__title {
-    font-size: 32px;
+}
+
+@media (max-width: 650px) {
+  .about-hero {
+    padding: 120px 20px 60px;
   }
 }
 
 @media (max-width: 480px) {
   .about-hero__title {
     font-size: 26px;
+    margin: 0 0 14px;
+  }
+  .about-hero__desc {
+    font-size: 14px;
   }
 
   .about-stats__grid {

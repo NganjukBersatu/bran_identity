@@ -7,7 +7,7 @@ const props = defineProps({
 const services = [
   { number: '01', icon: 'chat', title: 'Konsultasi', slug: 'konsultasi', desc: 'Diskusi kebutuhan dan tujuan project Anda bersama tim ahli kami.' },
   { number: '02', icon: 'clipboard', title: 'Perencanaan', slug: 'perencanaan', desc: 'Menyusun scope, timeline, dan estimasi biaya secara detail dan terstruktur.' },
-  { number: '03', icon: 'code', title: 'Development', slug: null, desc: 'Proses pengembangan dengan teknologi terbaru dan update berkala.' },
+  { number: '03', icon: 'code', title: 'Development', slug: 'development', desc: 'Proses pengembangan dengan teknologi terbaru dan update berkala.' },
   { number: '04', icon: 'rocket', title: 'Deploy', slug: null, desc: 'Peluncuran produk ke server produksi dengan performa optimal.' },
   { number: '05', icon: 'headset', title: 'Support', slug: null, desc: 'Dukungan teknis dan pemeliharaan berkelanjutan setelah project selesai.' },
   { number: '06', icon: 'chart', title: 'Optimasi', slug: null, desc: 'Meningkatkan performa dan fitur produk agar selalu relevan dan kompetitif.' },

@@ -7,6 +7,7 @@
     #E6521F - oranye bakar (aksen utama, senada navbar)
     #EA2F14 - merah (penekanan / CTA)
 */
+import { ref, onMounted } from 'vue'
 
 const steps = [
   {
@@ -47,6 +48,28 @@ const faqs = [
     a: 'Cukup siapkan gambaran umum kebutuhan Anda. Detail teknis tidak wajib, tim kami akan membantu menggalinya bersama.'
   }
 ]
+
+// Efek muncul dari bawah untuk hero saat halaman pertama dibuka
+const isVisible = ref(false)
+
+onMounted(() => {
+  requestAnimationFrame(() => { isVisible.value = true })
+
+  // Efek muncul dari bawah saat elemen discroll masuk ke viewport,
+  // dan mengulang lagi setiap kali elemen keluar lalu masuk kembali
+  // (baik scroll ke bawah maupun ke atas).
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('is-revealed')
+      } else {
+        entry.target.classList.remove('is-revealed')
+      }
+    })
+  }, { threshold: 0.15, rootMargin: '0px 0px -60px 0px' })
+
+  document.querySelectorAll('.reveal').forEach((el) => observer.observe(el))
+})
 </script>
 
 <template>
@@ -54,8 +77,16 @@ const faqs = [
 
     <!-- HERO -->
     <section class="hero">
-      <div class="hero__inner">
-        <span class="eyebrow">Layanan · 01</span>
+      <div class="hero__mesh" aria-hidden="true">
+        <div class="mesh__orb mesh__orb--1"></div>
+        <div class="mesh__orb mesh__orb--2"></div>
+      </div>
+
+      <div class="hero__inner" :class="{ 'is-visible': isVisible }">
+        <span class="hero__badge">
+          <span class="hero__badge-dot"></span>
+          Layanan · 01
+        </span>
         <h1 class="hero__title">
           Mulai dari <span>Konsultasi</span>,<br />
           Bukan dari Tebakan.
@@ -69,18 +100,22 @@ const faqs = [
           Konsultasi Gratis
         </router-link>
       </div>
-      <div class="hero__blob" aria-hidden="true"></div>
     </section>
 
     <!-- STEPS -->
     <section class="steps">
-      <div class="section-head">
+      <div class="section-head reveal">
         <span class="eyebrow eyebrow--dark">Alurnya</span>
         <h2>Tiga Langkah Sebelum Project Dimulai</h2>
       </div>
 
       <div class="steps__grid">
-        <div class="step-card" v-for="s in steps" :key="s.no">
+        <div
+          class="step-card reveal"
+          v-for="(s, i) in steps"
+          :key="s.no"
+          :style="{ transitionDelay: (i * 0.12) + 's' }"
+        >
           <div class="step-card__no">{{ s.no }}</div>
           <h3>{{ s.title }}</h3>
           <p>{{ s.desc }}</p>
@@ -90,7 +125,7 @@ const faqs = [
 
     <!-- POINTS -->
     <section class="points">
-      <div class="points__text">
+      <div class="points__text reveal">
         <span class="eyebrow eyebrow--dark">Kenapa Konsultasi di Sini</span>
         <h2>Ngobrol Santai, Hasil Tetap Terarah</h2>
         <p>
@@ -100,7 +135,12 @@ const faqs = [
         </p>
       </div>
       <ul class="points__list">
-        <li v-for="(p, i) in points" :key="i">
+        <li
+          v-for="(p, i) in points"
+          :key="i"
+          class="reveal"
+          :style="{ transitionDelay: (i * 0.1) + 's' }"
+        >
           <span class="check">✓</span>
           <span>{{ p }}</span>
         </li>
@@ -109,13 +149,18 @@ const faqs = [
 
     <!-- FAQ -->
     <section class="faq">
-      <div class="section-head">
+      <div class="section-head reveal">
         <span class="eyebrow eyebrow--dark">Pertanyaan Umum</span>
         <h2>Yang Sering Ditanyakan</h2>
       </div>
 
       <div class="faq__list">
-        <details class="faq__item" v-for="(f, i) in faqs" :key="i">
+        <details
+          class="faq__item reveal"
+          v-for="(f, i) in faqs"
+          :key="i"
+          :style="{ transitionDelay: (i * 0.1) + 's' }"
+        >
           <summary>{{ f.q }}</summary>
           <p>{{ f.a }}</p>
         </details>
@@ -134,6 +179,7 @@ const faqs = [
   --red: #EA2F14;
   --ink: #202020;
   color: var(--ink);
+  overflow-x: hidden;
 }
 
 .eyebrow {
@@ -150,13 +196,43 @@ const faqs = [
   color: var(--red);
 }
 
+/* ---------- EFEK MUNCUL DARI BAWAH ---------- */
+
+/* Hero: muncul sekali saat halaman pertama dibuka */
+.hero__inner {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.8s ease, transform 0.8s ease;
+}
+.hero__inner.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Elemen lain: muncul dari bawah tiap kali masuk viewport,
+   termasuk saat discroll naik kembali ke atas */
+.reveal {
+  opacity: 0;
+  transform: translateY(36px);
+  transition: opacity 0.75s ease, transform 0.75s ease;
+}
+.reveal.is-revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+
 /* ---------- HERO ---------- */
 .hero {
   position: relative;
   overflow: hidden;
-  padding: 170px clamp(20px, 6vw, 80px) 100px;
-  background: linear-gradient(180deg, var(--cream) 0%, #fff8de 100%);
+  padding: 160px clamp(20px, 6vw, 80px) 110px;
+  background: linear-gradient(160deg, var(--cream) 0%, #fff3cf 45%, #ffe6c2 100%);
 }
+
+.hero__mesh { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
+.mesh__orb { position: absolute; border-radius: 50%; filter: blur(70px); opacity: 0.5; }
+.mesh__orb--1 { width: 420px; height: 420px; top: -160px; left: -120px; background: radial-gradient(circle, var(--orange-light), transparent 70%); }
+.mesh__orb--2 { width: 380px; height: 380px; top: -100px; right: -140px; background: radial-gradient(circle, var(--red), transparent 70%); opacity: 0.28; }
 
 .hero__inner {
   position: relative;
@@ -164,10 +240,32 @@ const faqs = [
   max-width: 640px;
 }
 
-.hero__title {
-  font-size: clamp(32px, 5vw, 52px);
+.hero__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 8px 16px;
+  border-radius: 999px;
+  background: #fff;
+  border: 1px solid rgba(230, 82, 31, 0.2);
+  font-size: 12.5px;
   font-weight: 800;
-  line-height: 1.15;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--red);
+  margin-bottom: 24px;
+}
+.hero__badge-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--orange);
+  box-shadow: 0 0 0 4px rgba(230,82,31,0.18);
+}
+
+.hero__title {
+  font-size: clamp(30px, 4.2vw, 48px);
+  font-weight: 800;
+  line-height: 1.16;
+  letter-spacing: -0.02em;
   margin: 0 0 20px;
 }
 
@@ -176,11 +274,11 @@ const faqs = [
 }
 
 .hero__desc {
-  font-size: 16px;
-  line-height: 1.7;
-  color: #4a4a4a;
+  font-size: 15.5px;
+  line-height: 1.75;
+  color: #5b4a2a;
   margin: 0 0 32px;
-  max-width: 520px;
+  max-width: 460px;
 }
 
 .hero__cta {
@@ -189,31 +287,18 @@ const faqs = [
   justify-content: center;
   height: 52px;
   padding: 0 28px;
-  border-radius: 10px;
-  background: var(--red);
+  border-radius: 999px;
+  background: linear-gradient(100deg, var(--orange-light), var(--red));
   color: #fff;
   text-decoration: none;
-  font-size: 15px;
-  font-weight: 700;
-  box-shadow: 0 10px 24px rgba(234, 47, 20, 0.25);
-  transition: transform 0.2s ease, background 0.2s ease;
+  font-size: 14.5px;
+  font-weight: 800;
+  box-shadow: 0 14px 30px rgba(234, 47, 20, 0.32);
+  transition: transform 0.25s ease;
 }
 
 .hero__cta:hover {
-  background: var(--orange);
-  transform: translateY(-2px);
-}
-
-.hero__blob {
-  position: absolute;
-  top: -80px;
-  right: -100px;
-  width: 460px;
-  height: 460px;
-  border-radius: 50%;
-  background: radial-gradient(circle at 30% 30%, var(--orange-light), transparent 70%);
-  opacity: 0.55;
-  z-index: 1;
+  transform: translateY(-3px);
 }
 
 /* ---------- SHARED SECTION HEAD ---------- */
@@ -386,14 +471,6 @@ const faqs = [
 @media (max-width: 768px) {
   .hero {
     padding: 130px 20px 70px;
-    text-align: center;
-  }
-  .hero__inner {
-    margin: 0 auto;
-  }
-  .hero__desc {
-    margin-left: auto;
-    margin-right: auto;
   }
   .steps__grid {
     grid-template-columns: 1fr;
