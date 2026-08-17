@@ -1,8 +1,8 @@
 <script setup>
 /*
   Halaman detail layanan: Development
-  Tema visual: code editor mockup + terminal + tech stack grid.
-  Tanpa warna gelap/hitam — murni dari palet:
+  Tema visual: device mockup showcase (laptop + tablet + phone) + tech stack grid.
+  Tanpa warna gelap/hitam pada background — murni dari palet:
     #FCEF91 - krem kuning
     #FB9E3A - oranye muda
     #E6521F - oranye bakar (aksen utama)
@@ -34,26 +34,20 @@ const stats = [
   { value: '2–8', label: 'Minggu per fase' },
 ]
 
-const typedLines = ref([])
-const codeLines = [
-  '$ npm run build',
-  '✓ Compiling modules...',
-  '✓ Optimizing assets...',
-  '✓ Build completed in 4.2s',
-  '$ deploy --env production',
-  '🚀 Live at yourapp.com',
-]
-
+const isVisible = ref(false)
 onMounted(() => {
-  let i = 0
-  const interval = setInterval(() => {
-    if (i < codeLines.length) {
-      typedLines.value.push(codeLines[i])
-      i++
-    } else {
-      clearInterval(interval)
-    }
-  }, 550)
+  requestAnimationFrame(() => { isVisible.value = true })
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('is-revealed')
+        observer.unobserve(entry.target)
+      }
+    })
+  }, { threshold: 0.15, rootMargin: '0px 0px -80px 0px' })
+
+  document.querySelectorAll('.reveal').forEach((el) => observer.observe(el))
 })
 </script>
 
@@ -65,22 +59,22 @@ onMounted(() => {
       <div class="hero__mesh" aria-hidden="true">
         <div class="mesh__orb mesh__orb--1"></div>
         <div class="mesh__orb mesh__orb--2"></div>
+        <div class="mesh__grid"></div>
       </div>
 
       <div class="hero__inner">
-        <div class="hero__text">
+        <div class="hero__text" :class="{ 'is-visible': isVisible }">
           <span class="hero__badge">
             <span class="hero__badge-dot"></span>
             Layanan · 03
           </span>
           <h1>
-            Kode yang Rapi,<br />
-            Produk yang <span>Siap Tumbuh</span>.
+            Satu Kode,<br />
+            Siap di <span>Semua Layar</span>.
           </h1>
           <p>
-            Bukan sekadar "jadi", tapi dibangun dengan arsitektur yang benar
-            sejak baris kode pertama — supaya produk Anda mudah dikembangkan,
-            bukan jadi beban di masa depan.
+            Website dan aplikasi yang kami bangun didesain responsif sejak awal —
+            tampil rapi dan konsisten baik di desktop, tablet, maupun ponsel.
           </p>
           <div class="hero__actions">
             <router-link to="/#kontak" class="btn btn--primary">
@@ -90,39 +84,88 @@ onMounted(() => {
           </div>
         </div>
 
-        <div class="hero__editor">
+        <!-- DEVICE MOCKUP SHOWCASE -->
+        <div class="hero__showcase" :class="{ 'is-visible': isVisible }">
+          <div class="showcase__glow" aria-hidden="true"></div>
+
           <div class="editor__badge editor__badge--1">
             <span class="editor__badge-dot editor__badge-dot--green"></span>
-            Build Success
+            Responsive Ready
           </div>
           <div class="editor__badge editor__badge--2">
             <span class="editor__badge-dot editor__badge-dot--orange"></span>
             Auto Deploy
           </div>
 
-          <div class="editor">
-            <div class="editor__topbar">
-              <span class="editor__dot editor__dot--red"></span>
-              <span class="editor__dot editor__dot--yellow"></span>
-              <span class="editor__dot editor__dot--green"></span>
-              <span class="editor__filename">app.js</span>
+          <!-- LAPTOP -->
+          <div class="device device--laptop">
+            <div class="laptop__screen">
+              <div class="mockpage__topbar">
+                <span class="mockpage__dot mockpage__dot--red"></span>
+                <span class="mockpage__dot mockpage__dot--yellow"></span>
+                <span class="mockpage__dot mockpage__dot--green"></span>
+                <span class="mockpage__url">yourapp.com</span>
+              </div>
+              <div class="mockpage__body">
+                <div class="mockpage__nav">
+                  <span class="mockpage__logo"></span>
+                  <span class="mockpage__navitem"></span>
+                  <span class="mockpage__navitem"></span>
+                  <span class="mockpage__navitem"></span>
+                  <span class="mockpage__navbtn"></span>
+                </div>
+                <div class="mockpage__hero">
+                  <div class="mockpage__herotext">
+                    <span class="mockpage__bar mockpage__bar--wide"></span>
+                    <span class="mockpage__bar mockpage__bar--mid"></span>
+                    <span class="mockpage__bar mockpage__bar--btn"></span>
+                  </div>
+                  <div class="mockpage__herocards">
+                    <span class="mockpage__card"></span>
+                    <span class="mockpage__card"></span>
+                    <span class="mockpage__card"></span>
+                  </div>
+                </div>
+              </div>
             </div>
-            <pre class="editor__code"><code><span class="c-key">const</span> <span class="c-var">app</span> = <span class="c-key">createApp</span>()
+            <div class="laptop__base"></div>
+          </div>
 
-<span class="c-comment">// dibangun untuk scale</span>
-<span class="c-var">app</span>.<span class="c-fn">use</span>(router)
-<span class="c-var">app</span>.<span class="c-fn">use</span>(store)
-
-<span class="c-var">app</span>.<span class="c-fn">mount</span>(<span class="c-str">'#app'</span>)</code></pre>
-            <div class="editor__terminal">
-              <div class="terminal__line" v-for="(line, i) in typedLines" :key="i">{{ line }}</div>
-              <span class="terminal__cursor">▍</span>
+          <!-- TABLET -->
+          <div class="device device--tablet">
+            <div class="tablet__screen">
+              <div class="mockpage__navmini">
+                <span class="mockpage__logo mockpage__logo--sm"></span>
+                <span class="mockpage__navitem mockpage__navitem--sm"></span>
+              </div>
+              <span class="mockpage__bar mockpage__bar--wide"></span>
+              <span class="mockpage__bar mockpage__bar--mid"></span>
+              <div class="mockpage__herocards mockpage__herocards--stack">
+                <span class="mockpage__card"></span>
+                <span class="mockpage__card"></span>
+              </div>
             </div>
           </div>
+
+          <!-- PHONE -->
+          <div class="device device--phone">
+            <div class="phone__notch"></div>
+            <div class="phone__screen">
+              <div class="mockpage__navmini mockpage__navmini--sm">
+                <span class="mockpage__logo mockpage__logo--sm"></span>
+              </div>
+              <span class="mockpage__bar mockpage__bar--wide"></span>
+              <span class="mockpage__bar mockpage__bar--short"></span>
+              <span class="mockpage__card mockpage__card--full"></span>
+              <span class="mockpage__card mockpage__card--full"></span>
+            </div>
+          </div>
+
+          <div class="showcase__shadow" aria-hidden="true"></div>
         </div>
       </div>
 
-      <div class="hero__stats">
+      <div class="hero__stats reveal">
         <div class="stat" v-for="s in stats" :key="s.label">
           <span class="stat__value">{{ s.value }}</span>
           <span class="stat__label">{{ s.label }}</span>
@@ -132,14 +175,19 @@ onMounted(() => {
 
     <!-- TECH STACK -->
     <section id="tech-stack" class="tech">
-      <div class="section-head">
+      <div class="section-head reveal">
         <span class="eyebrow eyebrow--dark">Teknologi</span>
         <h2>Tools yang Kami Kuasai</h2>
         <p>Dipilih berdasarkan kebutuhan project, bukan sekadar ikut tren.</p>
       </div>
 
       <div class="tech__grid">
-        <div class="tech-card" v-for="t in techStack" :key="t.name">
+        <div
+          class="tech-card reveal"
+          v-for="(t, i) in techStack"
+          :key="t.name"
+          :style="{ transitionDelay: (i * 0.07) + 's' }"
+        >
           <span class="tech-card__category">{{ t.category }}</span>
           <h3>{{ t.name }}</h3>
         </div>
@@ -148,13 +196,18 @@ onMounted(() => {
 
     <!-- FEATURES -->
     <section class="features">
-      <div class="section-head">
+      <div class="section-head reveal">
         <span class="eyebrow eyebrow--dark">Kenapa Kami</span>
         <h2>Development yang Bisa Anda Percaya</h2>
       </div>
 
       <div class="features__grid">
-        <div class="feature-card" v-for="f in features" :key="f.no">
+        <div
+          class="feature-card reveal"
+          v-for="(f, i) in features"
+          :key="f.no"
+          :style="{ transitionDelay: (i * 0.1) + 's' }"
+        >
           <span class="feature-card__no">{{ f.no }}</span>
           <h3>{{ f.title }}</h3>
           <p>{{ f.desc }}</p>
@@ -166,7 +219,7 @@ onMounted(() => {
     <section class="cta">
       <div class="cta__decoration cta__decoration--1" aria-hidden="true"></div>
       <div class="cta__decoration cta__decoration--2" aria-hidden="true"></div>
-      <div class="cta__content">
+      <div class="cta__content reveal">
         <span class="eyebrow eyebrow--onred">Siap Mulai?</span>
         <h2>Mari Bangun Produk Anda Bersama</h2>
         <p>Diskusikan kebutuhan teknis Anda, tim development kami siap membantu dari nol.</p>
@@ -251,17 +304,26 @@ onMounted(() => {
 .mesh__orb { position: absolute; border-radius: 50%; filter: blur(70px); opacity: 0.5; }
 .mesh__orb--1 { width: 420px; height: 420px; top: -160px; left: -120px; background: radial-gradient(circle, var(--orange-light), transparent 70%); }
 .mesh__orb--2 { width: 380px; height: 380px; top: -100px; right: -140px; background: radial-gradient(circle, var(--red), transparent 70%); opacity: 0.28; }
+.mesh__grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(230,82,31,0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(230,82,31,0.05) 1px, transparent 1px);
+  background-size: 42px 42px;
+  mask-image: radial-gradient(ellipse 70% 60% at 60% 20%, #000 30%, transparent 75%);
+}
 
 .hero__inner {
   position: relative;
   z-index: 2;
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr 1.05fr;
   gap: 50px;
   align-items: center;
-  max-width: 1180px;
+  max-width: 1220px;
   margin: 0 auto;
-  padding-bottom: 100px;
+  padding-bottom: 130px;
 }
 
 .hero__badge {
@@ -285,6 +347,13 @@ onMounted(() => {
   box-shadow: 0 0 0 4px rgba(230,82,31,0.18);
 }
 
+.hero__text {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.8s ease 0.1s, transform 0.8s ease 0.1s;
+}
+.hero__text.is-visible { opacity: 1; transform: translateY(0); }
+
 .hero__text h1 {
   font-size: clamp(30px, 4.2vw, 48px);
   font-weight: 800;
@@ -305,68 +374,191 @@ onMounted(() => {
 
 .hero__actions { display: flex; gap: 14px; flex-wrap: wrap; }
 
-/* Editor mockup — tetap gelap HANYA di dalam kotak editor (representasi layar kode), bukan background halaman */
-.hero__editor { position: relative; }
-
-.editor {
+/* ---------- DEVICE SHOWCASE ---------- */
+.hero__showcase {
   position: relative;
-  z-index: 2;
-  border-radius: 16px;
-  overflow: hidden;
-  background: #2a2015;
-  border: 4px solid #fff;
-  box-shadow: 0 30px 70px rgba(230, 82, 31, 0.25);
+  height: 420px;
+  perspective: 1600px;
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.8s ease, transform 0.8s ease;
+}
+.hero__showcase.is-visible { opacity: 1; transform: translateY(0); }
+
+.showcase__glow {
+  position: absolute;
+  inset: -40px;
+  background: radial-gradient(circle at 50% 45%, rgba(251,158,58,0.35), transparent 65%);
+  filter: blur(30px);
+  z-index: 0;
 }
 
-.editor__topbar {
+.showcase__shadow {
+  position: absolute;
+  left: 50%;
+  bottom: 6px;
+  width: 78%;
+  height: 34px;
+  transform: translateX(-50%);
+  background: radial-gradient(ellipse, rgba(180, 90, 30, 0.28), transparent 72%);
+  filter: blur(6px);
+  z-index: 0;
+}
+
+.device { position: absolute; z-index: 2; }
+
+/* Laptop */
+.device--laptop {
+  left: 50%;
+  top: 6px;
+  width: 480px;
+  transform: translateX(-50%) rotateX(6deg) rotateY(-8deg);
+  transform-style: preserve-3d;
+  transition: transform 0.5s ease;
+}
+.hero__showcase:hover .device--laptop { transform: translateX(-50%) rotateX(3deg) rotateY(-5deg); }
+
+.laptop__screen {
+  border-radius: 12px 12px 4px 4px;
+  overflow: hidden;
+  background: #fff;
+  border: 6px solid #2a2015;
+  box-shadow: 0 40px 60px rgba(150, 80, 20, 0.28);
+}
+.laptop__base {
+  height: 14px;
+  margin: 0 -14px;
+  border-radius: 0 0 10px 10px;
+  background: linear-gradient(180deg, #3a2c1c, #241a10);
+  box-shadow: 0 10px 18px rgba(0,0,0,0.2);
+}
+.laptop__base::after {
+  content: "";
+  display: block;
+  width: 70px;
+  height: 4px;
+  margin: 0 auto;
+  border-radius: 0 0 6px 6px;
+  background: #4a3a26;
+}
+
+/* Tablet */
+.device--tablet {
+  left: -14px;
+  bottom: -6px;
+  width: 168px;
+  transform: rotateZ(-6deg);
+  filter: drop-shadow(0 22px 30px rgba(150, 80, 20, 0.22));
+}
+.tablet__screen {
+  aspect-ratio: 3 / 4;
+  padding: 14px 10px;
+  border-radius: 16px;
+  background: #fff;
+  border: 5px solid #2a2015;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Phone */
+.device--phone {
+  right: -6px;
+  bottom: -18px;
+  width: 116px;
+  transform: rotateZ(7deg);
+  filter: drop-shadow(0 22px 30px rgba(150, 80, 20, 0.24));
+}
+.phone__notch {
+  width: 34px;
+  height: 6px;
+  margin: 0 auto -6px;
+  border-radius: 0 0 8px 8px;
+  background: #2a2015;
+  position: relative;
+  z-index: 3;
+}
+.phone__screen {
+  aspect-ratio: 9 / 18.5;
+  padding: 16px 8px 10px;
+  border-radius: 22px;
+  background: #fff;
+  border: 5px solid #2a2015;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* Mock content inside screens */
+.mockpage__topbar {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 12px 16px;
-  background: rgba(255,255,255,0.06);
-  border-bottom: 1px solid rgba(255,255,255,0.08);
+  gap: 6px;
+  padding: 9px 12px;
+  background: #f6f1e6;
+  border-bottom: 1px solid rgba(0,0,0,0.06);
 }
-.editor__dot { width: 10px; height: 10px; border-radius: 50%; }
-.editor__dot--red { background: #ff5f57; }
-.editor__dot--yellow { background: #febc2e; }
-.editor__dot--green { background: #28c840; }
-.editor__filename {
-  margin-left: 10px;
-  font-size: 12px;
-  color: rgba(255,255,255,0.45);
+.mockpage__dot { width: 7px; height: 7px; border-radius: 50%; }
+.mockpage__dot--red { background: #ff5f57; }
+.mockpage__dot--yellow { background: #febc2e; }
+.mockpage__dot--green { background: #28c840; }
+.mockpage__url {
+  margin-left: 8px;
+  font-size: 9.5px;
+  color: #a08f6f;
   font-family: 'Courier New', monospace;
 }
 
-.editor__code {
-  margin: 0;
-  padding: 20px 22px;
-  font-family: 'Courier New', monospace;
-  font-size: 13.5px;
-  line-height: 1.8;
-  color: #f5ead9;
-  overflow-x: auto;
+.mockpage__body { padding: 14px 18px 20px; }
+.mockpage__nav {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
 }
-.c-key { color: #fb9e3a; }
-.c-var { color: #ffd58a; }
-.c-fn { color: #ffe4b8; }
-.c-str { color: #a3e6a3; }
-.c-comment { color: #a89a84; font-style: italic; }
+.mockpage__logo {
+  width: 20px; height: 20px; border-radius: 6px;
+  background: linear-gradient(135deg, var(--orange-light), var(--red));
+}
+.mockpage__navitem {
+  width: 34px; height: 6px; border-radius: 4px;
+  background: #ecdfc2;
+}
+.mockpage__navitem:last-of-type { margin-left: auto; }
+.mockpage__navbtn {
+  width: 46px; height: 16px; border-radius: 999px;
+  background: linear-gradient(100deg, var(--orange-light), var(--red));
+  margin-left: 8px;
+}
 
-.editor__terminal {
-  padding: 14px 22px 20px;
-  border-top: 1px solid rgba(255,255,255,0.08);
-  background: #241b12;
-  font-family: 'Courier New', monospace;
-  font-size: 12.5px;
-  min-height: 130px;
+.mockpage__hero { display: flex; justify-content: space-between; gap: 14px; }
+.mockpage__herotext { display: flex; flex-direction: column; gap: 8px; padding-top: 6px; }
+.mockpage__bar { display: block; height: 8px; border-radius: 5px; background: #ecdfc2; }
+.mockpage__bar--wide { width: 130px; height: 12px; background: #e3c37e; }
+.mockpage__bar--mid { width: 95px; }
+.mockpage__bar--short { width: 60px; }
+.mockpage__bar--btn {
+  width: 62px; height: 14px; margin-top: 6px; border-radius: 999px;
+  background: linear-gradient(100deg, var(--orange-light), var(--red));
 }
-.terminal__line { color: #a8e6b0; line-height: 1.9; }
-.terminal__cursor { color: var(--orange-light); animation: blink 1s step-start infinite; }
-@keyframes blink { 50% { opacity: 0; } }
+
+.mockpage__herocards { display: flex; flex-direction: column; gap: 8px; }
+.mockpage__herocards--stack { margin-top: 4px; }
+.mockpage__card {
+  width: 92px; height: 22px; border-radius: 8px;
+  background: #fdf6e3;
+  border: 1px solid rgba(230, 82, 31, 0.16);
+}
+.mockpage__card--full { width: 100%; height: 30px; }
+
+.mockpage__navmini { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+.mockpage__navmini--sm { margin-bottom: 8px; }
+.mockpage__logo--sm { width: 14px; height: 14px; border-radius: 4px; }
+.mockpage__navitem--sm { width: 26px; height: 5px; }
 
 .editor__badge {
   position: absolute;
-  z-index: 3;
+  z-index: 4;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -378,11 +570,19 @@ onMounted(() => {
   color: var(--ink);
   box-shadow: 0 14px 30px rgba(0,0,0,0.15);
 }
-.editor__badge--1 { top: -18px; left: -14px; }
-.editor__badge--2 { bottom: -18px; right: -10px; }
+.editor__badge--1 { top: -6px; left: -6px; }
+.editor__badge--2 { bottom: 92px; right: -10px; }
 .editor__badge-dot { width: 8px; height: 8px; border-radius: 50%; }
 .editor__badge-dot--green { background: #2e9e5b; box-shadow: 0 0 0 4px rgba(46,158,91,0.2); }
 .editor__badge-dot--orange { background: var(--orange); box-shadow: 0 0 0 4px rgba(230,82,31,0.2); }
+
+/* ---------- SCROLL REVEAL (seluruh halaman) ---------- */
+.reveal {
+  opacity: 0;
+  transform: translateY(36px);
+  transition: opacity 0.75s ease, transform 0.75s ease;
+}
+.reveal.is-revealed { opacity: 1; transform: translateY(0); }
 
 /* Stats floating strip */
 .hero__stats {
@@ -398,6 +598,8 @@ onMounted(() => {
   box-shadow: 0 24px 60px rgba(230, 82, 31, 0.16);
   overflow: hidden;
 }
+.hero__stats.reveal { opacity: 0; transform: translateY(calc(40% + 30px)); }
+.hero__stats.reveal.is-revealed { opacity: 1; transform: translateY(40%); }
 .stat {
   display: flex;
   flex-direction: column;
@@ -496,8 +698,8 @@ onMounted(() => {
 
 /* ---------- RESPONSIVE ---------- */
 @media (max-width: 950px) {
-  .hero__inner { grid-template-columns: 1fr; padding-bottom: 60px; }
-  .hero__editor { max-width: 480px; margin: 0 auto; }
+  .hero__inner { grid-template-columns: 1fr; padding-bottom: 90px; }
+  .hero__showcase { max-width: 480px; margin: 40px auto 0; height: 380px; }
   .hero__stats { grid-template-columns: repeat(3, 1fr); }
   .tech__grid { grid-template-columns: repeat(2, 1fr); }
   .features__grid { grid-template-columns: repeat(2, 1fr); }
@@ -506,10 +708,15 @@ onMounted(() => {
 @media (max-width: 650px) {
   .hero { padding: 120px 20px 0; }
   .hero__actions { flex-direction: column; }
+  .hero__showcase { height: 320px; }
+  .device--laptop { width: 320px; }
+  .device--tablet { width: 120px; left: -8px; }
+  .device--phone { width: 84px; right: -4px; }
   .hero__stats { transform: translateY(30%); border-radius: 16px; }
+  .hero__stats.reveal.is-revealed { transform: translateY(30%); }
   .tech { padding: 150px 20px 80px; }
   .features { padding: 70px 20px; }
   .tech__grid, .features__grid { grid-template-columns: 1fr; }
-  .editor__badge--1, .editor__badge--2 { position: static; margin-bottom: 10px; display: inline-flex; }
+  .editor__badge--1, .editor__badge--2 { font-size: 11px; padding: 7px 12px; }
 }
 </style>
