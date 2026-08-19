@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount, nextTick, watch } from 'vue'
 
 // Ganti/isi dengan data project asli Anda.
 // "domain" hanya teks dekoratif untuk address bar mockup.
@@ -63,10 +63,24 @@ const stats = [
   { number: '3', label: 'Tahun Pengalaman' }
 ]
 
-// Efek muncul dari bawah saat discroll — sama seperti di perencanaan.vue.
-// Elemen dengan class "reveal" diamati; begitu masuk viewport, class "is-revealed" ditambahkan.
-onMounted(() => {
-  const observer = new IntersectionObserver(
+// --- Efek muncul dari bawah saat discroll ---
+// PENTING: setiap kali filter berubah, Vue membuat ulang elemen .reveal
+// di DOM (v-for dengan data yang berbeda). Elemen baru ini tidak pernah
+// otomatis di-observe oleh IntersectionObserver yang dibuat sekali saja
+// di onMounted, sehingga tetap tak terlihat (opacity: 0) — itulah kenapa
+// kartu "hilang" saat difilter dan tidak muncul lagi saat kembali ke "Semua".
+//
+// Solusinya: simpan observer di luar onMounted lalu panggil ulang fungsi
+// setup-nya (via nextTick) setiap kali activeFilter berubah, supaya semua
+// elemen .reveal yang baru dirender ikut ter-observe.
+let observer = null
+
+function setupRevealObserver() {
+  // Elemen yang sudah pernah observer buat sebelumnya akan dibuat ulang
+  // observer baru menyaring hanya yang belum kebagian class is-revealed
+  if (observer) observer.disconnect()
+
+  observer = new IntersectionObserver(
     (entries) => {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
@@ -79,6 +93,21 @@ onMounted(() => {
   )
 
   document.querySelectorAll('.reveal').forEach((el) => observer.observe(el))
+}
+
+onMounted(() => {
+  setupRevealObserver()
+})
+
+onBeforeUnmount(() => {
+  if (observer) observer.disconnect()
+})
+
+// Setiap kali filter diganti, tunggu DOM selesai di-update (nextTick),
+// baru pasang ulang observer ke elemen-elemen kartu yang baru dirender.
+watch(activeFilter, async () => {
+  await nextTick()
+  setupRevealObserver()
 })
 </script>
 
@@ -94,6 +123,7 @@ onMounted(() => {
       <div class="container portfolio-hero__grid">
         <div class="portfolio-hero__content reveal">
           <p class="eyebrow">Portofolio</p>
+
           <h1 class="portfolio-hero__title">
             Karya yang Sudah Kami <span class="highlight">Wujudkan</span>
           </h1>
@@ -111,31 +141,64 @@ onMounted(() => {
           </div>
         </div>
 
-        <!-- Mini browser-mockup showcase, echo dari kartu di grid bawah -->
+        <!-- Visual hero: komposisi browser mockup + phone mockup + badge berlapis -->
         <div class="hero-visual reveal" aria-hidden="true" :style="{ transitionDelay: '0.15s' }">
-          <div class="mini-frame mini-frame--1">
-            <div class="mini-frame__bar">
-              <span class="dot dot--red"></span>
-              <span class="dot dot--yellow"></span>
-              <span class="dot dot--green"></span>
+          <div class="visual-glow"></div>
+
+          <span class="deco-dot deco-dot--1"></span>
+          <span class="deco-dot deco-dot--2"></span>
+          <span class="deco-ring"></span>
+
+          <!-- Phone mockup: mewakili sisi Mobile App -->
+          <div class="device-phone">
+            <div class="device-phone__notch"></div>
+            <div class="device-phone__screen">
+              <div class="device-phone__tile device-phone__tile--big"></div>
+              <div class="device-phone__row">
+                <span></span><span></span><span></span>
+              </div>
+              <div class="device-phone__row device-phone__row--thin">
+                <span></span><span></span>
+              </div>
             </div>
-            <div class="mini-frame__screen mini-frame__screen--orange"></div>
           </div>
-          <div class="mini-frame mini-frame--2">
-            <div class="mini-frame__bar">
+
+          <!-- Browser mockup: mewakili sisi Website -->
+          <div class="device-browser">
+            <div class="device-browser__bar">
               <span class="dot dot--red"></span>
               <span class="dot dot--yellow"></span>
               <span class="dot dot--green"></span>
+              <span class="device-browser__url">warungdigital.app</span>
             </div>
-            <div class="mini-frame__screen mini-frame__screen--red"></div>
+            <div class="device-browser__screen">
+              <div class="thumb-row">
+                <span class="thumb thumb--1"></span>
+                <span class="thumb thumb--2"></span>
+                <span class="thumb thumb--3"></span>
+              </div>
+              <div class="skeleton-line skeleton-line--w80"></div>
+              <div class="skeleton-line skeleton-line--w50"></div>
+            </div>
           </div>
-          <div class="mini-frame mini-frame--3">
-            <div class="mini-frame__bar">
-              <span class="dot dot--red"></span>
-              <span class="dot dot--yellow"></span>
-              <span class="dot dot--green"></span>
+
+          <div class="badge badge--rating">
+            <span class="badge__stars">★★★★★</span>
+            <span class="badge__text">4.9 dari 40+ project</span>
+          </div>
+
+          <div class="badge badge--check">
+            <span class="badge__check">✓</span>
+            <span class="badge__text">Project tepat waktu</span>
+          </div>
+
+          <div class="badge badge--clients">
+            <div class="avatar-stack">
+              <span class="avatar">K</span>
+              <span class="avatar avatar--2">R</span>
+              <span class="avatar avatar--3">B</span>
             </div>
-            <div class="mini-frame__screen mini-frame__screen--light"></div>
+            <span class="badge__text">+37 klien puas</span>
           </div>
         </div>
       </div>
@@ -234,16 +297,20 @@ onMounted(() => {
 .portfolio-hero {
   position: relative;
   overflow: hidden;
-  padding: 150px clamp(20px, 6vw, 80px) 90px;
+  min-height: 640px;
+  display: flex;
+  align-items: center;
+  padding: 160px clamp(20px, 6vw, 80px) 90px;
   background: linear-gradient(160deg, var(--cream) 0%, #fff3cf 45%, #ffe6c2 100%);
 }
 
 .portfolio-hero__mesh { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
 .mesh__orb { position: absolute; border-radius: 50%; filter: blur(70px); opacity: 0.5; }
 .mesh__orb--1 { width: 420px; height: 420px; top: -160px; left: -120px; background: radial-gradient(circle, var(--orange-light), transparent 70%); }
-.mesh__orb--2 { width: 380px; height: 380px; top: -100px; right: -140px; background: radial-gradient(circle, var(--red), transparent 70%); opacity: 0.22; }
+.mesh__orb--2 { width: 380px; height: 380px; top: -100px; right: -140px; background: radial-gradient(circle, var(--red), transparent 70%); opacity: 0.28; }
 
 .portfolio-hero__grid {
+  width: 100%;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -285,52 +352,260 @@ onMounted(() => {
 .stat__number { font-size: clamp(24px, 3vw, 32px); font-weight: 800; color: var(--ink); letter-spacing: -0.02em; }
 .stat__label { font-size: 12.5px; color: var(--ink-soft); margin-top: 2px; }
 
-/* ---------- Hero visual: mini browser mockups ---------- */
+/* ---------- Hero visual: browser + phone mockup berlapis dengan badge ---------- */
 .hero-visual {
   position: relative;
-  width: 300px;
-  height: 280px;
+  width: 340px;
+  height: 340px;
   flex-shrink: 0;
   z-index: 2;
 }
 
-.mini-frame {
+.visual-glow {
   position: absolute;
-  width: 200px;
-  border-radius: 12px;
-  overflow: hidden;
-  background: #fff;
-  box-shadow: 0 20px 45px -18px rgba(32, 20, 0, 0.28);
-  animation: float 5s ease-in-out infinite;
+  inset: 20px;
+  background:
+    radial-gradient(circle at 35% 60%, rgba(230, 82, 31, 0.32), transparent 60%),
+    radial-gradient(circle at 70% 30%, rgba(251, 158, 58, 0.28), transparent 55%);
+  filter: blur(24px);
+  z-index: 0;
+  animation: glowPulse 6s ease-in-out infinite;
 }
 
-.mini-frame--1 { top: 10px; left: 50px; --r: -7deg; z-index: 3; animation-delay: 0s; }
-.mini-frame--2 { top: 70px; left: 0; --r: 5deg; z-index: 2; animation-delay: 0.6s; }
-.mini-frame--3 { top: 130px; left: 90px; --r: -3deg; z-index: 1; animation-delay: 1.2s; }
+@keyframes glowPulse {
+  0%, 100% { opacity: 0.7; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.08); }
+}
 
-.mini-frame__bar {
+.deco-dot {
+  position: absolute;
+  border-radius: 50%;
+  z-index: 1;
+  animation: decoFloat 4.5s ease-in-out infinite;
+}
+.deco-dot--1 { width: 14px; height: 14px; top: 36px; left: 10px; background: var(--orange); opacity: 0.5; }
+.deco-dot--2 { width: 9px; height: 9px; bottom: 70px; right: 6px; background: var(--red); opacity: 0.6; animation-delay: 1.2s; }
+
+.deco-ring {
+  position: absolute;
+  top: 14px;
+  right: 60px;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 3px solid var(--orange-light);
+  opacity: 0.45;
+  z-index: 1;
+  animation: decoFloat 5.5s ease-in-out infinite;
+  animation-delay: 0.6s;
+}
+
+@keyframes decoFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+/* Phone mockup */
+.device-phone {
+  position: absolute;
+  bottom: 34px;
+  left: 6px;
+  width: 96px;
+  height: 168px;
+  border-radius: 20px;
+  background: linear-gradient(160deg, #2a2a2a, #141414);
+  padding: 10px 8px;
+  box-shadow: 0 22px 40px -18px rgba(32, 20, 0, 0.4);
+  transform: rotate(-9deg);
+  z-index: 2;
+  animation: deviceFloat 5.5s ease-in-out infinite;
+}
+
+.device-phone__notch {
+  width: 32px;
+  height: 5px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.18);
+  margin: 0 auto 8px;
+}
+
+.device-phone__screen {
+  height: 100%;
+  border-radius: 12px;
+  background: linear-gradient(165deg, #fff8ec, #fff);
+  padding: 10px;
+}
+
+.device-phone__tile--big {
+  height: 44px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, var(--orange-light), var(--orange));
+  margin-bottom: 8px;
+}
+
+.device-phone__row {
   display: flex;
   gap: 5px;
-  padding: 8px 10px;
+  margin-bottom: 6px;
+}
+.device-phone__row span {
+  flex: 1;
+  height: 18px;
+  border-radius: 6px;
+  background: var(--cream);
+}
+.device-phone__row--thin span {
+  height: 6px;
+  border-radius: 4px;
+  background: var(--line);
+}
+.device-phone__row--thin span:last-child { flex: 0.6; }
+
+/* Browser mockup */
+.device-browser {
+  position: absolute;
+  bottom: 6px;
+  right: 0;
+  width: 232px;
+  border-radius: 14px;
   background: #fff;
+  overflow: hidden;
+  box-shadow: 0 26px 48px -18px rgba(32, 20, 0, 0.36);
+  transform: rotate(4deg);
+  z-index: 3;
+  animation: deviceFloat 6s ease-in-out infinite;
+  animation-delay: 0.4s;
 }
-.dot { width: 6px; height: 6px; border-radius: 50%; }
-.dot--red { background: #EA2F14; opacity: 0.6; }
-.dot--yellow { background: #FB9E3A; opacity: 0.7; }
-.dot--green { background: #2f9e5c; opacity: 0.5; }
 
-.mini-frame__screen { height: 80px; }
-.mini-frame__screen--orange { background: linear-gradient(135deg, var(--orange), var(--red)); }
-.mini-frame__screen--red { background: linear-gradient(135deg, var(--red), #b81f0c); }
-.mini-frame__screen--light { background: linear-gradient(135deg, var(--orange-light), var(--orange)); }
-
-@keyframes float {
-  0%, 100% { transform: translateY(0) rotate(var(--r, 0deg)); }
-  50% { transform: translateY(-10px) rotate(var(--r, 0deg)); }
+@keyframes deviceFloat {
+  0%, 100% { transform: var(--rot, rotate(0deg)) translateY(0); }
+  50% { transform: var(--rot, rotate(0deg)) translateY(-9px); }
 }
+.device-phone { --rot: rotate(-9deg); }
+.device-browser { --rot: rotate(4deg); }
+
+.device-browser__bar {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 9px 11px;
+  background: #f6f2e6;
+  border-bottom: 1px solid var(--line);
+}
+
+.dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; }
+.dot--red { background: #ff5f57; }
+.dot--yellow { background: #febc2e; }
+.dot--green { background: #28c840; }
+
+.device-browser__url {
+  margin-left: 6px;
+  font-size: 9.5px;
+  color: var(--ink-soft);
+  background: #fff;
+  padding: 2px 8px;
+  border-radius: 5px;
+  font-family: 'Courier New', monospace;
+}
+
+.device-browser__screen {
+  padding: 13px;
+  background: linear-gradient(160deg, #fff, #fff8ec);
+}
+
+.thumb-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  margin-bottom: 10px;
+}
+.thumb { display: block; height: 42px; border-radius: 7px; }
+.thumb--1 { background: linear-gradient(135deg, var(--orange-light), var(--orange)); }
+.thumb--2 { background: linear-gradient(135deg, var(--orange), var(--red)); }
+.thumb--3 { background: linear-gradient(135deg, var(--red), #b81f0c); }
+
+.skeleton-line {
+  height: 7px;
+  border-radius: 4px;
+  background: var(--line);
+  margin-bottom: 7px;
+}
+.skeleton-line--w80 { width: 80%; }
+.skeleton-line--w50 { width: 50%; margin-bottom: 0; }
+
+/* Badges */
+.badge {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #fff;
+  border-radius: 14px;
+  padding: 10px 15px;
+  box-shadow: 0 16px 32px -16px rgba(32, 20, 0, 0.32);
+  z-index: 4;
+  animation: badgeSway 5s ease-in-out infinite;
+}
+
+@keyframes badgeSway {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-6px) rotate(1.5deg); }
+}
+
+.badge--rating {
+  top: 4px;
+  right: -4px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+}
+.badge__stars { color: var(--orange); font-size: 13px; letter-spacing: 2px; line-height: 1; }
+.badge__text { font-size: 11.5px; font-weight: 700; color: var(--ink); white-space: nowrap; }
+
+.badge--check {
+  top: 96px;
+  left: -18px;
+  padding: 8px 13px;
+  animation-delay: 0.9s;
+}
+.badge__check {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--orange-light), var(--orange));
+  color: #fff;
+  font-size: 11px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.badge--clients {
+  bottom: -6px;
+  left: 30px;
+  animation-delay: 1.6s;
+}
+
+.avatar-stack { display: flex; }
+.avatar {
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  margin-left: -7px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 9px; font-weight: 800; color: #fff;
+  background: linear-gradient(135deg, var(--orange-light), var(--orange));
+}
+.avatar:first-child { margin-left: 0; }
+.avatar--2 { background: linear-gradient(135deg, var(--orange), var(--red)); }
+.avatar--3 { background: linear-gradient(135deg, var(--red), #b81f0c); }
 
 @media (prefers-reduced-motion: reduce) {
-  .mini-frame { animation: none; }
+  .visual-glow, .deco-dot, .deco-ring, .device-phone, .device-browser, .badge {
+    animation: none;
+  }
 }
 
 @media (max-width: 900px) {
@@ -544,7 +819,7 @@ onMounted(() => {
 
 /* ---------- Responsive ---------- */
 @media (max-width: 650px) {
-  .portfolio-hero { padding: 120px 20px 60px; }
+  .portfolio-hero { min-height: auto; padding: 120px 20px 60px; }
   .stats-row { gap: 28px; }
   .project-grid { grid-template-columns: 1fr; }
   .portfolio-cta__inner { flex-direction: column; align-items: flex-start; }

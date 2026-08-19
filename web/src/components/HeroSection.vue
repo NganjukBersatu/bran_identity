@@ -105,8 +105,12 @@ onBeforeUnmount(stopAutoplay)
         aplikasi mobile, hingga sistem internal perusahaan.
       </p>
       <div class="hero__actions">
-        <a href="#kontak" class="btn btn-primary">Konsultasi Gratis</a>
-        <a href="#portofolio" class="btn btn-secondary btn-secondary--dark">Lihat Portofolio</a>
+        <router-link to="/layanan/konsultasi" class="btn btn-primary">
+  Konsultasi Gratis
+</router-link>
+        <router-link to="/portofolio" class="btn btn-secondary btn-secondary--dark">
+  Lihat Portofolio
+</router-link>
       </div>
     </div>
 

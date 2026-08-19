@@ -96,9 +96,14 @@ onMounted(() => {
           Diskusikan kebutuhan dan tujuan project Anda bersama tim ahli kami
           sebelum satu baris kode pun ditulis.
         </p>
-        <router-link to="/#kontak" class="hero__cta">
-          Konsultasi Gratis
-        </router-link>
+        <a
+  href="https://wa.me/6281234567890?text=Halo%20BRAN%20IDENTITY,%20saya%20ingin%20konsultasi%20mengenai%20project%20digital."
+  class="hero__cta"
+  target="_blank"
+  rel="noopener noreferrer"
+>
+  Konsultasi Gratis
+</a>
       </div>
     </section>
 
