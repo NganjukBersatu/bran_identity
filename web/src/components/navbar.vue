@@ -148,9 +148,9 @@ onUnmounted(() => {
 
       </nav>
 
-      <router-link to="/#kontak" class="consult-button" @click="closeMobileMenu">
-        Konsultasi Gratis
-      </router-link>
+      <router-link to="/layanan/konsultasi" class="consult-button" @click="closeMobileMenu">
+  Konsultasi Gratis
+</router-link>
 
       <!-- ===== Tombol Hamburger (mobile only) ===== -->
       <button

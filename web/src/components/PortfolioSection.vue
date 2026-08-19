@@ -5,14 +5,17 @@ const props = defineProps({
 })
 
 // isi 'img' dengan path gambar nanti, misal: '/portfolio/project-1.jpg'
-// selama 'img' masih kosong (''), kartu akan menampilkan placeholder otomatis
+// selama 'img' masih kosong (''), kartu akan menampilkan mockup browser
+// berwarna (accent) sebagai placeholder — bukan kotak abu-abu kosong.
+// Data ini disamakan dengan views/portofolio.vue supaya Home & halaman
+// Portofolio penuh konsisten.
 const projects = [
-  { title: 'Nama Project 1', category: 'Web Development', img: '' },
-  { title: 'Nama Project 2', category: 'Mobile App', img: '' },
-  { title: 'Nama Project 3', category: 'UI/UX Design', img: '' },
-  { title: 'Nama Project 4', category: 'E-Commerce', img: '' },
-  { title: 'Nama Project 5', category: 'Company Profile', img: '' },
-  { title: 'Nama Project 6', category: 'Web Development', img: '' },
+  { title: 'Kopi Senja — Company Profile', category: 'Website', domain: 'kopisenja.id', img: '', accent: 'orange' },
+  { title: 'RentCar Prima', category: 'Website', domain: 'rentcarprima.com', img: '', accent: 'red' },
+  { title: 'Nutrix — Aplikasi Diet', category: 'Mobile App', domain: 'app.nutrix.id', img: '', accent: 'orange-light' },
+  { title: 'Bank Sinar Digital', category: 'Mobile App', domain: 'sinar.mobile', img: '', accent: 'orange' },
+  { title: 'Loka Studio Branding', category: 'Branding', domain: 'lokastudio.co', img: '', accent: 'red' },
+  { title: 'Warung Digital POS', category: 'Website', domain: 'warungdigital.app', img: '', accent: 'orange-light' },
 ]
 
 const displayedProjects = props.limit ? projects.slice(0, props.limit) : projects
@@ -25,23 +28,18 @@ const displayedProjects = props.limit ? projects.slice(0, props.limit) : project
       <h2>Project yang pernah kami kerjakan</h2>
 
       <div class="portfolio__grid">
-        <a href="#" class="portfolio-card" v-for="p in displayedProjects" :key="p.title">
+        <router-link to="/portofolio" class="portfolio-card" v-for="p in displayedProjects" :key="p.title">
           <div class="portfolio-card__media">
             <img v-if="p.img" :src="p.img" :alt="p.title" />
-            <div v-else class="portfolio-card__placeholder">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                <rect x="3" y="3" width="18" height="18" rx="2" />
-                <circle cx="8.5" cy="8.5" r="1.5" />
-                <path d="M21 15l-5-5L5 21" />
-              </svg>
-              <span>Gambar Menyusul</span>
+            <div v-else class="portfolio-card__placeholder" :class="`accent--${p.accent}`">
+              <span class="portfolio-card__mark">{{ p.title.charAt(0) }}</span>
             </div>
           </div>
           <div class="portfolio-card__body">
             <span class="portfolio-card__category">{{ p.category }}</span>
             <h3>{{ p.title }}</h3>
           </div>
-        </a>
+        </router-link>
       </div>
 
       <div v-if="showViewAll" class="view-all">
@@ -84,31 +82,28 @@ const displayedProjects = props.limit ? projects.slice(0, props.limit) : project
   display: block;
 }
 
-/* placeholder saat gambar belum ada */
+/* placeholder saat gambar belum ada: mockup browser bergradasi warna,
+   senada dengan browser-frame__screen di views/portofolio.vue */
 .portfolio-card__placeholder {
   width: 100%;
   height: 100%;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 10px;
-  background: repeating-linear-gradient(
-    135deg,
-    var(--color-surface, #fafafa),
-    var(--color-surface, #fafafa) 10px,
-    rgba(0, 0, 0, 0.02) 10px,
-    rgba(0, 0, 0, 0.02) 20px
-  );
-  color: #9ca3af;
 }
-.portfolio-card__placeholder svg {
-  width: 36px;
-  height: 36px;
+.portfolio-card__placeholder.accent--orange {
+  background: linear-gradient(135deg, #E6521F, #EA2F14);
 }
-.portfolio-card__placeholder span {
-  font-size: 13px;
-  font-weight: 500;
+.portfolio-card__placeholder.accent--red {
+  background: linear-gradient(135deg, #EA2F14, #b81f0c);
+}
+.portfolio-card__placeholder.accent--orange-light {
+  background: linear-gradient(135deg, #FB9E3A, #E6521F);
+}
+.portfolio-card__mark {
+  font-size: 46px;
+  font-weight: 800;
+  color: #fff;
 }
 
 .portfolio-card__body { padding: 16px; }
@@ -149,8 +144,7 @@ const displayedProjects = props.limit ? projects.slice(0, props.limit) : project
   .portfolio__grid { gap: 10px; }
 
   .portfolio-card__media { height: 100px; }
-  .portfolio-card__placeholder svg { width: 24px; height: 24px; }
-  .portfolio-card__placeholder span { font-size: 10px; }
+  .portfolio-card__mark { font-size: 26px; }
 
   .portfolio-card__body { padding: 10px; }
   .portfolio-card__category { font-size: 10px; }

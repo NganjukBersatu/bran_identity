@@ -1,8 +1,12 @@
 <script setup>
+import { computed, nextTick, onMounted, onBeforeUnmount, watch } from 'vue'
+
 const props = defineProps({
   limit: { type: Number, default: null },
   showViewAll: { type: Boolean, default: false },
   showHeading: { type: Boolean, default: true },
+  activeCategory: { type: String, default: '' },
+  searchQuery: { type: String, default: '' },
 })
 
 const posts = [
@@ -14,7 +18,74 @@ const posts = [
   { date: '02 Mar', category: 'Bisnis', title: 'Judul Artikel Keenam', excerpt: 'Ringkasan singkat artikel yang membahas topik menarik seputar dunia digital.' },
 ]
 
-const displayedPosts = props.limit ? posts.slice(0, props.limit) : posts
+// Pencocokan longgar dua arah, supaya tag hero (mis. "Tips Bisnis")
+// tetap match ke kategori artikel asli (mis. "Tips" / "Bisnis").
+const filteredPosts = computed(() => {
+  let list = posts
+
+  if (props.activeCategory) {
+    const tag = props.activeCategory.toLowerCase()
+    list = list.filter((p) => {
+      const cat = p.category.toLowerCase()
+      return tag.includes(cat) || cat.includes(tag)
+    })
+  }
+
+  const q = props.searchQuery.trim().toLowerCase()
+  if (q) {
+    list = list.filter((p) =>
+      p.title.toLowerCase().includes(q) ||
+      p.excerpt.toLowerCase().includes(q) ||
+      p.category.toLowerCase().includes(q)
+    )
+  }
+
+  return props.limit ? list.slice(0, props.limit) : list
+})
+
+const emptyMessage = computed(() => {
+  if (props.searchQuery.trim() && props.activeCategory) {
+    return `Tidak ada artikel untuk "${props.searchQuery}" di kategori "${props.activeCategory}".`
+  }
+  if (props.searchQuery.trim()) {
+    return `Tidak ada artikel yang cocok dengan "${props.searchQuery}".`
+  }
+  if (props.activeCategory) {
+    return `Belum ada artikel untuk kategori "${props.activeCategory}".`
+  }
+  return 'Belum ada artikel.'
+})
+
+// ---------- Efek muncul dari bawah (reveal) saat kartu masuk viewport ----------
+let observer = null
+
+function observeCards() {
+  document.querySelectorAll('.blog-card.reveal:not(.is-revealed)').forEach((el) => observer.observe(el))
+}
+
+onMounted(() => {
+  observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('is-revealed')
+          observer.unobserve(entry.target)
+        }
+      })
+    },
+    { threshold: 0.15, rootMargin: '0px 0px -60px 0px' }
+  )
+  observeCards()
+})
+
+onBeforeUnmount(() => {
+  if (observer) observer.disconnect()
+})
+
+// Saat filter berubah, kartu baru perlu di-observe ulang (kartu lama tak lagi ada di DOM)
+watch(filteredPosts, () => {
+  nextTick(() => observeCards())
+})
 </script>
 
 <template>
@@ -25,8 +96,14 @@ const displayedPosts = props.limit ? posts.slice(0, props.limit) : posts
         <h2>Artikel & update terbaru</h2>
       </template>
 
-      <div class="blog__grid">
-        <a href="#" class="blog-card" v-for="p in displayedPosts" :key="p.title">
+      <div v-if="filteredPosts.length" class="blog__grid">
+        <a
+          href="#"
+          class="blog-card reveal"
+          v-for="(p, i) in filteredPosts"
+          :key="p.title"
+          :style="{ transitionDelay: (i % 3) * 0.1 + 's' }"
+        >
           <div class="blog-card__media">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
               <path d="M4 5.5A1.5 1.5 0 015.5 4h13A1.5 1.5 0 0120 5.5v13a1.5 1.5 0 01-1.5 1.5h-13A1.5 1.5 0 014 18.5v-13z" />
@@ -47,6 +124,8 @@ const displayedPosts = props.limit ? posts.slice(0, props.limit) : posts
         </a>
       </div>
 
+      <p v-else class="blog-empty">{{ emptyMessage }}</p>
+
       <div v-if="showViewAll" class="view-all">
         <router-link to="/blog" class="btn btn-outline">Lihat Semua Artikel →</router-link>
       </div>
@@ -62,6 +141,13 @@ const displayedPosts = props.limit ? posts.slice(0, props.limit) : posts
   gap: 24px;
 }
 
+.blog-empty {
+  text-align: center;
+  color: var(--color-text-secondary, #888);
+  font-size: 14px;
+  padding: 40px 0;
+}
+
 .blog-card {
   display: block;
   text-decoration: none;
@@ -70,13 +156,31 @@ const displayedPosts = props.limit ? posts.slice(0, props.limit) : posts
   border-radius: var(--radius);
   overflow: hidden;
   background: var(--color-surface);
-  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease, opacity 0.6s ease;
 }
 
 .blog-card:hover {
   transform: translateY(-6px);
   box-shadow: 0 16px 28px rgba(0, 0, 0, 0.08);
   border-color: var(--color-deep-orange, #ea580c);
+}
+
+/* ---------- Reveal: muncul dari bawah saat discroll ---------- */
+.reveal {
+  opacity: 0;
+  transform: translateY(32px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.reveal.is-revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+/* hover butuh transform sendiri, jadi jangan biarkan reveal menimpanya setelah muncul */
+.reveal.is-revealed:hover {
+  transform: translateY(-6px);
+}
+@media (prefers-reduced-motion: reduce) {
+  .reveal { transition: none; opacity: 1; transform: none; }
 }
 
 .blog-card__media {

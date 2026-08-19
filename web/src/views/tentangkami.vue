@@ -264,7 +264,10 @@ onMounted(() => {
 .about-hero {
   position: relative;
   overflow: hidden;
-  padding: 150px clamp(20px, 6vw, 80px) 90px;
+  min-height: 640px;
+  display: flex;
+  align-items: center;
+  padding: 160px clamp(20px, 6vw, 80px) 90px;
   /* gradient identik dengan hero Perencanaan / Portofolio / Blog */
   background: linear-gradient(160deg, var(--cream) 0%, #fff3cf 45%, #ffe6c2 100%);
   text-align: left;
@@ -273,9 +276,10 @@ onMounted(() => {
 .about-hero__mesh { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
 .mesh__orb { position: absolute; border-radius: 50%; filter: blur(70px); opacity: 0.5; }
 .mesh__orb--1 { width: 420px; height: 420px; top: -160px; left: -120px; background: radial-gradient(circle, var(--orange-light), transparent 70%); }
-.mesh__orb--2 { width: 380px; height: 380px; top: -100px; right: -140px; background: radial-gradient(circle, var(--red), transparent 70%); opacity: 0.24; }
+.mesh__orb--2 { width: 380px; height: 380px; top: -100px; right: -140px; background: radial-gradient(circle, var(--red), transparent 70%); opacity: 0.28; }
 
 .about-hero__grid {
+  width: 100%;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -618,6 +622,7 @@ onMounted(() => {
 
 @media (max-width: 650px) {
   .about-hero {
+    min-height: auto;
     padding: 120px 20px 60px;
   }
 }
