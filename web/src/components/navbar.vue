@@ -22,6 +22,7 @@ const showSolidHeader = computed(() => isScrolled.value || !isHomePage.value || 
 const menu = [
   { label: 'Home', to: '/' },
   { label: 'Portofolio', to: '/portofolio' },
+  { label: 'Testimoni', to: '/testimoni'},
   { label: 'Tentang Kami', to: '/tentang-kami' },
   { label: 'Blog', to: '/blog' },
 ]
