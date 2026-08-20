@@ -1,203 +1,109 @@
-<script setup>
-// ganti / tambah data di bawah sesuai konten perusahaan kamu
-import { onMounted } from 'vue'
-
-const stats = [
-  { label: 'Project Selesai', value: '120+' },
-  { label: 'Klien Puas', value: '95%' },
-  { label: 'Tahun Pengalaman', value: '5+' },
-  { label: 'Tim Profesional', value: '15+' },
-]
-
-const values = [
-  {
-    title: 'Fokus pada Hasil',
-    desc: 'Kami memastikan setiap project memberikan dampak nyata bagi bisnis klien, bukan sekadar selesai secara teknis.',
-  },
-  {
-    title: 'Kolaboratif',
-    desc: 'Kami bekerja sama erat dengan klien di setiap tahap, dari perencanaan hingga eksekusi, agar hasil sesuai kebutuhan.',
-  },
-  {
-    title: 'Cepat & Efisien',
-    desc: 'Menggunakan teknologi dan proses kerja modern agar project selesai tepat waktu tanpa mengurangi kualitas.',
-  },
-  {
-    title: 'Terpercaya',
-    desc: 'Transparansi dalam proses, biaya, dan progres project menjadi prioritas kami di setiap kerja sama.',
-  },
-]
-
-const team = [
-  { name: 'Nama Founder', role: 'Founder & CEO', avatar: '/team/team-2.jpg' },
-  { name: 'Nama Lead Dev', role: 'Lead Developer', avatar: '/team/team-3.jpg' },
-  { name: 'Nama Designer', role: 'UI/UX Designer', avatar: '/team/team-4.jpg' },
-  { name: 'Nama PM', role: 'Project Manager', avatar: '/team/team-4.jpg' },
-]
-
-// Kartu commit melayang di hero — dekorasi baru, tidak mengubah section di bawah
-const commits = [
-  { tag: 'feat', text: 'Onboarding client baru', time: 'Hari ini' },
-  { tag: 'done', text: 'Revisi UI selesai', time: 'Kemarin' },
-  { tag: 'ship', text: 'Rilis project #120', time: '2 hari lalu' },
-]
-
-// Efek muncul dari bawah saat discroll — sama seperti halaman lain di site ini.
-onMounted(() => {
-  const observer = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('is-revealed')
-          observer.unobserve(entry.target)
-        }
-      })
-    },
-    { threshold: 0.15, rootMargin: '0px 0px -80px 0px' }
-  )
-
-  document.querySelectorAll('.reveal').forEach((el) => observer.observe(el))
-})
-</script>
-
 <template>
-  <div class="about">
-    <!-- Hero (dirombak) -->
+  <div class="about-page">
+    <!-- HERO -->
     <section class="about-hero">
-      <div class="about-hero__mesh" aria-hidden="true">
-        <div class="mesh__orb mesh__orb--1"></div>
-        <div class="mesh__orb mesh__orb--2"></div>
-      </div>
-
-      <div class="container about-hero__grid">
-        <div class="about-hero__content reveal">
-          <p class="about-hero__label">Tentang Kami</p>
+      <div class="about-hero__grid">
+        <div class="container about-hero__intro">
+          <span class="about-hero__since">Sejak 2019</span>
           <h1 class="about-hero__title">
-            Membantu Bisnis Anda <span class="highlight">Bertransformasi Digital</span>
+            Studio kecil, cara kerja yang serius
           </h1>
           <p class="about-hero__desc">
-            Kami adalah tim profesional yang berdedikasi menghadirkan solusi digital
-            terbaik untuk membantu bisnis Anda tumbuh lebih cepat dan efisien.
+            Bran Identity dimulai dari dua orang yang percaya bahwa produk digital
+            yang baik lahir dari mendengar, bukan dari template yang tinggal dipasang.
+            Sampai hari ini, cara berpikir itu yang masih kami pegang.
+          </p>
+
+          <div class="about-hero__facts">
+            <div class="fact">
+              <strong>120+</strong>
+              <span>Proyek selesai</span>
+            </div>
+            <div class="fact">
+              <strong>6</strong>
+              <span>Tahun berjalan</span>
+            </div>
+            <div class="fact">
+              <strong>5</strong>
+              <span>Orang di tim inti</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="about-hero__media">
+          <img
+            src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1200&q=80"
+            alt="Tim Bran Identity sedang bekerja"
+          />
+        </div>
+      </div>
+    </section>
+
+    <!-- STORY -->
+    <section class="story">
+      <div class="container story__inner">
+        <div class="story__text">
+          <span class="eyebrow"><span class="eyebrow__dot"></span>Cerita Kami</span>
+          <h2 class="story__title">Dari proyek freelance, jadi studio yang dipercaya</h2>
+          <p>
+            Semua berawal dari dua developer yang membantu pelaku UMKM di sekitar
+            mereka membuat website sederhana. Tidak ada rencana besar — hanya rasa
+            penasaran soal kenapa begitu banyak bisnis kecil terjebak dengan website
+            yang tidak pernah benar-benar mereka pahami cara kerjanya.
+          </p>
+          <p>
+            Dari situ, satu proyek berubah jadi dua, lalu sepuluh. Kami mulai
+            merekrut orang-orang yang punya kegelisahan yang sama: produk digital
+            seharusnya dirancang untuk dipakai, bukan sekadar dipajang di portofolio.
+            Hari ini, Bran Identity tumbuh menjadi studio yang menangani website,
+            aplikasi, dan sistem internal untuk bisnis dari berbagai skala.
           </p>
         </div>
 
-        <!-- Kartu commit melayang, murni dekorasi hero -->
-        <div class="hero-visual reveal" aria-hidden="true" :style="{ transitionDelay: '0.15s' }">
-          <div
-            v-for="(c, i) in commits"
-            :key="c.text"
-            class="commit-chip"
-            :class="`commit-chip--${i + 1}`"
-          >
-            <span class="commit-chip__dot"></span>
-            <div class="commit-chip__body">
-              <span class="commit-chip__tag">{{ c.tag }}</span>
-              <p class="commit-chip__text">{{ c.text }}</p>
-              <span class="commit-chip__time">{{ c.time }}</span>
+        <div class="story__timeline" role="list">
+          <div class="timeline-item" role="listitem" v-for="item in milestones" :key="item.year">
+            <span class="timeline-item__year">{{ item.year }}</span>
+            <span class="timeline-item__marker" aria-hidden="true"></span>
+            <div class="timeline-item__content">
+              <h3>{{ item.title }}</h3>
+              <p>{{ item.desc }}</p>
             </div>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- ================= DI BAWAH INI TIDAK DIUBAH, HANYA DITAMBAH class="reveal" ================= -->
-
-    <!-- Stats -->
-    <section class="about-stats">
-      <div class="container about-stats__grid">
-        <div
-          v-for="(stat, i) in stats"
-          :key="stat.label"
-          class="about-stats__item reveal"
-          :style="{ transitionDelay: (i * 0.08) + 's' }"
-        >
-          <h3>{{ stat.value }}</h3>
-          <p>{{ stat.label }}</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- Cerita / Visi Misi -->
-    <section class="about-story">
-      <div class="container about-story__grid">
-        <div class="about-story__image reveal">
-          <img src="/team/team-3.jpg" alt="Tim kami" />
-        </div>
-        <div class="about-story__content reveal" :style="{ transitionDelay: '0.1s' }">
-          <p class="section-label">Cerita Kami</p>
-          <h2>Berawal dari Ide, Tumbuh Bersama Klien</h2>
-          <p>
-            Kami memulai perjalanan ini dengan satu tujuan sederhana: membantu
-            bisnis lokal maupun nasional untuk memiliki kehadiran digital yang
-            kuat dan profesional. Seiring waktu, kepercayaan dari klien membuat
-            kami terus berkembang dan memperluas layanan.
-          </p>
-          <p>
-            Hingga saat ini, kami telah membantu puluhan bisnis dari berbagai
-            industri — mulai dari UMKM, arsitek, hingga perusahaan menengah —
-            untuk mewujudkan solusi digital yang sesuai kebutuhan mereka.
-          </p>
-        </div>
-      </div>
-    </section>
-
-    <!-- Nilai-nilai perusahaan -->
-    <section class="about-values">
+    <!-- VALUES -->
+    <section class="values">
       <div class="container">
-        <p class="section-label text-center reveal">Kenapa Memilih Kami</p>
-        <h2 class="text-center reveal">Nilai yang Kami Pegang</h2>
-        <div class="about-values__grid">
-          <div
-            v-for="(value, index) in values"
-            :key="value.title"
-            class="about-values__card reveal"
-            :style="{ transitionDelay: (index * 0.08) + 's' }"
-          >
-            <div class="about-values__icon">
-              <!-- ikon target -->
-              <svg v-if="index === 0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="12" cy="12" r="9" />
-                <circle cx="12" cy="12" r="5" />
-                <circle cx="12" cy="12" r="1" fill="currentColor" />
-              </svg>
-              <!-- ikon kolaborasi -->
-              <svg v-else-if="index === 1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="8" cy="8" r="3" />
-                <circle cx="16" cy="16" r="3" />
-                <path d="M10.5 9.5L13.5 14.5" />
-              </svg>
-              <!-- ikon petir / cepat -->
-              <svg v-else-if="index === 2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M13 2L4 14h6l-1 8 9-12h-6l1-8z" stroke-linejoin="round" />
-              </svg>
-              <!-- ikon perisai / terpercaya -->
-              <svg v-else viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M12 3l7 3v6c0 4.5-3 8-7 9-4-1-7-4.5-7-9V6l7-3z" stroke-linejoin="round" />
-                <path d="M9 12l2 2 4-4" stroke-linejoin="round" />
-              </svg>
-            </div>
-            <h3>{{ value.title }}</h3>
-            <p>{{ value.desc }}</p>
-          </div>
+        <div class="values__head">
+          <span class="eyebrow"><span class="eyebrow__dot"></span>Cara Kami Berpikir</span>
+          <h2>Yang kami pegang di setiap proyek</h2>
+        </div>
+
+        <div class="values__grid">
+          <article class="value-card" v-for="v in values" :key="v.title">
+            <div class="value-card__icon" v-html="v.icon"></div>
+            <h3>{{ v.title }}</h3>
+            <p>{{ v.desc }}</p>
+          </article>
         </div>
       </div>
     </section>
 
-    <!-- Tim -->
-    <section class="about-team">
+    <!-- PROCESS -->
+    <section class="process">
       <div class="container">
-        <p class="section-label text-center reveal">Tim Kami</p>
-        <h2 class="text-center reveal">Orang-orang di Balik Layanan Kami</h2>
-        <div class="about-team__grid">
-          <div
-            v-for="(member, i) in team"
-            :key="member.name"
-            class="about-team__card reveal"
-            :style="{ transitionDelay: (i * 0.08) + 's' }"
-          >
-            <img :src="member.avatar" :alt="member.name" />
-            <h3>{{ member.name }}</h3>
-            <p>{{ member.role }}</p>
+        <div class="process__head">
+          <span class="eyebrow"><span class="eyebrow__dot"></span>Cara Kami Bekerja</span>
+          <h2>Lima tahap, satu tujuan: produk yang benar-benar dipakai</h2>
+        </div>
+
+        <div class="process__row">
+          <div class="process-step" v-for="(p, i) in process" :key="p.title">
+            <div class="process-step__num">{{ String(i + 1).padStart(2, '0') }}</div>
+            <h3>{{ p.title }}</h3>
+            <p>{{ p.desc }}</p>
           </div>
         </div>
       </div>
@@ -205,478 +111,390 @@ onMounted(() => {
 
     <!-- CTA -->
     <section class="about-cta">
-      <div class="container about-cta__box reveal">
-        <h2>Siap Bekerja Sama dengan Kami?</h2>
-        <p>Konsultasikan kebutuhan digital bisnis Anda secara gratis bersama tim kami.</p>
-        <router-link to="/kontak" class="btn-primary">Konsultasi Gratis</router-link>
+      <div class="container about-cta__inner">
+        <h2>Punya proyek yang ingin didiskusikan?</h2>
+        <p>Ceritakan kebutuhan Anda, dan mari mulai diskusi awal tanpa biaya.</p>
+        <a
+          href="https://wa.me/6281234567890?text=Halo%20Brand%20Identity%2C%20saya%20ingin%20konsultasi%20proyek."
+          target="_blank"
+          rel="noopener"
+          class="btn btn-primary"
+        >Mulai Diskusi <span class="btn__arrow">→</span></a>
       </div>
     </section>
   </div>
 </template>
 
+<script setup>
+const milestones = [
+  {
+    year: '2019',
+    title: 'Awal mula',
+    desc: 'Dua developer freelance membantu UMKM di sekitar membuat website sederhana.',
+  },
+  {
+    year: '2021',
+    title: 'Bran Identity berdiri',
+    desc: 'Resmi jadi studio kecil dengan lima orang, mulai menangani klien di luar kota asal.',
+  },
+  {
+    year: '2023',
+    title: 'Perluasan layanan',
+    desc: 'Mulai menggarap aplikasi dan sistem internal, tidak hanya website.',
+  },
+  {
+    year: '2025',
+    title: '120+ proyek selesai',
+    desc: 'Dipercaya oleh startup hingga bisnis menengah dari berbagai industri.',
+  },
+  {
+    year: 'Sekarang',
+    title: 'Terus belajar',
+    desc: 'Fokus kami tetap sama: solusi yang dipakai, bukan sekadar dipajang.',
+  },
+]
+
+const values = [
+  {
+    title: 'Jujur soal proses',
+    desc: 'Kalau ada kendala atau timeline meleset, kami sampaikan lebih dulu — bukan diam-diam mengejar deadline dengan kualitas seadanya.',
+    icon: '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg>',
+  },
+  {
+    title: 'Mendengar dulu, baru merancang',
+    desc: 'Kami tanya siapa target pengguna dan apa masalah sebenarnya, sebelum menyentuh moodboard atau baris kode pertama.',
+    icon: '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 10h8M8 14h5"/><path d="M21 12c0 4.4-4 8-9 8-1.2 0-2.4-.2-3.4-.6L3 21l1.7-4.3C3.6 15.4 3 13.8 3 12c0-4.4 4-8 9-8s9 3.6 9 8z"/></svg>',
+  },
+  {
+    title: 'Bukan template yang dipaksakan',
+    desc: 'Setiap desain dan struktur kode kami sesuaikan dengan kebutuhan bisnis Anda, bukan hasil copy-paste dari proyek sebelumnya.',
+    icon: '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><path d="M14 17.5h7"/></svg>',
+  },
+  {
+    title: 'Berorientasi pada pemakaian nyata',
+    desc: 'Tolok ukur keberhasilan kami bukan tampilan yang bagus di portofolio, tapi apakah tim Anda benar-benar memakainya.',
+    icon: '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 17l6-6 4 4 8-8"/><path d="M17 7h4v4"/></svg>',
+  },
+]
+
+const process = [
+  {
+    title: 'Discovery',
+    desc: 'Memahami bisnis, target pengguna, dan masalah yang sebenarnya ingin diselesaikan.',
+  },
+  {
+    title: 'Riset & Strategi',
+    desc: 'Merumuskan pendekatan dan struktur yang paling masuk akal untuk kebutuhan Anda.',
+  },
+  {
+    title: 'Desain',
+    desc: 'Merancang tampilan dan alur yang sesuai identitas brand serta mudah dipakai.',
+  },
+  {
+    title: 'Development',
+    desc: 'Membangun dengan kode yang rapi, terukur, dan siap dikembangkan ke depan.',
+  },
+  {
+    title: 'Peluncuran & Support',
+    desc: 'Deploy produk ke pengguna nyata, dan tetap mendampingi setelah proyek selesai.',
+  },
+]
+</script>
+
 <style scoped>
-.about {
-  /* palet sama persis dengan halaman Layanan / Portofolio / Blog */
-  --cream: #FCEF91;
-  --orange-light: #FB9E3A;
-  --orange: #E6521F;
-  --red: #EA2F14;
-  --ink: #202020;
-  --ink-soft: #5b4a2a;
+/* This page assumes the brand tokens & base classes (--color-*, .container, .section,
+   .btn, .btn-primary, .btn-secondary, .eyebrow) are already defined globally per the
+   project's shared stylesheet. Only page-specific styles for Tentang Kami live here. */
+
+.about-page {
+  background: var(--color-bg);
+  /* Wider container just for this page — doesn't touch the shared
+     --container-width token used elsewhere, so other pages are unaffected. */
+  --container-width: 1320px;
 }
 
-.container {
-  max-width: 1140px;
-  margin: 0 auto;
-  padding: 0 24px;
-  position: relative;
-  z-index: 2;
+.eyebrow__dot {
+  display: inline-block;
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--color-red);
+  box-shadow: 0 0 0 3px rgba(235,43,12,0.18);
+  margin-right: 8px;
 }
 
-.section-label {
-  color: var(--red);
-  font-size: 14px;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  margin-bottom: 8px;
-}
-
-.text-center {
-  text-align: center;
-}
-
-/* ---------- Scroll reveal: muncul dari bawah saat masuk viewport ---------- */
-.reveal {
-  opacity: 0;
-  transform: translateY(36px);
-  transition: opacity 0.75s ease, transform 0.75s ease;
-}
-.reveal.is-revealed {
-  opacity: 1;
-  transform: translateY(0);
-}
-@media (prefers-reduced-motion: reduce) {
-  .reveal { transition: none; opacity: 1; transform: none; }
-}
-
-/* ---------- Hero (dirombak) ---------- */
+/* ---------- HERO ---------- */
+/* Deliberately different from the Testimoni hero: left-aligned, no pill eyebrow,
+   paired with a compact facts card instead of being centered/plain. */
 .about-hero {
-  position: relative;
+  border-bottom: 1px solid var(--color-border);
   overflow: hidden;
-  min-height: 640px;
-  display: flex;
-  align-items: center;
-  padding: 160px clamp(20px, 6vw, 80px) 90px;
-  /* gradient identik dengan hero Perencanaan / Portofolio / Blog */
-  background: linear-gradient(160deg, var(--cream) 0%, #fff3cf 45%, #ffe6c2 100%);
-  text-align: left;
 }
-
-.about-hero__mesh { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
-.mesh__orb { position: absolute; border-radius: 50%; filter: blur(70px); opacity: 0.5; }
-.mesh__orb--1 { width: 420px; height: 420px; top: -160px; left: -120px; background: radial-gradient(circle, var(--orange-light), transparent 70%); }
-.mesh__orb--2 { width: 380px; height: 380px; top: -100px; right: -140px; background: radial-gradient(circle, var(--red), transparent 70%); opacity: 0.28; }
-
 .about-hero__grid {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 40px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: stretch;
+  min-height: 520px;
 }
-
-.about-hero__content { max-width: 560px; }
-
-.about-hero__label {
-  color: var(--red);
-  font-weight: 800;
-  font-size: 12.5px;
+.about-hero__intro {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 104px 24px 72px;
+}
+.about-hero__since {
+  display: inline-block;
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: .06em;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  color: var(--color-deep-orange);
   margin-bottom: 14px;
 }
-
 .about-hero__title {
-  font-size: clamp(30px, 4.2vw, 48px);
-  font-weight: 800;
-  line-height: 1.16;
-  letter-spacing: -0.02em;
-  color: var(--ink);
-  max-width: 720px;
-  margin: 0 0 20px;
-}
-
-.about-hero__title .highlight {
-  color: var(--orange);
-}
-
-.about-hero__desc {
+  font-size: clamp(30px, 3.6vw, 44px);
+  letter-spacing: -0.01em;
+  margin-bottom: 16px;
   max-width: 460px;
-  margin: 0;
-  color: var(--ink-soft);
-  font-size: 15.5px;
-  line-height: 1.75;
+}
+.about-hero__desc {
+  font-size: 16.5px;
+  color: var(--color-text-secondary);
+  max-width: 440px;
+  margin-bottom: 32px;
 }
 
-/* Kartu commit melayang */
-.hero-visual {
-  position: relative;
-  width: 320px;
-  height: 260px;
-  flex-shrink: 0;
-  z-index: 2;
-}
-
-.commit-chip {
-  position: absolute;
-  width: 260px;
+.about-hero__facts {
   display: flex;
-  gap: 10px;
-  padding: 12px 14px;
-  border-radius: 12px;
-  background: #fff;
-  box-shadow: 0 16px 34px -16px rgba(32, 20, 0, 0.28);
-  animation: float 5.5s ease-in-out infinite;
+  gap: 32px;
+  flex-wrap: wrap;
+}
+.fact { display: flex; flex-direction: column; gap: 2px; }
+.fact strong { font-family: var(--font-heading); font-size: 24px; font-weight: 700; color: var(--color-red); line-height: 1; }
+.fact span { font-size: 12.5px; color: var(--color-text-secondary); }
+
+.about-hero__media {
+  position: relative;
+  min-height: 320px;
+}
+.about-hero__media img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.about-hero__media::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(
+    90deg,
+    var(--color-bg) 0%,
+    var(--color-bg) 6%,
+    rgba(250,250,250,0.85) 16%,
+    rgba(250,250,250,0.6) 26%,
+    rgba(250,250,250,0.35) 38%,
+    rgba(250,250,250,0.15) 50%,
+    transparent 64%
+  );
+  pointer-events: none;
 }
 
-.commit-chip--1 { top: 0; right: 0; --r: -4deg; z-index: 3; animation-delay: 0s; }
-.commit-chip--2 { top: 78px; right: 40px; --r: 3deg; z-index: 2; animation-delay: 0.7s; }
-.commit-chip--3 { top: 156px; right: 4px; --r: -2deg; z-index: 1; animation-delay: 1.4s; }
-
-@keyframes float {
-  0%, 100% { transform: translateY(0) rotate(var(--r, 0deg)); }
-  50% { transform: translateY(-9px) rotate(var(--r, 0deg)); }
+@media (max-width: 860px) {
+  .about-hero__grid { grid-template-columns: 1fr; }
+  .about-hero__media { min-height: 260px; order: -1; }
+  .about-hero__media::before { background: none; }
+  .about-hero__intro { padding: 48px 24px; }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .commit-chip { animation: none; }
-}
-
-.commit-chip__dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: #2e9e5b;
-  flex-shrink: 0;
-  margin-top: 5px;
-}
-
-.commit-chip__body { min-width: 0; }
-
-.commit-chip__tag {
-  display: inline-block;
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: 0.03em;
-  text-transform: uppercase;
-  color: var(--orange);
-  background: var(--cream);
-  padding: 2px 8px;
-  border-radius: 6px;
-  margin-bottom: 5px;
-}
-
-.commit-chip__text {
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--ink);
-  margin: 0 0 3px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.commit-chip__time {
-  font-size: 11px;
-  color: var(--ink-soft);
-}
-
-@media (max-width: 950px) {
-  .about-hero__grid { flex-direction: column; align-items: flex-start; }
-  .hero-visual { display: none; }
-}
-
-/* ================= DI BAWAH INI CSS ASLI, TIDAK DIUBAH ================= */
-
-/* Stats */
-.about-stats {
-  padding: 48px 0;
-  background: #fff;
-  border-bottom: 1px solid #f0f0f0;
-}
-
-.about-stats__grid {
+/* ---------- STORY + TIMELINE ---------- */
+.story { padding: 96px 0; }
+.story__inner {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 24px;
-  text-align: center;
+  grid-template-columns: minmax(0, 420px) minmax(0, 1fr);
+  gap: 64px;
+  align-items: start;
+}
+.story__text h2 { font-size: clamp(24px, 2.8vw, 30px); margin: 14px 0 18px; }
+.story__text p { color: var(--color-text-secondary); font-size: 15.5px; margin-bottom: 16px; }
+.story__text p:last-child { margin-bottom: 0; }
+
+.story__timeline {
+  display: flex;
+  flex-direction: column;
+}
+.timeline-item {
+  display: grid;
+  grid-template-columns: 52px 20px 1fr;
+  column-gap: 14px;
+  padding-bottom: 30px;
+  position: relative;
+}
+.timeline-item:last-child { padding-bottom: 0; }
+
+.timeline-item__year {
+  grid-column: 1;
+  text-align: right;
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--color-deep-orange);
+  letter-spacing: .02em;
+  padding-top: 2px;
+  white-space: nowrap;
 }
 
-.about-stats__item h3 {
-  font-size: 32px;
-  font-weight: 800;
-  color: var(--orange);
+.timeline-item__marker {
+  grid-column: 2;
+  position: relative;
+  display: flex;
+  justify-content: center;
+}
+.timeline-item__marker::before {
+  content: '';
+  position: absolute;
+  top: 3px;
+  width: 12px; height: 12px;
+  border-radius: 50%;
+  background: var(--color-surface);
+  border: 2px solid var(--color-red);
+  z-index: 1;
+}
+.timeline-item__marker::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  bottom: -30px;
+  width: 2px;
+  background: linear-gradient(180deg, var(--color-orange), var(--color-red));
+  opacity: .5;
+}
+.timeline-item:last-child .timeline-item__marker::after { display: none; }
+
+.timeline-item__content {
+  grid-column: 3;
+  padding-top: 0;
+}
+.timeline-item__content h3 {
+  font-size: 16.5px;
   margin-bottom: 4px;
 }
-
-.about-stats__item p {
-  color: #666;
+.timeline-item__content p {
   font-size: 14px;
+  color: var(--color-text-secondary);
+  margin: 0;
 }
 
-/* Story */
-.about-story {
-  padding: 80px 0;
-  background: #fff;
+@media (max-width: 420px) {
+  .timeline-item { grid-template-columns: 40px 16px 1fr; column-gap: 10px; }
+  .timeline-item__year { font-size: 11.5px; }
 }
 
-.about-story__grid {
+@media (max-width: 860px) {
+  .story__inner { grid-template-columns: 1fr; gap: 44px; }
+}
+
+/* ---------- VALUES ---------- */
+.values { padding: 96px 0; background: var(--color-surface); border-top: 1px solid var(--color-border); border-bottom: 1px solid var(--color-border); }
+.values__head { max-width: 560px; margin-bottom: 44px; }
+.values__head h2 { font-size: clamp(24px, 2.8vw, 30px); margin-top: 14px; }
+
+.values__grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 56px;
-  align-items: center;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
 }
+@media (max-width: 980px) { .values__grid { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 560px) { .values__grid { grid-template-columns: 1fr; } }
 
-.about-story__image img {
-  width: 100%;
-  border-radius: 20px;
-  object-fit: cover;
-  aspect-ratio: 4 / 3;
+.value-card {
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 26px 22px;
+  transition: transform .18s ease, box-shadow .18s ease;
 }
-
-.about-story__content h2 {
-  font-size: 30px;
-  font-weight: 800;
+.value-card:hover { transform: translateY(-4px); box-shadow: 0 20px 36px -26px rgba(26,26,26,0.28); }
+.value-card__icon {
+  width: 44px; height: 44px;
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--color-red);
+  background: rgba(235,43,12,0.08);
   margin-bottom: 16px;
-  color: #1a1a1a;
 }
+.value-card h3 { font-size: 15.5px; margin-bottom: 8px; }
+.value-card p { font-size: 13.5px; color: var(--color-text-secondary); }
 
-.about-story__content p {
-  color: #555;
-  line-height: 1.75;
-  margin-bottom: 14px;
-}
+/* ---------- PROCESS ---------- */
+.process { padding: 96px 0; }
+.process__head { max-width: 620px; margin-bottom: 48px; }
+.process__head h2 { font-size: clamp(24px, 2.8vw, 30px); margin-top: 14px; }
 
-/* Values */
-.about-values {
-  padding: 80px 0;
-  background: #fafafa;
-}
-
-.about-values h2 {
-  font-size: 30px;
-  font-weight: 800;
-  margin-bottom: 40px;
-  color: #1a1a1a;
-}
-
-.about-values__grid {
+.process__row {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 24px;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 20px;
+  position: relative;
+}
+.process__row::before {
+  content: '';
+  position: absolute;
+  top: 22px;
+  left: 4%;
+  right: 4%;
+  height: 2px;
+  background: linear-gradient(90deg, var(--color-yellow), var(--color-orange), var(--color-deep-orange), var(--color-red));
+  opacity: .5;
+  z-index: 0;
+}
+@media (max-width: 980px) {
+  .process__row { grid-template-columns: 1fr 1fr; }
+  .process__row::before { display: none; }
+}
+@media (max-width: 560px) {
+  .process__row { grid-template-columns: 1fr; }
 }
 
-.about-values__card {
-  background: #fff;
-  border: 1px solid #eee;
-  border-radius: 16px;
-  padding: 28px 22px;
-  text-align: center;
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
-}
-
-.about-values__card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.06);
-}
-
-.about-values__icon {
-  width: 48px;
-  height: 48px;
-  margin: 0 auto 16px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 12px;
-  background: #fff2d4;
-  color: var(--orange);
-}
-
-.about-values__icon svg {
-  width: 24px;
-  height: 24px;
-}
-
-.about-values__card h3 {
-  font-size: 17px;
+.process-step { position: relative; z-index: 1; }
+.process-step__num {
+  font-family: var(--font-heading);
   font-weight: 700;
-  margin-bottom: 8px;
-  color: #1a1a1a;
+  font-size: 15px;
+  color: var(--color-surface);
+  background: var(--color-red);
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 16px;
 }
+.process-step h3 { font-size: 15.5px; margin-bottom: 8px; }
+.process-step p { font-size: 13.5px; color: var(--color-text-secondary); }
 
-.about-values__card p {
-  font-size: 14px;
-  color: #666;
-  line-height: 1.6;
-}
-
-/* Team */
-.about-team {
-  padding: 80px 0;
-  background: #fff;
-}
-
-.about-team h2 {
-  font-size: 30px;
-  font-weight: 800;
-  margin-bottom: 40px;
-  color: #1a1a1a;
-}
-
-.about-team__grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 24px;
-}
-
-.about-team__card {
-  text-align: center;
-}
-
-.about-team__card img {
-  width: 100%;
-  aspect-ratio: 1 / 1;
-  object-fit: cover;
-  border-radius: 16px;
-  margin-bottom: 14px;
-}
-
-.about-team__card h3 {
-  font-size: 16px;
-  font-weight: 700;
-  color: #1a1a1a;
-}
-
-.about-team__card p {
-  font-size: 14px;
-  color: var(--orange);
-}
-
-/* CTA */
+/* ---------- CTA ---------- */
 .about-cta {
-  position: relative;
-  overflow: hidden;
-  padding: 100px clamp(20px, 6vw, 80px);
-  background: linear-gradient(115deg, #fcef91 0%, #ffa447 45%, #f93827 100%);
-  text-align: center;
+  margin: 0 24px 96px;
+  max-width: calc(var(--container-width) - 48px);
+  margin-left: auto;
+  margin-right: auto;
+  border-radius: 24px;
+  background: linear-gradient(120deg, var(--color-red), var(--color-deep-orange) 60%, var(--color-orange));
+  padding: 64px 40px;
 }
-
-.about-cta__box {
-  position: relative;
-  z-index: 2;
-  max-width: 600px;
+.about-cta__inner {
+  max-width: 520px;
   margin: 0 auto;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
 }
-
-.about-cta__box h2 {
-  font-size: clamp(24px, 3.4vw, 36px);
-  font-weight: 800;
-  margin-bottom: 14px;
-  color: #201409;
-}
-
-.about-cta__box p {
-  color: rgba(32, 20, 9, 0.75);
-  margin-bottom: 32px;
-  line-height: 1.7;
-}
-
-.btn-primary {
-  display: inline-block;
-  background: #fff;
-  color: var(--red);
-  font-weight: 800;
-  padding: 16px 32px;
-  border-radius: 999px;
-  text-decoration: none;
-  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.15);
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
-}
-
-.btn-primary:hover {
-  transform: translateY(-3px);
-}
-
-/* Responsive */
-@media (max-width: 900px) {
-  .about-stats__grid,
-  .about-values__grid,
-  .about-team__grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  .about-story__grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-@media (max-width: 650px) {
-  .about-hero {
-    min-height: auto;
-    padding: 120px 20px 60px;
-  }
-}
-
-@media (max-width: 480px) {
-  .about-hero__title {
-    font-size: 26px;
-    margin: 0 0 14px;
-  }
-  .about-hero__desc {
-    font-size: 14px;
-  }
-
-  .about-stats__grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 16px;
-  }
-  .about-stats__item h3 {
-    font-size: 24px;
-  }
-
-  /* Tetap 2 kolom per baris, hanya diperkecil supaya pas di layar HP */
-  .about-values__grid,
-  .about-team__grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 14px;
-  }
-
-  .about-values__card {
-    padding: 18px 12px;
-  }
-  .about-values__icon {
-    width: 38px;
-    height: 38px;
-    margin-bottom: 10px;
-  }
-  .about-values__icon svg {
-    width: 18px;
-    height: 18px;
-  }
-  .about-values__card h3 {
-    font-size: 14px;
-    margin-bottom: 6px;
-  }
-  .about-values__card p {
-    font-size: 12px;
-    line-height: 1.5;
-  }
-
-  .about-team__card h3 {
-    font-size: 13px;
-  }
-  .about-team__card p {
-    font-size: 12px;
-  }
-}
+.about-cta__inner h2 { font-size: clamp(24px, 3.2vw, 32px); color: #fff; }
+.about-cta__inner p { color: rgba(255,255,255,0.85); margin-bottom: 10px; }
+.about-cta .btn-primary { background: #fff; color: var(--color-red); box-shadow: none; }
+.about-cta .btn-primary:hover { opacity: .9; }
+.about-cta .btn__arrow { transition: transform .15s ease; }
+.about-cta .btn-primary:hover .btn__arrow { transform: translateX(3px); }
 </style>
