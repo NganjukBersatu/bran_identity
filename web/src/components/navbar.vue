@@ -1,623 +1,1199 @@
-<script setup>
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
-import { useRoute } from 'vue-router'
-
-const route = useRoute()
-
-const isScrolled = ref(false)
-const isLayananOpen = ref(false)       // dropdown Layanan versi desktop
-const isMobileMenuOpen = ref(false)    // panel menu versi mobile
-const isMobileLayananOpen = ref(false) // accordion Layanan versi mobile
-
-/*
-  Navbar hanya boleh transparan di halaman Home.
-  Di semua halaman lain, navbar selalu putih solid
-  dari awal supaya tidak nyampur dengan background
-  halaman tersebut (misalnya section gelap).
-*/
-const isHomePage = computed(() => route.path === '/')
-
-const showSolidHeader = computed(() => isScrolled.value || !isHomePage.value || isMobileMenuOpen.value)
-
-const menu = [
-  { label: 'Home', to: '/' },
-  { label: 'Portofolio', to: '/portofolio' },
-  { label: 'Testimoni', to: '/testimoni'},
-  { label: 'Tentang Kami', to: '/tentang-kami' },
-  { label: 'Blog', to: '/blog' },
-]
-
-const layananMenu = [
-  { label: 'Konsultasi', to: '/layanan/konsultasi' },
-  { label: 'Perencanaan', to: '/layanan/perencanaan' },
-  { label: 'Development', to: '/layanan/development' },
-  { label: 'Deploy', to: '/layanan/deploy' },
-  { label: 'Support', to: '/layanan/support' },
-  { label: 'Optimasi', to: '/layanan/optimasi' }
-]
-
-const handleScroll = () => {
-  isScrolled.value = window.scrollY > 30
-}
-
-const toggleLayanan = () => {
-  isLayananOpen.value = !isLayananOpen.value
-}
-
-const closeLayanan = () => {
-  isLayananOpen.value = false
-}
-
-const handleOutsideClick = (event) => {
-  const layananWrapper = event.target.closest('.layanan-wrapper')
-  if (!layananWrapper) {
-    closeLayanan()
-  }
-}
-
-const toggleMobileMenu = () => {
-  isMobileMenuOpen.value = !isMobileMenuOpen.value
-}
-
-const closeMobileMenu = () => {
-  isMobileMenuOpen.value = false
-  isMobileLayananOpen.value = false
-}
-
-const toggleMobileLayanan = () => {
-  isMobileLayananOpen.value = !isMobileLayananOpen.value
-}
-
-// tutup menu mobile otomatis setiap kali pindah halaman
-watch(() => route.path, () => {
-  closeMobileMenu()
-  closeLayanan()
-})
-
-onMounted(() => {
-  window.addEventListener('scroll', handleScroll)
-  document.addEventListener('click', handleOutsideClick)
-  handleScroll()
-})
-
-onUnmounted(() => {
-  window.removeEventListener('scroll', handleScroll)
-  document.removeEventListener('click', handleOutsideClick)
-})
-</script>
-
 <template>
+  <header
+    class="navbar"
+    :class="{
+      'navbar-transparent': isHome && !isScrolled,
+      'navbar-scrolled': isScrolled || !isHome
+    }"
+  >
+    <div class="navbar-container">
 
-  <header class="header" :class="{ 'header--scrolled': showSolidHeader }">
+      <!-- =========================
+           LOGO
+      ========================== -->
+      <router-link to="/" class="brand" @click="closeMenu">
+        <div class="brand-icon">
+          <svg
+            viewBox="0 0 48 48"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M24 3L42 13.5V34.5L24 45L6 34.5V13.5L24 3Z"
+              fill="url(#brandGradient)"
+            />
 
-    <div class="header__inner">
+            <path
+              d="M17 20L12.5 24L17 28"
+              stroke="currentColor"
+              stroke-width="2.2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
 
-      <router-link to="/" class="header__logo" @click="closeMobileMenu">
-        <img src="/logos/image.png" alt="BRAN Identity" class="logo-image" />
-        <div class="logo-text">
-          <div class="logo-name">BRAN <span>IDENTITY</span></div>
-          <div class="logo-tagline">Digital Solution for Your Business</div>
+            <path
+              d="M31 20L35.5 24L31 28"
+              stroke="currentColor"
+              stroke-width="2.2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+
+            <path
+              d="M27.5 17.5L20.5 30.5"
+              stroke="currentColor"
+              stroke-width="2.2"
+              stroke-linecap="round"
+            />
+
+            <defs>
+              <linearGradient
+                id="brandGradient"
+                x1="6"
+                y1="3"
+                x2="42"
+                y2="45"
+                gradientUnits="userSpaceOnUse"
+              >
+                <stop stop-color="#FCEF92" />
+                <stop offset="0.5" stop-color="#FB9F37" />
+                <stop offset="1" stop-color="#E75119" />
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+
+        <div class="brand-text">
+          <span class="brand-name">
+            BRAN<span>IDENTITY</span>
+          </span>
+
+          <span class="brand-tagline">
+            Digital Solution for Your Business
+          </span>
         </div>
       </router-link>
 
-      <!-- ===== Nav Desktop ===== -->
-      <nav class="header__nav">
+      <!-- =========================
+           DESKTOP NAVIGATION
+      ========================== -->
+      <nav class="desktop-nav">
 
-        <router-link to="/" class="nav-link" @click="closeLayanan">
-          Home
-        </router-link>
+        <!-- SOLUTION -->
+        <div
+          class="nav-dropdown"
+          @mouseenter="openDropdown"
+          @mouseleave="scheduleCloseDropdown"
+        >
+          <div class="solution-nav-wrapper">
 
-        <div class="layanan-wrapper">
-
-          <button
-            type="button"
-            class="layanan-button"
-            :class="{ active: isLayananOpen }"
-            @click.stop="toggleLayanan"
-          >
-            <span class="layanan-text">Layanan</span>
-            <span class="arrow"></span>
-          </button>
-
-          <div
-            v-if="isLayananOpen"
-            class="layanan-dropdown"
-            @click.stop
-          >
             <router-link
-              v-for="item in layananMenu"
-              :key="item.label"
-              :to="item.to"
-              class="dropdown-link"
-              @click="closeLayanan"
+              to="/solutions"
+              class="nav-link solution-link"
+              :class="{ active: isSolutionPage }"
+              @click="closeDropdown"
             >
-              {{ item.label }}
+              Solution
+
+              <svg
+                class="dropdown-arrow"
+                :class="{ rotate: dropdownOpen }"
+                width="12"
+                height="12"
+                viewBox="0 0 12 12"
+                fill="none"
+              >
+                <path
+                  d="M3 4.5L6 7.5L9 4.5"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
             </router-link>
+
           </div>
 
+          <!-- DROPDOWN -->
+          <transition name="dropdown">
+            <div
+              v-if="dropdownOpen"
+              class="dropdown-menu"
+              @mouseenter="cancelCloseDropdown"
+              @mouseleave="scheduleCloseDropdown"
+            >
+
+              <router-link
+                v-for="item in solutions"
+                :key="item.slug"
+                :to="`/solutions/${item.slug}`"
+                class="dropdown-item"
+                :class="{
+                  active:
+                    route.path === `/solutions/${item.slug}`
+                }"
+                @click="closeDropdown"
+              >
+                <span class="dropdown-title">
+                  {{ item.title }}
+                </span>
+              </router-link>
+
+            </div>
+          </transition>
         </div>
 
+        <!-- PORTFOLIO -->
         <router-link
-          v-for="item in menu.slice(1)"
-          :key="item.label"
-          :to="item.to"
+          to="/portfolio"
           class="nav-link"
-          @click="closeLayanan"
+          :class="{ active: route.path === '/portfolio' }"
         >
-          {{ item.label }}
+          Portfolio
+        </router-link>
+
+        <!-- TESTIMONI -->
+        <router-link
+          to="/testimoni"
+          class="nav-link"
+          :class="{ active: route.path === '/testimoni' }"
+        >
+          Testimoni
+        </router-link>
+
+        <!-- TENTANG KAMI -->
+        <router-link
+          to="/tentang-kami"
+          class="nav-link"
+          :class="{ active: route.path === '/tentang-kami' }"
+        >
+          Tentang Kami
+        </router-link>
+
+        <!-- BLOG -->
+        <router-link
+          to="/blog"
+          class="nav-link"
+          :class="{ active: route.path === '/blog' }"
+        >
+          Blog
+        </router-link>
+
+        <!-- CONTACT US -->
+        <router-link
+          to="/contact"
+          class="nav-link"
+          :class="{ active: route.path === '/contact' }"
+        >
+          Contact Us
         </router-link>
 
       </nav>
 
-      <router-link to="/layanan/konsultasi" class="consult-button" @click="closeMobileMenu">
-  Konsultasi Gratis
-</router-link>
-
-      <!-- ===== Tombol Hamburger (mobile only) ===== -->
+      <!-- =========================
+           MOBILE BUTTON
+      ========================== -->
       <button
+        class="mobile-toggle"
         type="button"
-        class="hamburger"
-        :class="{ active: isMobileMenuOpen }"
-        aria-label="Buka menu"
-        @click.stop="toggleMobileMenu"
+        aria-label="Toggle navigation"
+        :aria-expanded="mobileOpen"
+        @click="toggleMobile"
       >
-        <span></span>
-        <span></span>
-        <span></span>
+        <span :class="{ open: mobileOpen }"></span>
+        <span :class="{ open: mobileOpen }"></span>
+        <span :class="{ open: mobileOpen }"></span>
       </button>
 
     </div>
 
-    <!-- ===== Panel Menu Mobile ===== -->
+    <!-- =========================
+         MOBILE NAVIGATION
+    ========================== -->
     <transition name="mobile-menu">
-      <div v-if="isMobileMenuOpen" class="mobile-menu" @click.stop>
-        <router-link to="/" class="mobile-link" @click="closeMobileMenu">
-          Home
-        </router-link>
+      <div
+        v-if="mobileOpen"
+        class="mobile-nav"
+      >
 
-        <div class="mobile-accordion">
-          <button
-            type="button"
-            class="mobile-link mobile-accordion__trigger"
-            :class="{ active: isMobileLayananOpen }"
-            @click="toggleMobileLayanan"
-          >
-            <span>Layanan</span>
-            <span class="arrow" :class="{ open: isMobileLayananOpen }"></span>
-          </button>
+        <!-- Solution mobile -->
+        <div class="mobile-solution">
 
-          <div v-if="isMobileLayananOpen" class="mobile-accordion__panel">
+          <div class="mobile-solution-header">
             <router-link
-              v-for="item in layananMenu"
-              :key="item.label"
-              :to="item.to"
-              class="mobile-sublink"
-              @click="closeMobileMenu"
+              to="/solutions"
+              class="mobile-nav-link"
+              :class="{ active: isSolutionPage }"
+              @click="closeMenu"
             >
-              {{ item.label }}
+              Solution
             </router-link>
+
+            <button
+              class="mobile-solution-toggle"
+              type="button"
+              @click="mobileSolutionOpen = !mobileSolutionOpen"
+            >
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 16 16"
+                fill="none"
+                :class="{ rotate: mobileSolutionOpen }"
+              >
+                <path
+                  d="M4 6L8 10L12 6"
+                  stroke="currentColor"
+                  stroke-width="1.7"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </button>
           </div>
+
+          <transition name="mobile-solutions">
+            <div
+              v-if="mobileSolutionOpen"
+              class="mobile-solutions-list"
+            >
+
+              <router-link
+                v-for="item in solutions"
+                :key="item.slug"
+                :to="`/solutions/${item.slug}`"
+                class="mobile-solution-item"
+                @click="closeMenu"
+              >
+                {{ item.title }}
+              </router-link>
+
+            </div>
+          </transition>
+
         </div>
 
+        <!-- Portfolio -->
         <router-link
-          v-for="item in menu.slice(1)"
-          :key="item.label"
-          :to="item.to"
-          class="mobile-link"
-          @click="closeMobileMenu"
+          to="/portfolio"
+          class="mobile-nav-link"
+          @click="closeMenu"
         >
-          {{ item.label }}
+          Portfolio
         </router-link>
 
-        <router-link to="/#kontak" class="mobile-consult-button" @click="closeMobileMenu">
-          Konsultasi Gratis
+        <!-- Testimoni -->
+        <router-link
+          to="/testimoni"
+          class="mobile-nav-link"
+          @click="closeMenu"
+        >
+          Testimoni
         </router-link>
+
+        <!-- Tentang Kami -->
+        <router-link
+          to="/tentang-kami"
+          class="mobile-nav-link"
+          @click="closeMenu"
+        >
+          Tentang Kami
+        </router-link>
+
+        <!-- Blog -->
+        <router-link
+          to="/blog"
+          class="mobile-nav-link"
+          @click="closeMenu"
+        >
+          Blog
+        </router-link>
+
+        <!-- Contact -->
+        <router-link
+          to="/contact"
+          class="mobile-nav-link"
+          @click="closeMenu"
+        >
+          Contact Us
+        </router-link>
+
       </div>
     </transition>
 
   </header>
-
 </template>
+
+<script setup>
+import {
+  ref,
+  computed,
+  onMounted,
+  onUnmounted
+} from 'vue'
+
+import { useRoute } from 'vue-router'
+
+import { solutions } from '../router/solutions.js'
+
+/* =========================
+   ROUTER
+========================= */
+
+const route = useRoute()
+
+/* =========================
+   STATE
+========================= */
+
+const isScrolled = ref(false)
+
+const dropdownOpen = ref(false)
+
+const mobileOpen = ref(false)
+
+const mobileSolutionOpen = ref(false)
+
+let closeTimer = null
+
+/* =========================
+   HOME CHECK
+========================= */
+
+const isHome = computed(() => {
+  return route.path === '/'
+})
+
+/* =========================
+   SOLUTION PAGE CHECK
+========================= */
+
+const isSolutionPage = computed(() => {
+  return route.path.startsWith('/solutions')
+})
+
+/* =========================
+   SCROLL
+========================= */
+
+const handleScroll = () => {
+  isScrolled.value = window.scrollY > 40
+}
+
+/* =========================
+   DESKTOP DROPDOWN
+========================= */
+
+const openDropdown = () => {
+  if (closeTimer) {
+    clearTimeout(closeTimer)
+    closeTimer = null
+  }
+
+  dropdownOpen.value = true
+}
+
+const scheduleCloseDropdown = () => {
+  if (closeTimer) {
+    clearTimeout(closeTimer)
+  }
+
+  closeTimer = setTimeout(() => {
+    dropdownOpen.value = false
+  }, 180)
+}
+
+const cancelCloseDropdown = () => {
+  if (closeTimer) {
+    clearTimeout(closeTimer)
+    closeTimer = null
+  }
+
+  dropdownOpen.value = true
+}
+
+const closeDropdown = () => {
+  dropdownOpen.value = false
+
+  if (closeTimer) {
+    clearTimeout(closeTimer)
+    closeTimer = null
+  }
+}
+
+/* =========================
+   MOBILE
+========================= */
+
+const toggleMobile = () => {
+  mobileOpen.value = !mobileOpen.value
+
+  if (!mobileOpen.value) {
+    mobileSolutionOpen.value = false
+  }
+}
+
+const closeMenu = () => {
+  mobileOpen.value = false
+  mobileSolutionOpen.value = false
+  dropdownOpen.value = false
+}
+
+/* =========================
+   ESCAPE KEY
+========================= */
+
+const handleKeydown = (event) => {
+  if (event.key === 'Escape') {
+    closeMenu()
+  }
+}
+
+/* =========================
+   LIFECYCLE
+========================= */
+
+onMounted(() => {
+  handleScroll()
+
+  window.addEventListener(
+    'scroll',
+    handleScroll,
+    { passive: true }
+  )
+
+  window.addEventListener(
+    'keydown',
+    handleKeydown
+  )
+})
+
+onUnmounted(() => {
+  window.removeEventListener(
+    'scroll',
+    handleScroll
+  )
+
+  window.removeEventListener(
+    'keydown',
+    handleKeydown
+  )
+
+  if (closeTimer) {
+    clearTimeout(closeTimer)
+  }
+})
+</script>
 
 <style scoped>
 
-/* =====================================
-   HEADER
-   Default transparan (hanya efektif
-   di Home, karena di halaman lain
-   class header--scrolled otomatis
-   dipaksa aktif lewat showSolidHeader).
-===================================== */
+/* =====================================================
+   NAVBAR
+===================================================== */
 
-.header {
+.navbar {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
+  height: 88px;
+
   z-index: 9999;
 
-  background: transparent;
-  border-bottom: 1px solid transparent;
-
   transition:
-    background 0.3s ease,
+    background-color 0.3s ease,
     box-shadow 0.3s ease,
-    border-color 0.3s ease;
+    backdrop-filter 0.3s ease;
+
+  background: var(--color-surface);
 }
 
-.header--scrolled {
-  background: rgba(255, 255, 255, 0.97);
-  border-bottom: 1px solid #eeeeee;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.07);
-  backdrop-filter: blur(10px);
-}
+/* =====================================================
+   TRANSPARENT HOME
+===================================================== */
 
-/*
-  Saat header MASIH transparan (di atas hero gelap, belum discroll):
-  teks logo & menu diputihkan + diberi shadow tipis supaya tetap
-  terbaca di atas foto apapun. Begitu header--scrolled aktif,
-  warnanya otomatis kembali gelap seperti biasa (lihat rule di atas).
-*/
-.header:not(.header--scrolled) .logo-name,
-.header:not(.header--scrolled) .logo-tagline,
-.header:not(.header--scrolled) .nav-link,
-.header:not(.header--scrolled) .layanan-button,
-.header:not(.header--scrolled) .hamburger span {
-  color: #ffffff;
-  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.45);
-}
-
-.header:not(.header--scrolled) .logo-name span {
-  color: #ffb27a; /* oranye terang biar tetap kebaca di atas foto gelap */
-}
-
-.header:not(.header--scrolled) .hamburger span {
-  background: #ffffff;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
-}
-
-.header:not(.header--scrolled) .nav-link:hover,
-.header:not(.header--scrolled) .layanan-button:hover,
-.header:not(.header--scrolled) .nav-link.router-link-active,
-.header:not(.header--scrolled) .layanan-button.active {
-  color: #ffb27a;
-}
-
-.header:not(.header--scrolled) .arrow {
-  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.4));
-}
-
-.header__inner {
-  width: 100%;
-  height: 90px;
-  padding: 0 clamp(20px, 4vw, 64px);
-  box-sizing: border-box;
-  display: flex;
-  align-items: center;
-  gap: 30px;
-}
-
-.header__logo {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  text-decoration: none;
-  flex-shrink: 0;
-}
-
-.logo-image {
-  width: 43px;
-  height: 43px;
-  object-fit: contain;
-  mix-blend-mode: multiply;
-}
-
-.logo-text {
-  display: flex;
-  flex-direction: column;
-}
-
-.logo-name {
-  color: #202020;
-  font-size: 20px;
-  font-weight: 800;
-  line-height: 1;
-  transition: color 0.3s ease;
-}
-
-.logo-name span {
-  color: #f4511e;
-}
-
-.logo-tagline {
-  margin-top: 5px;
-  color: #777;
-  font-size: 8px;
-  line-height: 1.2;
-  transition: color 0.3s ease;
-}
-
-.header__nav {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  margin-left: auto;
-}
-
-.nav-link,
-.layanan-button {
-  height: 44px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0 15px;
-  border-radius: 8px;
-  color: #202020;
-  text-decoration: none;
-  font-family: inherit;
-  font-size: 14px;
-  font-weight: 500;
-  line-height: 1;
-  box-sizing: border-box;
-  transition: color 0.3s ease, background 0.2s ease;
-}
-
-.nav-link:hover,
-.layanan-button:hover {
-  color: #f4511e;
-}
-
-.nav-link.router-link-active {
-  color: #f4511e;
-  font-weight: 700;
-}
-
-.layanan-wrapper {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-
-.layanan-button {
-  border: none;
+.navbar-transparent {
   background: transparent;
-  cursor: pointer;
-  gap: 4px;
+  box-shadow: none;
+  backdrop-filter: none;
 }
 
-.layanan-text {
-  display: inline-flex;
-  align-items: center;
-  line-height: 1;
+/* =====================================================
+   SCROLLED / OTHER PAGE
+===================================================== */
+
+.navbar-scrolled {
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 8px 30px rgba(26, 26, 26, 0.08);
+  backdrop-filter: blur(12px);
 }
 
-.layanan-button.active {
-  color: #f4511e;
-}
+/* =====================================================
+   CONTAINER
+===================================================== */
 
-.arrow {
-  display: inline-block;
-  width: 0;
-  height: 0;
-  margin-left: 6px;
-  border-left: 4px solid transparent;
-  border-right: 4px solid transparent;
-  border-top: 5px solid currentColor;
-  transition: transform 0.2s ease;
-}
+.navbar-container {
+  width: min(
+    var(--container-width),
+    calc(100% - 48px)
+  );
 
-.arrow.open {
-  transform: rotate(180deg);
-}
+  height: 100%;
 
-.layanan-dropdown {
-  position: absolute;
-  top: calc(100% + 7px);
-  left: 50%;
-  transform: translateX(-50%);
-  width: 235px;
-  padding: 8px;
-  background: #ffffff;
-  border: 1px solid #eeeeee;
-  border-radius: 12px;
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
-  z-index: 10000;
-  box-sizing: border-box;
-}
+  margin: 0 auto;
 
-.dropdown-link {
-  display: block;
-  padding: 13px 15px;
-  border-radius: 8px;
-  color: #252525;
-  text-decoration: none;
-  font-size: 13px;
-  font-weight: 500;
-  line-height: 1.3;
-  transition: color 0.2s ease, background 0.2s ease;
-}
-
-.dropdown-link:hover,
-.dropdown-link.router-link-active {
-  color: #f4511e;
-  background: #fff3ed;
-}
-
-.consult-button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 46px;
-  padding: 0 21px;
-  border-radius: 10px;
-  background: #f4511e;
-  color: #ffffff;
-  text-decoration: none;
-  font-size: 14px;
-  font-weight: 700;
-  line-height: 1;
-  white-space: nowrap;
-  box-shadow: 0 6px 15px rgba(244, 81, 30, 0.2);
-  transition: background 0.2s ease, transform 0.2s ease;
-}
-
-.consult-button:hover {
-  background: #e94714;
-  transform: translateY(-2px);
-}
-
-/* =====================================
-   HAMBURGER (mobile only, tersembunyi
-   di desktop lewat media query di bawah)
-===================================== */
-
-.hamburger {
-  display: none;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  gap: 5px;
-  width: 42px;
-  height: 42px;
-  border: none;
-  background: transparent;
-  border-radius: 8px;
-  cursor: pointer;
-  flex-shrink: 0;
-  transition: background 0.2s ease;
-}
-
-.hamburger:hover {
-  background: rgba(0, 0, 0, 0.05);
-}
-
-.hamburger span {
-  display: block;
-  width: 22px;
-  height: 2px;
-  border-radius: 2px;
-  background: #202020;
-  transition: transform 0.25s ease, opacity 0.25s ease;
-}
-
-.hamburger.active span:nth-child(1) {
-  transform: translateY(7px) rotate(45deg);
-}
-.hamburger.active span:nth-child(2) {
-  opacity: 0;
-}
-.hamburger.active span:nth-child(3) {
-  transform: translateY(-7px) rotate(-45deg);
-}
-
-/* =====================================
-   PANEL MENU MOBILE
-===================================== */
-
-.mobile-menu {
-  display: none;
-}
-
-.mobile-menu-enter-active,
-.mobile-menu-leave-active {
-  transition: opacity 0.2s ease, transform 0.2s ease;
-}
-.mobile-menu-enter-from,
-.mobile-menu-leave-to {
-  opacity: 0;
-  transform: translateY(-8px);
-}
-
-.mobile-link {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  width: 100%;
-  padding: 14px 4px;
-  border: none;
-  background: transparent;
-  color: #202020;
+}
+
+/* =====================================================
+   BRAND
+===================================================== */
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+
   text-decoration: none;
-  font-family: inherit;
-  font-size: 15px;
-  font-weight: 600;
-  text-align: left;
-  border-bottom: 1px solid #f0f0f0;
-  cursor: pointer;
+
+  flex-shrink: 0;
 }
 
-.mobile-link.router-link-active {
-  color: #f4511e;
-}
+.brand-icon {
+  width: 42px;
+  height: 42px;
 
-.mobile-accordion__trigger .arrow {
-  border-top-color: #202020;
-}
-
-.mobile-accordion__panel {
-  display: flex;
-  flex-direction: column;
-  padding: 4px 0 8px 14px;
-  border-bottom: 1px solid #f0f0f0;
-}
-
-.mobile-sublink {
-  padding: 11px 4px;
-  color: #555;
-  text-decoration: none;
-  font-size: 14px;
-  font-weight: 500;
-}
-
-.mobile-sublink:hover,
-.mobile-sublink.router-link-active {
-  color: #f4511e;
-}
-
-.mobile-consult-button {
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-top: 18px;
-  height: 46px;
-  border-radius: 10px;
-  background: #f4511e;
-  color: #ffffff;
-  text-decoration: none;
-  font-size: 14px;
-  font-weight: 700;
+
+  color: var(--color-red);
 }
 
-/* =====================================
-   RESPONSIVE
-===================================== */
+.brand-icon svg {
+  width: 42px;
+  height: 42px;
+}
 
-@media (max-width: 768px) {
-  .header__inner { padding: 0 20px; height: 72px; gap: 12px; }
-  .header__nav { display: none; }
-  .consult-button { display: none; }
-  .hamburger { display: flex; margin-left: auto; }
+/* =====================================================
+   BRAND TEXT
+===================================================== */
 
-  .logo-image { width: 38px; height: 38px; }
-  .logo-name { font-size: 17px; }
-  .logo-tagline { display: none; }
+.brand-text {
+  display: flex;
+  flex-direction: column;
+}
 
-  .mobile-menu {
+.brand-name {
+  font-family: var(--font-heading);
+
+  font-size: 20px;
+  line-height: 1.1;
+
+  font-weight: 700;
+
+  color: var(--color-text);
+
+  white-space: nowrap;
+
+  transition: color 0.3s ease;
+}
+
+.brand-name span {
+  color: var(--color-deep-orange);
+
+  transition: color 0.3s ease;
+}
+
+.brand-tagline {
+  margin-top: 4px;
+
+  font-family: var(--font-body);
+
+  font-size: 9px;
+  line-height: 1;
+
+  color: #777;
+
+  white-space: nowrap;
+
+  transition: color 0.3s ease;
+}
+
+/* =====================================================
+   TRANSPARENT BRAND
+===================================================== */
+
+.navbar-transparent .brand-name {
+  color: #ffffff;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.25);
+}
+
+.navbar-transparent .brand-name span {
+  color: #ffffff;
+}
+
+.navbar-transparent .brand-tagline {
+  color: rgba(255, 255, 255, 0.82);
+}
+
+/* =====================================================
+   DESKTOP NAV
+===================================================== */
+
+.desktop-nav {
+  height: 100%;
+
+  display: flex;
+  align-items: center;
+
+  gap: 34px;
+}
+
+/* =====================================================
+   NAV LINK
+===================================================== */
+
+.nav-link {
+  position: relative;
+
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  height: 100%;
+
+  color: var(--color-text);
+
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 500;
+
+  text-decoration: none;
+
+  white-space: nowrap;
+
+  transition:
+    color 0.25s ease;
+}
+
+.nav-link:hover {
+  color: var(--color-deep-orange);
+}
+
+.nav-link.active {
+  color: var(--color-deep-orange);
+}
+
+/* =====================================================
+   TRANSPARENT NAV LINK
+===================================================== */
+
+.navbar-transparent .nav-link {
+  color: #ffffff;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.3);
+}
+
+.navbar-transparent .nav-link:hover,
+.navbar-transparent .nav-link.active {
+  color: #ffffff;
+}
+
+/* =====================================================
+   SOLUTION DROPDOWN
+===================================================== */
+
+.nav-dropdown {
+  position: relative;
+
+  height: 100%;
+
+  display: flex;
+  align-items: center;
+}
+
+.solution-nav-wrapper {
+  height: 100%;
+
+  display: flex;
+  align-items: center;
+}
+
+.solution-link {
+  cursor: pointer;
+}
+
+.dropdown-arrow {
+  transition: transform 0.25s ease;
+}
+
+.dropdown-arrow.rotate {
+  transform: rotate(180deg);
+}
+
+/* =====================================================
+   DROPDOWN MENU
+===================================================== */
+
+.dropdown-menu {
+  position: absolute;
+
+  top: calc(100% - 1px);
+  left: 50%;
+
+  transform: translateX(-50%);
+
+  width: 320px;
+
+  padding: 12px;
+
+  background: var(--color-surface);
+
+  border: 1px solid var(--color-border);
+
+  border-radius: 16px;
+
+  box-shadow:
+    0 20px 50px rgba(26, 26, 26, 0.14);
+
+  z-index: 10000;
+}
+
+/* small triangle */
+
+.dropdown-menu::before {
+  content: '';
+
+  position: absolute;
+
+  top: -7px;
+  left: 50%;
+
+  width: 13px;
+  height: 13px;
+
+  transform: translateX(-50%) rotate(45deg);
+
+  background: var(--color-surface);
+
+  border-left: 1px solid var(--color-border);
+  border-top: 1px solid var(--color-border);
+}
+
+/* =====================================================
+   DROPDOWN ITEM
+===================================================== */
+
+.dropdown-item {
+  position: relative;
+
+  display: flex;
+  align-items: center;
+
+  min-height: 48px;
+
+  padding: 0 14px;
+
+  border-radius: 10px;
+
+  color: var(--color-text);
+
+  text-decoration: none;
+
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 500;
+
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.dropdown-item:hover {
+  color: var(--color-deep-orange);
+
+  background:
+    linear-gradient(
+      90deg,
+      rgba(252, 239, 146, 0.35),
+      rgba(251, 159, 55, 0.12)
+    );
+}
+
+.dropdown-item.active {
+  color: var(--color-deep-orange);
+
+  background:
+    linear-gradient(
+      90deg,
+      rgba(252, 239, 146, 0.45),
+      rgba(251, 159, 55, 0.14)
+    );
+}
+
+/* =====================================================
+   DROPDOWN ANIMATION
+===================================================== */
+
+.dropdown-enter-active,
+.dropdown-leave-active {
+  transition:
+    opacity 0.18s ease,
+    transform 0.18s ease;
+}
+
+.dropdown-enter-from,
+.dropdown-leave-to {
+  opacity: 0;
+
+  transform:
+    translateX(-50%)
+    translateY(-8px);
+}
+
+/* =====================================================
+   MOBILE TOGGLE
+===================================================== */
+
+.mobile-toggle {
+  display: none;
+
+  width: 44px;
+  height: 44px;
+
+  padding: 0;
+
+  border: none;
+  background: transparent;
+
+  cursor: pointer;
+
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  gap: 5px;
+}
+
+.mobile-toggle span {
+  display: block;
+
+  width: 22px;
+  height: 2px;
+
+  border-radius: 2px;
+
+  background: var(--color-text);
+
+  transition:
+    transform 0.25s ease,
+    opacity 0.25s ease,
+    background-color 0.25s ease;
+}
+
+.navbar-transparent .mobile-toggle span {
+  background: #ffffff;
+}
+
+.mobile-toggle span:nth-child(1).open {
+  transform: translateY(7px) rotate(45deg);
+}
+
+.mobile-toggle span:nth-child(2).open {
+  opacity: 0;
+}
+
+.mobile-toggle span:nth-child(3).open {
+  transform: translateY(-7px) rotate(-45deg);
+}
+
+/* =====================================================
+   MOBILE NAV
+===================================================== */
+
+.mobile-nav {
+  display: none;
+}
+
+/* =====================================================
+   RESPONSIVE TABLET
+===================================================== */
+
+@media (max-width: 1100px) {
+
+  .navbar-container {
+    width: calc(100% - 40px);
+  }
+
+  .desktop-nav {
+    gap: 22px;
+  }
+
+  .nav-link {
+    font-size: 13px;
+  }
+
+}
+
+/* =====================================================
+   RESPONSIVE MOBILE
+===================================================== */
+
+@media (max-width: 900px) {
+
+  .navbar {
+    height: 76px;
+  }
+
+  .navbar-container {
+    width: calc(100% - 32px);
+  }
+
+  .desktop-nav {
+    display: none;
+  }
+
+  .mobile-toggle {
+    display: flex;
+  }
+
+  .brand-icon,
+  .brand-icon svg {
+    width: 38px;
+    height: 38px;
+  }
+
+  .brand-name {
+    font-size: 18px;
+  }
+
+  .brand-tagline {
+    font-size: 8px;
+  }
+
+  /* mobile panel */
+
+  .mobile-nav {
+    position: absolute;
+
+    top: 100%;
+    left: 0;
+
+    width: 100%;
+
     display: flex;
     flex-direction: column;
-    padding: 8px 20px 24px;
-    background: #ffffff;
-    border-top: 1px solid #eeeeee;
-    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
+
+    padding: 12px 16px 20px;
+
+    background: rgba(255, 255, 255, 0.98);
+
+    border-top: 1px solid var(--color-border);
+
+    box-shadow:
+      0 20px 40px rgba(26, 26, 26, 0.12);
+
+    max-height: calc(100vh - 76px);
+
+    overflow-y: auto;
   }
+
+  .mobile-nav-link {
+    display: flex;
+    align-items: center;
+
+    min-height: 48px;
+
+    padding: 0 10px;
+
+    color: var(--color-text);
+
+    text-decoration: none;
+
+    font-family: var(--font-body);
+
+    font-size: 15px;
+    font-weight: 500;
+
+    border-radius: 8px;
+
+    transition:
+      color 0.2s ease,
+      background-color 0.2s ease;
+  }
+
+  .mobile-nav-link:hover,
+  .mobile-nav-link.active {
+    color: var(--color-deep-orange);
+
+    background:
+      rgba(251, 159, 55, 0.08);
+  }
+
+  /* mobile solution */
+
+  .mobile-solution {
+    width: 100%;
+  }
+
+  .mobile-solution-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .mobile-solution-header .mobile-nav-link {
+    flex: 1;
+  }
+
+  .mobile-solution-toggle {
+    width: 42px;
+    height: 42px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border: none;
+    background: transparent;
+
+    color: var(--color-text);
+
+    cursor: pointer;
+  }
+
+  .mobile-solution-toggle svg {
+    transition: transform 0.25s ease;
+  }
+
+  .mobile-solution-toggle svg.rotate {
+    transform: rotate(180deg);
+  }
+
+  .mobile-solutions-list {
+    margin: 2px 0 8px 12px;
+
+    padding-left: 12px;
+
+    border-left: 1px solid var(--color-border);
+  }
+
+  .mobile-solution-item {
+    display: flex;
+    align-items: center;
+
+    min-height: 44px;
+
+    padding: 0 10px;
+
+    color: var(--color-text-secondary);
+
+    text-decoration: none;
+
+    font-size: 14px;
+
+    border-radius: 7px;
+
+    transition:
+      color 0.2s ease,
+      background-color 0.2s ease;
+  }
+
+  .mobile-solution-item:hover {
+    color: var(--color-deep-orange);
+
+    background:
+      rgba(251, 159, 55, 0.08);
+  }
+
 }
 
-@media (min-width: 769px) and (max-width: 1000px) {
-  .header__inner { padding: 0 20px; gap: 15px; }
-  .header__nav { gap: 0; }
-  .nav-link,
-  .layanan-button { padding: 0 9px; font-size: 13px; }
-  .consult-button { padding: 0 14px; font-size: 13px; }
+/* =====================================================
+   MOBILE SMALL
+===================================================== */
+
+@media (max-width: 480px) {
+
+  .navbar {
+    height: 70px;
+  }
+
+  .navbar-container {
+    width: calc(100% - 24px);
+  }
+
+  .brand {
+    gap: 8px;
+  }
+
+  .brand-icon,
+  .brand-icon svg {
+    width: 34px;
+    height: 34px;
+  }
+
+  .brand-name {
+    font-size: 16px;
+  }
+
+  .brand-tagline {
+    font-size: 7px;
+  }
+
+  .mobile-toggle {
+    width: 40px;
+    height: 40px;
+  }
+
+  .mobile-nav {
+    max-height: calc(100vh - 70px);
+  }
+
+}
+
+/* =====================================================
+   MOBILE MENU ANIMATION
+===================================================== */
+
+.mobile-menu-enter-active,
+.mobile-menu-leave-active {
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
+}
+
+.mobile-menu-enter-from,
+.mobile-menu-leave-to {
+  opacity: 0;
+
+  transform: translateY(-8px);
+}
+
+/* =====================================================
+   MOBILE SOLUTIONS ANIMATION
+===================================================== */
+
+.mobile-solutions-enter-active,
+.mobile-solutions-leave-active {
+  transition:
+    opacity 0.2s ease,
+    max-height 0.25s ease;
+  overflow: hidden;
+}
+
+.mobile-solutions-enter-from,
+.mobile-solutions-leave-to {
+  opacity: 0;
+  max-height: 0;
+}
+
+.mobile-solutions-enter-to,
+.mobile-solutions-leave-from {
+  opacity: 1;
+  max-height: 500px;
 }
 
 </style>

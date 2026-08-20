@@ -1,35 +1,135 @@
 import { createRouter, createWebHistory } from 'vue-router'
+
+// ===============================
+// MAIN PAGES
+// ===============================
+
 import HomeView from '../views/home.vue'
-import LayananView from '../views/layanan.vue'
-import PortofolioView from '../views/portfolio.vue'
-import TentangKamiView from '../views/tentangkami.vue'
-import BlogView from '../views/blog.vue'
-import KonsultasiView from '../views/konsultasi.vue'
-import PerencanaanView from '../views/perencanaan.vue'
-import DevelopmentView from '../views/development.vue'
-import DeployView from '../views/deploy.vue'
-import OptimasiView from '../views/optimasi.vue'
-import SupportView from '../views/support.vue'
+import SolutionsView from '../views/solutions.vue'
+import PortfolioView from '../views/portfolio.vue'
 import TestimoniView from '../views/testimoni.vue'
+import BlogView from '../views/blog.vue'
+import TentangKamiView from '../views/tentangkami.vue'
+
+// ===============================
+// SOLUTIONS DETAIL
+// ===============================
+
+import CustomSoftwareView from '../views/custom-software.vue'
+import WebDevelopmentView from '../views/web-development.vue'
+import MobileAppView from '../views/mobile-app.vue'
+import UIUXDesignView from '../views/ui-ux-design.vue'
+import CloudDevOpsView from '../views/cloud-devops.vue'
+import MaintenanceSupportView from '../views/maintenance-support.vue'
 
 const router = createRouter({
-  history: createWebHistory(),
+  history: createWebHistory(import.meta.env.BASE_URL),
+
   routes: [
-    { path: '/', name: 'home', component: HomeView },
-    { path: '/layanan', name: 'layanan', component: LayananView },
-    { path: '/portofolio', name: 'portofolio', component: PortofolioView },
-    { path: '/testimoni', name: 'testimoni', component: TestimoniView },
-    { path: '/tentang-kami', name: 'tentang-kami', component: TentangKamiView },
-    { path: '/blog', name: 'blog', component: BlogView },
-    { path: '/layanan/perencanaan', name: 'perencanaan', component: PerencanaanView },
-    { path: '/layanan/konsultasi', name: 'konsultasi', component: KonsultasiView },
-    { path: '/layanan/development', name: 'development', component: DevelopmentView },
-    { path: '/layanan/deploy', name: 'deploy', component: DeployView },
-    { path: '/layanan/optimasi', name: 'optimasi', component: OptimasiView },
-    { path: '/layanan/support', name: 'support', component: SupportView },
+
+    // ==========================================
+    // HOME
+    // ==========================================
+
+    {
+      path: '/',
+      name: 'home',
+      component: HomeView,
+    },
+
+    // ==========================================
+    // MENU NAVBAR
+    // ==========================================
+
+    {
+      path: '/solutions',
+      name: 'solutions',
+      component: SolutionsView,
+    },
+
+    {
+      path: '/portfolio',
+      name: 'portfolio',
+      component: PortfolioView,
+    },
+
+    {
+      path: '/testimoni',
+      name: 'testimoni',
+      component: TestimoniView,
+    },
+
+    {
+      path: '/blog',
+      name: 'blog',
+      component: BlogView,
+    },
+
+    {
+      path: '/tentang-kami',
+      name: 'tentang-kami',
+      component: TentangKamiView,
+    },
+
+    // ==========================================
+    // DETAIL SOLUTIONS
+    // ==========================================
+
+    {
+      path: '/solutions/custom-software',
+      name: 'custom-software',
+      component: CustomSoftwareView,
+    },
+
+    {
+      path: '/solutions/web-development',
+      name: 'web-development',
+      component: WebDevelopmentView,
+    },
+
+    {
+      path: '/solutions/mobile-app',
+      name: 'mobile-app',
+      component: MobileAppView,
+    },
+
+    {
+      path: '/solutions/ui-ux-design',
+      name: 'ui-ux-design',
+      component: UIUXDesignView,
+    },
+
+    {
+      path: '/solutions/cloud-devops',
+      name: 'cloud-devops',
+      component: CloudDevOpsView,
+    },
+
+    {
+      path: '/solutions/maintenance-support',
+      name: 'maintenance-support',
+      component: MaintenanceSupportView,
+    },
+
+    // ==========================================
+    // 404
+    // ==========================================
+
+    {
+      path: '/:pathMatch(.*)*',
+      redirect: '/',
+    },
   ],
-  scrollBehavior() {
-    return { top: 0 }
+
+  scrollBehavior(to, from, savedPosition) {
+    if (savedPosition) {
+      return savedPosition
+    }
+
+    return {
+      top: 0,
+      behavior: 'smooth',
+    }
   },
 })
 
