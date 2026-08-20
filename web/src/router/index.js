@@ -10,6 +10,7 @@ import PortfolioView from '../views/portfolio.vue'
 import TestimoniView from '../views/testimoni.vue'
 import BlogView from '../views/blog.vue'
 import TentangKamiView from '../views/tentangkami.vue'
+import ContactUs from '../views/ContactUs.vue'
 
 // ===============================
 // SOLUTIONS DETAIL
@@ -69,6 +70,12 @@ const router = createRouter({
       path: '/tentang-kami',
       name: 'tentang-kami',
       component: TentangKamiView,
+    },
+
+    {
+      path: '/contact',
+      name: 'Contact',
+      component: ContactUs
     },
 
     // ==========================================
