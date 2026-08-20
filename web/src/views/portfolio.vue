@@ -1,827 +1,2481 @@
+<template>
+  <main class="portfolio-page">
+
+    <!-- =====================================================
+         HERO
+    ====================================================== -->
+    <section class="portfolio-hero">
+      <div class="container">
+
+        <div class="hero-label">
+          <span class="label-line"></span>
+          <span>BRAN IDENTITY — PORTFOLIO</span>
+        </div>
+
+        <div class="hero-content">
+
+          <div class="hero-title">
+            <h1>
+              Digital solutions
+              <span>with Bran Identity.</span>
+            </h1>
+          </div>
+
+          <div class="hero-description">
+            <p>
+              Kami membangun website, aplikasi, dan sistem digital
+              yang membantu bisnis tampil lebih profesional,
+              bekerja lebih efektif, dan berkembang lebih cepat.
+            </p>
+          </div>
+
+        </div>
+
+        <!-- STATS -->
+        <div class="portfolio-stats">
+
+          <div class="stat">
+            <strong>20+</strong>
+            <span>Projects Completed</span>
+          </div>
+
+          <div class="stat">
+            <strong>15+</strong>
+            <span>Business Partners</span>
+          </div>
+
+          <div class="stat">
+            <strong>5+</strong>
+            <span>Digital Solutions</span>
+          </div>
+
+          <div class="stat">
+            <strong>100%</strong>
+            <span>Client Focused</span>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+
+    <!-- =====================================================
+         SELECTED WORK
+    ====================================================== -->
+    <section class="portfolio-list">
+      <div class="container">
+
+        <div class="section-heading">
+
+          <div>
+            <span class="eyebrow">
+              Selected Work
+            </span>
+
+            <h2>
+              Solusi digital yang
+              <span>kami kembangkan.</span>
+            </h2>
+          </div>
+
+          <p>
+            Setiap project dirancang berdasarkan kebutuhan,
+            karakter, dan tujuan bisnis yang berbeda.
+          </p>
+
+        </div>
+
+
+        <!-- FILTER -->
+        <div class="category-filter">
+
+          <button
+            v-for="category in categories"
+            :key="category"
+            :class="{ active: activeCategory === category }"
+            @click="activeCategory = category"
+          >
+            {{ category }}
+          </button>
+
+        </div>
+
+
+        <!-- PROJECT LIST -->
+        <div class="projects">
+
+          <article
+            v-for="(project, index) in filteredProjects"
+            :key="project.title"
+            class="project"
+          >
+
+            <div class="project-index">
+              {{ String(index + 1).padStart(2, '0') }}
+            </div>
+
+            <div class="project-content">
+
+              <!-- INFO -->
+              <div class="project-info">
+
+                <div class="project-type">
+                  {{ project.category }}
+                  <span>•</span>
+                  {{ project.year }}
+                </div>
+
+                <h3>
+                  {{ project.title }}
+                </h3>
+
+                <p>
+                  {{ project.description }}
+                </p>
+
+                <div class="project-tags">
+
+                  <span
+                    v-for="tag in project.tags"
+                    :key="tag"
+                  >
+                    {{ tag }}
+                  </span>
+
+                </div>
+
+                <a
+                  href="#"
+                  class="project-button"
+                >
+                  Lihat Project
+                  <span>↗</span>
+                </a>
+
+              </div>
+
+
+              <!-- VISUAL -->
+              <div
+                class="project-visual"
+                :class="project.theme"
+              >
+
+                <!-- WEBSITE -->
+                <div
+                  v-if="project.type === 'website'"
+                  class="website-mockup"
+                >
+
+                  <div class="mockup-navbar">
+
+                    <div class="mockup-logo">
+                      {{ project.logo }}
+                    </div>
+
+                    <div class="mockup-menu">
+                      <span></span>
+                      <span></span>
+                      <span></span>
+                    </div>
+
+                  </div>
+
+                  <div class="mockup-body">
+
+                    <small>
+                      {{ project.logo }}
+                    </small>
+
+                    <h4>
+                      {{ project.mockupTitle }}
+                    </h4>
+
+                    <div class="mockup-description"></div>
+                    <div class="mockup-description short"></div>
+
+                    <div class="mockup-buttons">
+                      <i></i>
+                      <i></i>
+                    </div>
+
+                    <div class="mockup-cards">
+                      <div></div>
+                      <div></div>
+                      <div></div>
+                    </div>
+
+                  </div>
+
+                </div>
+
+
+                <!-- DASHBOARD -->
+                <div
+                  v-else-if="project.type === 'dashboard'"
+                  class="dashboard-mockup"
+                >
+
+                  <div class="dashboard-sidebar">
+
+                    <strong>
+                      {{ project.logo }}
+                    </strong>
+
+                    <div class="sidebar-items">
+                      <i></i>
+                      <i></i>
+                      <i></i>
+                      <i></i>
+                    </div>
+
+                  </div>
+
+                  <div class="dashboard-content">
+
+                    <div class="dashboard-top">
+                      <span></span>
+                      <span></span>
+                    </div>
+
+                    <div class="dashboard-heading">
+                      <div></div>
+                      <div></div>
+                    </div>
+
+                    <div class="dashboard-stats">
+                      <div></div>
+                      <div></div>
+                      <div></div>
+                    </div>
+
+                    <div class="dashboard-chart">
+                      <span></span>
+                      <span></span>
+                      <span></span>
+                      <span></span>
+                      <span></span>
+                      <span></span>
+                    </div>
+
+                  </div>
+
+                </div>
+
+
+                <!-- MOBILE APP -->
+                <div
+                  v-else
+                  class="mobile-mockup"
+                >
+
+                  <div class="phone">
+
+                    <div class="phone-top"></div>
+
+                    <small>
+                      {{ project.logo }}
+                    </small>
+
+                    <h4>
+                      {{ project.mockupTitle }}
+                    </h4>
+
+                    <div class="phone-card"></div>
+                    <div class="phone-card"></div>
+                    <div class="phone-card"></div>
+
+                    <div class="phone-nav">
+                      <i></i>
+                      <i></i>
+                      <i></i>
+                      <i></i>
+                    </div>
+
+                  </div>
+
+                </div>
+
+
+                <div class="visual-number">
+                  {{ String(index + 1).padStart(2, '0') }}
+                </div>
+
+              </div>
+
+            </div>
+
+          </article>
+
+        </div>
+
+      </div>
+    </section>
+
+
+    <!-- =====================================================
+         CAPABILITIES
+    ====================================================== -->
+    <section class="capabilities">
+      <div class="container">
+
+        <div class="capabilities-heading">
+
+          <span class="eyebrow">
+            What We Build
+          </span>
+
+          <h2>
+            Dari ide menjadi
+            <span>solusi digital.</span>
+          </h2>
+
+        </div>
+
+
+        <div class="capability-grid">
+
+          <div class="capability">
+
+            <div class="capability-number">
+              01
+            </div>
+
+            <h3>
+              Website Development
+            </h3>
+
+            <p>
+              Website profesional untuk memperkuat identitas
+              digital dan membantu bisnis menjangkau lebih
+              banyak pelanggan.
+            </p>
+
+            <div class="capability-link">
+              Explore
+              <span>↗</span>
+            </div>
+
+          </div>
+
+
+          <div class="capability">
+
+            <div class="capability-number">
+              02
+            </div>
+
+            <h3>
+              Software Development
+            </h3>
+
+            <p>
+              Sistem dan aplikasi yang membantu proses bisnis
+              menjadi lebih cepat, terstruktur, dan efisien.
+            </p>
+
+            <div class="capability-link">
+              Explore
+              <span>↗</span>
+            </div>
+
+          </div>
+
+
+          <div class="capability">
+
+            <div class="capability-number">
+              03
+            </div>
+
+            <h3>
+              UI/UX Design
+            </h3>
+
+            <p>
+              Pengalaman digital yang sederhana, intuitif,
+              dan nyaman digunakan oleh pengguna.
+            </p>
+
+            <div class="capability-link">
+              Explore
+              <span>↗</span>
+            </div>
+
+          </div>
+
+
+          <div class="capability">
+
+            <div class="capability-number">
+              04
+            </div>
+
+            <h3>
+              Digital Transformation
+            </h3>
+
+            <p>
+              Membantu bisnis memanfaatkan teknologi untuk
+              meningkatkan produktivitas dan pertumbuhan.
+            </p>
+
+            <div class="capability-link">
+              Explore
+              <span>↗</span>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+
+    <!-- =====================================================
+         CTA
+    ====================================================== -->
+    <section class="portfolio-cta-section">
+      <div class="container">
+
+        <div class="cta-box">
+
+          <div class="cta-text">
+
+            <span class="eyebrow">
+              Start Your Project
+            </span>
+
+            <h2>
+              Punya ide digital?
+              <span>Mari wujudkan bersama.</span>
+            </h2>
+
+            <p>
+              Ceritakan kebutuhan bisnis kamu dan kami akan
+              membantu menemukan solusi digital yang tepat.
+            </p>
+
+          </div>
+
+          <a
+            href="#contact"
+            class="cta-button"
+          >
+            Konsultasi Gratis
+            <span>↗</span>
+          </a>
+
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+</template>
+
+
 <script setup>
-import { ref, computed, onMounted, onBeforeUnmount, nextTick, watch } from 'vue'
+import { computed, ref } from 'vue'
 
-// Ganti/isi dengan data project asli Anda.
-// "domain" hanya teks dekoratif untuk address bar mockup.
-const projects = ref([
-  {
-    title: 'Kopi Senja — Company Profile',
-    category: 'Website',
-    domain: 'kopisenja.id',
-    desc: 'Landing page untuk brand kopi lokal, fokus pada storytelling & galeri produk.',
-    accent: 'orange'
-  },
-  {
-    title: 'RentCar Prima',
-    category: 'Website',
-    domain: 'rentcarprima.com',
-    desc: 'Sistem booking mobil online lengkap dengan kalkulasi harga otomatis.',
-    accent: 'red'
-  },
-  {
-    title: 'Nutrix — Aplikasi Diet',
-    category: 'Mobile App',
-    domain: 'app.nutrix.id',
-    desc: 'Aplikasi pelacak nutrisi harian dengan rekomendasi menu personal.',
-    accent: 'orange-light'
-  },
-  {
-    title: 'Bank Sinar Digital',
-    category: 'Mobile App',
-    domain: 'sinar.mobile',
-    desc: 'Redesign UX aplikasi mobile banking, menekankan kecepatan transaksi.',
-    accent: 'orange'
-  },
-  {
-    title: 'Loka Studio Branding',
-    category: 'Branding',
-    domain: 'lokastudio.co',
-    desc: 'Identitas visual lengkap untuk studio arsitektur interior.',
-    accent: 'red'
-  },
-  {
-    title: 'Warung Digital POS',
-    category: 'Website',
-    domain: 'warungdigital.app',
-    desc: 'Sistem kasir & inventori berbasis web untuk UMKM.',
-    accent: 'orange-light'
-  }
-])
 
-const filters = ['Semua', 'Website', 'Mobile App', 'Branding']
-const activeFilter = ref('Semua')
+/* =====================================================
+   CATEGORY
+===================================================== */
 
-const filteredProjects = computed(() =>
-  activeFilter.value === 'Semua'
-    ? projects.value
-    : projects.value.filter(p => p.category === activeFilter.value)
-)
+const activeCategory = ref('All')
 
-const stats = [
-  { number: '40+', label: 'Project Selesai' },
-  { number: '12', label: 'Industri Dilayani' },
-  { number: '3', label: 'Tahun Pengalaman' }
+const categories = [
+  'All',
+  'Website',
+  'Software',
+  'Mobile App',
+  'UI/UX'
 ]
 
-// --- Efek muncul dari bawah saat discroll ---
-// PENTING: setiap kali filter berubah, Vue membuat ulang elemen .reveal
-// di DOM (v-for dengan data yang berbeda). Elemen baru ini tidak pernah
-// otomatis di-observe oleh IntersectionObserver yang dibuat sekali saja
-// di onMounted, sehingga tetap tak terlihat (opacity: 0) — itulah kenapa
-// kartu "hilang" saat difilter dan tidak muncul lagi saat kembali ke "Semua".
-//
-// Solusinya: simpan observer di luar onMounted lalu panggil ulang fungsi
-// setup-nya (via nextTick) setiap kali activeFilter berubah, supaya semua
-// elemen .reveal yang baru dirender ikut ter-observe.
-let observer = null
 
-function setupRevealObserver() {
-  // Elemen yang sudah pernah observer buat sebelumnya akan dibuat ulang
-  // observer baru menyaring hanya yang belum kebagian class is-revealed
-  if (observer) observer.disconnect()
+/* =====================================================
+   PROJECT DATA
+===================================================== */
 
-  observer = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('is-revealed')
-          observer.unobserve(entry.target)
-        }
-      })
-    },
-    { threshold: 0.15, rootMargin: '0px 0px -80px 0px' }
+const projects = [
+
+  {
+    title: 'Nexa Business',
+
+    category: 'Software',
+
+    year: '2026',
+
+    logo: 'NEXA',
+
+    type: 'dashboard',
+
+    theme: 'theme-orange',
+
+    mockupTitle: 'Business Management',
+
+    description:
+      'Sistem manajemen bisnis yang membantu perusahaan mengelola aktivitas operasional secara lebih terstruktur.',
+
+    tags: [
+      'Dashboard',
+      'Web App',
+      'Management System'
+    ]
+  },
+
+
+  {
+    title: 'Aruna Creative',
+
+    category: 'Website',
+
+    year: '2026',
+
+    logo: 'ARUNA',
+
+    type: 'website',
+
+    theme: 'theme-yellow',
+
+    mockupTitle: 'Creative Digital Studio',
+
+    description:
+      'Website company profile untuk membangun identitas digital yang profesional dan memperkenalkan layanan kepada calon pelanggan.',
+
+    tags: [
+      'Company Profile',
+      'Landing Page',
+      'Responsive'
+    ]
+  },
+
+
+  {
+    title: 'Finora',
+
+    category: 'Mobile App',
+
+    year: '2025',
+
+    logo: 'FINORA',
+
+    type: 'mobile',
+
+    theme: 'theme-light',
+
+    mockupTitle: 'Smart Finance',
+
+    description:
+      'Aplikasi pengelolaan keuangan dengan pengalaman pengguna yang sederhana dan mudah dipahami.',
+
+    tags: [
+      'Mobile App',
+      'UI/UX',
+      'Finance'
+    ]
+  },
+
+
+  {
+    title: 'KitaMart',
+
+    category: 'UI/UX',
+
+    year: '2025',
+
+    logo: 'KITAMART',
+
+    type: 'website',
+
+    theme: 'theme-red',
+
+    mockupTitle: 'Online Shopping',
+
+    description:
+      'Perancangan UI/UX untuk platform e-commerce dengan fokus pada navigasi dan pengalaman checkout.',
+
+    tags: [
+      'UI/UX',
+      'E-Commerce',
+      'Prototype'
+    ]
+  },
+
+
+  {
+    title: 'EduSpace',
+
+    category: 'Website',
+
+    year: '2025',
+
+    logo: 'EDUSPACE',
+
+    type: 'website',
+
+    theme: 'theme-orange',
+
+    mockupTitle: 'Learning Platform',
+
+    description:
+      'Platform pembelajaran digital yang dirancang untuk memberikan pengalaman belajar yang lebih interaktif.',
+
+    tags: [
+      'Education',
+      'Website',
+      'Platform'
+    ]
+  },
+
+
+  {
+    title: 'FlowDesk',
+
+    category: 'Software',
+
+    year: '2025',
+
+    logo: 'FLOWDESK',
+
+    type: 'dashboard',
+
+    theme: 'theme-yellow',
+
+    mockupTitle: 'Workspace System',
+
+    description:
+      'Sistem workspace untuk membantu tim mengatur project, task, dan aktivitas pekerjaan.',
+
+    tags: [
+      'SaaS',
+      'Dashboard',
+      'Productivity'
+    ]
+  }
+
+]
+
+
+/* =====================================================
+   FILTER
+===================================================== */
+
+const filteredProjects = computed(() => {
+
+  if (activeCategory.value === 'All') {
+    return projects
+  }
+
+  return projects.filter(
+    project => project.category === activeCategory.value
   )
 
-  document.querySelectorAll('.reveal').forEach((el) => observer.observe(el))
-}
-
-onMounted(() => {
-  setupRevealObserver()
-})
-
-onBeforeUnmount(() => {
-  if (observer) observer.disconnect()
-})
-
-// Setiap kali filter diganti, tunggu DOM selesai di-update (nextTick),
-// baru pasang ulang observer ke elemen-elemen kartu yang baru dirender.
-watch(activeFilter, async () => {
-  await nextTick()
-  setupRevealObserver()
 })
 </script>
 
-<template>
-  <div class="portfolio-page">
-    <!-- Hero -->
-    <section class="portfolio-hero">
-      <div class="portfolio-hero__mesh" aria-hidden="true">
-        <div class="mesh__orb mesh__orb--1"></div>
-        <div class="mesh__orb mesh__orb--2"></div>
-      </div>
-
-      <div class="container portfolio-hero__grid">
-        <div class="portfolio-hero__content reveal">
-          <p class="eyebrow">Portofolio</p>
-
-          <h1 class="portfolio-hero__title">
-            Karya yang Sudah Kami <span class="highlight">Wujudkan</span>
-          </h1>
-          <p class="portfolio-hero__desc">
-            Berikut beberapa project yang telah kami kerjakan untuk berbagai klien
-            dari berbagai industri, mulai dari website company profile hingga
-            aplikasi mobile.
-          </p>
-
-          <div class="stats-row">
-            <div v-for="(s, i) in stats" :key="i" class="stat">
-              <span class="stat__number">{{ s.number }}</span>
-              <span class="stat__label">{{ s.label }}</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Visual hero: komposisi browser mockup + phone mockup + badge berlapis -->
-        <div class="hero-visual reveal" aria-hidden="true" :style="{ transitionDelay: '0.15s' }">
-          <div class="visual-glow"></div>
-
-          <span class="deco-dot deco-dot--1"></span>
-          <span class="deco-dot deco-dot--2"></span>
-          <span class="deco-ring"></span>
-
-          <!-- Phone mockup: mewakili sisi Mobile App -->
-          <div class="device-phone">
-            <div class="device-phone__notch"></div>
-            <div class="device-phone__screen">
-              <div class="device-phone__tile device-phone__tile--big"></div>
-              <div class="device-phone__row">
-                <span></span><span></span><span></span>
-              </div>
-              <div class="device-phone__row device-phone__row--thin">
-                <span></span><span></span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Browser mockup: mewakili sisi Website -->
-          <div class="device-browser">
-            <div class="device-browser__bar">
-              <span class="dot dot--red"></span>
-              <span class="dot dot--yellow"></span>
-              <span class="dot dot--green"></span>
-              <span class="device-browser__url">warungdigital.app</span>
-            </div>
-            <div class="device-browser__screen">
-              <div class="thumb-row">
-                <span class="thumb thumb--1"></span>
-                <span class="thumb thumb--2"></span>
-                <span class="thumb thumb--3"></span>
-              </div>
-              <div class="skeleton-line skeleton-line--w80"></div>
-              <div class="skeleton-line skeleton-line--w50"></div>
-            </div>
-          </div>
-
-          <div class="badge badge--rating">
-            <span class="badge__stars">★★★★★</span>
-            <span class="badge__text">4.9 dari 40+ project</span>
-          </div>
-
-          <div class="badge badge--check">
-            <span class="badge__check">✓</span>
-            <span class="badge__text">Project tepat waktu</span>
-          </div>
-
-          <div class="badge badge--clients">
-            <div class="avatar-stack">
-              <span class="avatar">K</span>
-              <span class="avatar avatar--2">R</span>
-              <span class="avatar avatar--3">B</span>
-            </div>
-            <span class="badge__text">+37 klien puas</span>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Grid Portofolio -->
-    <section class="portfolio-grid-section">
-      <div class="container">
-        <p class="eyebrow reveal">Portofolio</p>
-        <h2 class="section-title reveal">Project yang pernah kami kerjakan</h2>
-
-        <div class="filters reveal" role="tablist">
-          <button
-            v-for="f in filters"
-            :key="f"
-            class="filter-btn"
-            :class="{ 'filter-btn--active': activeFilter === f }"
-            role="tab"
-            :aria-selected="activeFilter === f"
-            @click="activeFilter = f"
-          >
-            {{ f }}
-          </button>
-        </div>
-
-        <div class="project-grid">
-          <article
-            v-for="(p, i) in filteredProjects"
-            :key="p.title"
-            class="project-card reveal"
-            :class="`accent--${p.accent}`"
-            :style="{ transitionDelay: (i * 0.09) + 's' }"
-          >
-            <div class="browser-frame">
-              <div class="browser-frame__bar">
-                <span class="dot dot--red"></span>
-                <span class="dot dot--yellow"></span>
-                <span class="dot dot--green"></span>
-                <span class="browser-frame__url">{{ p.domain }}</span>
-              </div>
-              <div class="browser-frame__screen">
-                <span class="browser-frame__mark">{{ p.title.charAt(0) }}</span>
-              </div>
-            </div>
-
-            <div class="project-card__body">
-              <span class="project-card__tag">{{ p.category }}</span>
-              <h3 class="project-card__title">{{ p.title }}</h3>
-              <p class="project-card__desc">{{ p.desc }}</p>
-              <a href="#" class="project-card__link">
-                Lihat Detail
-                <span class="arrow">→</span>
-              </a>
-            </div>
-          </article>
-        </div>
-      </div>
-    </section>
-
-    <!-- CTA -->
-    <section class="portfolio-cta">
-      <div class="container portfolio-cta__inner">
-        <div class="reveal">
-          <h2 class="portfolio-cta__title">Punya project serupa dalam pikiran?</h2>
-          <p class="portfolio-cta__desc">
-            Mari diskusikan kebutuhan digital bisnis Anda bersama tim kami.
-          </p>
-        </div>
-        <a href="#" class="portfolio-cta__btn reveal" :style="{ transitionDelay: '0.12s' }">Konsultasi Gratis</a>
-      </div>
-    </section>
-  </div>
-</template>
 
 <style scoped>
+
+/* =====================================================
+   ROOT
+===================================================== */
+
 .portfolio-page {
-  --cream: #FCEF91;
-  --orange-light: #FB9E3A;
-  --orange: #E6521F;
-  --red: #EA2F14;
-  --ink: #202020;
-  --ink-soft: #5b4a2a;
-  --paper: #FFFBF2;
-  --line: rgba(32, 32, 32, 0.09);
+  width: 100%;
+  min-height: 100vh;
+
+  background: var(--color-bg);
+  color: var(--color-text);
 }
+
+
+/* =====================================================
+   FULL WIDTH CONTAINER
+===================================================== */
 
 .container {
-  max-width: 1140px;
-  margin: 0 auto;
-  padding: 0 24px;
-  position: relative;
-  z-index: 2;
-}
 
-/* ---------- Hero ---------- */
-.portfolio-hero {
-  position: relative;
-  overflow: hidden;
-  min-height: 640px;
-  display: flex;
-  align-items: center;
-  padding: 160px clamp(20px, 6vw, 80px) 90px;
-  background: linear-gradient(160deg, var(--cream) 0%, #fff3cf 45%, #ffe6c2 100%);
-}
-
-.portfolio-hero__mesh { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
-.mesh__orb { position: absolute; border-radius: 50%; filter: blur(70px); opacity: 0.5; }
-.mesh__orb--1 { width: 420px; height: 420px; top: -160px; left: -120px; background: radial-gradient(circle, var(--orange-light), transparent 70%); }
-.mesh__orb--2 { width: 380px; height: 380px; top: -100px; right: -140px; background: radial-gradient(circle, var(--red), transparent 70%); opacity: 0.28; }
-
-.portfolio-hero__grid {
   width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 40px;
+
+  max-width: none;
+
+  margin: 0;
+
+  padding-left: 70px;
+  padding-right: 70px;
 }
 
-.portfolio-hero__content { max-width: 560px; }
+
+/* =====================================================
+   EYEBROW
+===================================================== */
 
 .eyebrow {
-  display: inline-block;
-  font-size: 12.5px;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--red);
+
+  display: block;
+
   margin-bottom: 14px;
+
+  font-family: var(--font-heading);
+
+  font-size: 12px;
+
+  font-weight: 600;
+
+  letter-spacing: .08em;
+
+  text-transform: uppercase;
+
+  color: var(--color-deep-orange);
 }
 
-.portfolio-hero__title {
-  font-size: clamp(30px, 4vw, 46px);
-  font-weight: 800;
-  line-height: 1.16;
-  letter-spacing: -0.02em;
-  color: var(--ink);
-  margin: 0 0 20px;
+
+/* =====================================================
+   HERO
+===================================================== */
+
+.portfolio-hero {
+
+  width: 100%;
+
+  padding: 105px 0 0;
+
+  background: var(--color-bg);
 }
 
-.portfolio-hero__title .highlight { color: var(--orange); }
 
-.portfolio-hero__desc {
-  margin: 0 0 40px;
-  color: var(--ink-soft);
-  font-size: 15.5px;
+.hero-label {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 12px;
+
+  margin-bottom: 35px;
+
+  font-family: var(--font-heading);
+
+  font-size: 12px;
+
+  font-weight: 600;
+
+  letter-spacing: .08em;
+
+  color: var(--color-deep-orange);
+}
+
+
+.label-line {
+
+  width: 38px;
+
+  height: 2px;
+
+  background: var(--color-red);
+}
+
+
+.hero-content {
+
+  display: grid;
+
+  grid-template-columns:
+    minmax(0, 1.6fr)
+    minmax(280px, .5fr);
+
+  align-items: end;
+
+  gap: 90px;
+}
+
+
+.hero-title h1 {
+
+  max-width: 1000px;
+
+  margin: 0;
+
+  font-family: var(--font-heading);
+
+  font-size: clamp(52px, 7vw, 92px);
+
+  line-height: .96;
+
+  letter-spacing: -.06em;
+}
+
+
+.hero-title h1 span {
+
+  display: block;
+
+  color: var(--color-text-secondary);
+}
+
+
+.hero-description {
+
+  padding-bottom: 7px;
+}
+
+
+.hero-description p {
+
+  max-width: 390px;
+
+  color: var(--color-text-secondary);
+
+  font-size: 15px;
+
+  line-height: 1.8;
+}
+
+
+/* =====================================================
+   STATS
+===================================================== */
+
+.portfolio-stats {
+
+  display: grid;
+
+  grid-template-columns: repeat(4, 1fr);
+
+  margin-top: 75px;
+
+  border-top:
+    1px solid
+    var(--color-border);
+
+  border-bottom:
+    1px solid
+    var(--color-border);
+}
+
+
+.stat {
+
+  min-height: 95px;
+
+  display: flex;
+
+  flex-direction: column;
+
+  justify-content: center;
+
+  padding: 20px 25px;
+
+  border-right:
+    1px solid
+    var(--color-border);
+}
+
+
+.stat:first-child {
+
+  padding-left: 0;
+}
+
+
+.stat:last-child {
+
+  border-right: none;
+}
+
+
+.stat strong {
+
+  display: block;
+
+  font-family: var(--font-heading);
+
+  font-size: 28px;
+
+  line-height: 1;
+
+  letter-spacing: -.03em;
+}
+
+
+.stat span {
+
+  margin-top: 8px;
+
+  color: var(--color-text-secondary);
+
+  font-size: 11px;
+}
+
+
+/* =====================================================
+   PORTFOLIO LIST
+===================================================== */
+
+.portfolio-list {
+
+  padding: 120px 0;
+}
+
+
+.section-heading {
+
+  display: grid;
+
+  grid-template-columns:
+    minmax(0, 1.5fr)
+    minmax(280px, .5fr);
+
+  align-items: end;
+
+  gap: 90px;
+
+  margin-bottom: 48px;
+}
+
+
+.section-heading h2 {
+
+  max-width: 800px;
+
+  margin: 0;
+
+  font-family: var(--font-heading);
+
+  font-size: clamp(42px, 5.5vw, 70px);
+
+  line-height: .98;
+
+  letter-spacing: -.055em;
+}
+
+
+.section-heading h2 span {
+
+  display: block;
+
+  color: var(--color-text-secondary);
+}
+
+
+.section-heading > p {
+
+  max-width: 390px;
+
+  margin: 0;
+
+  color: var(--color-text-secondary);
+
+  font-size: 14px;
+
   line-height: 1.75;
 }
 
-.stats-row { display: flex; gap: clamp(24px, 5vw, 48px); flex-wrap: wrap; }
-.stat { display: flex; flex-direction: column; }
-.stat__number { font-size: clamp(24px, 3vw, 32px); font-weight: 800; color: var(--ink); letter-spacing: -0.02em; }
-.stat__label { font-size: 12.5px; color: var(--ink-soft); margin-top: 2px; }
 
-/* ---------- Hero visual: browser + phone mockup berlapis dengan badge ---------- */
-.hero-visual {
-  position: relative;
-  width: 340px;
-  height: 340px;
-  flex-shrink: 0;
-  z-index: 2;
-}
+/* =====================================================
+   FILTER
+===================================================== */
 
-.visual-glow {
-  position: absolute;
-  inset: 20px;
-  background:
-    radial-gradient(circle at 35% 60%, rgba(230, 82, 31, 0.32), transparent 60%),
-    radial-gradient(circle at 70% 30%, rgba(251, 158, 58, 0.28), transparent 55%);
-  filter: blur(24px);
-  z-index: 0;
-  animation: glowPulse 6s ease-in-out infinite;
-}
+.category-filter {
 
-@keyframes glowPulse {
-  0%, 100% { opacity: 0.7; transform: scale(1); }
-  50% { opacity: 1; transform: scale(1.08); }
-}
-
-.deco-dot {
-  position: absolute;
-  border-radius: 50%;
-  z-index: 1;
-  animation: decoFloat 4.5s ease-in-out infinite;
-}
-.deco-dot--1 { width: 14px; height: 14px; top: 36px; left: 10px; background: var(--orange); opacity: 0.5; }
-.deco-dot--2 { width: 9px; height: 9px; bottom: 70px; right: 6px; background: var(--red); opacity: 0.6; animation-delay: 1.2s; }
-
-.deco-ring {
-  position: absolute;
-  top: 14px;
-  right: 60px;
-  width: 26px;
-  height: 26px;
-  border-radius: 50%;
-  border: 3px solid var(--orange-light);
-  opacity: 0.45;
-  z-index: 1;
-  animation: decoFloat 5.5s ease-in-out infinite;
-  animation-delay: 0.6s;
-}
-
-@keyframes decoFloat {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
-}
-
-/* Phone mockup */
-.device-phone {
-  position: absolute;
-  bottom: 34px;
-  left: 6px;
-  width: 96px;
-  height: 168px;
-  border-radius: 20px;
-  background: linear-gradient(160deg, #2a2a2a, #141414);
-  padding: 10px 8px;
-  box-shadow: 0 22px 40px -18px rgba(32, 20, 0, 0.4);
-  transform: rotate(-9deg);
-  z-index: 2;
-  animation: deviceFloat 5.5s ease-in-out infinite;
-}
-
-.device-phone__notch {
-  width: 32px;
-  height: 5px;
-  border-radius: 4px;
-  background: rgba(255, 255, 255, 0.18);
-  margin: 0 auto 8px;
-}
-
-.device-phone__screen {
-  height: 100%;
-  border-radius: 12px;
-  background: linear-gradient(165deg, #fff8ec, #fff);
-  padding: 10px;
-}
-
-.device-phone__tile--big {
-  height: 44px;
-  border-radius: 8px;
-  background: linear-gradient(135deg, var(--orange-light), var(--orange));
-  margin-bottom: 8px;
-}
-
-.device-phone__row {
   display: flex;
-  gap: 5px;
-  margin-bottom: 6px;
-}
-.device-phone__row span {
-  flex: 1;
-  height: 18px;
-  border-radius: 6px;
-  background: var(--cream);
-}
-.device-phone__row--thin span {
-  height: 6px;
-  border-radius: 4px;
-  background: var(--line);
-}
-.device-phone__row--thin span:last-child { flex: 0.6; }
 
-/* Browser mockup */
-.device-browser {
-  position: absolute;
-  bottom: 6px;
-  right: 0;
-  width: 232px;
-  border-radius: 14px;
-  background: #fff;
-  overflow: hidden;
-  box-shadow: 0 26px 48px -18px rgba(32, 20, 0, 0.36);
-  transform: rotate(4deg);
-  z-index: 3;
-  animation: deviceFloat 6s ease-in-out infinite;
-  animation-delay: 0.4s;
-}
+  flex-wrap: wrap;
 
-@keyframes deviceFloat {
-  0%, 100% { transform: var(--rot, rotate(0deg)) translateY(0); }
-  50% { transform: var(--rot, rotate(0deg)) translateY(-9px); }
-}
-.device-phone { --rot: rotate(-9deg); }
-.device-browser { --rot: rotate(4deg); }
-
-.device-browser__bar {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  padding: 9px 11px;
-  background: #f6f2e6;
-  border-bottom: 1px solid var(--line);
-}
-
-.dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; }
-.dot--red { background: #ff5f57; }
-.dot--yellow { background: #febc2e; }
-.dot--green { background: #28c840; }
-
-.device-browser__url {
-  margin-left: 6px;
-  font-size: 9.5px;
-  color: var(--ink-soft);
-  background: #fff;
-  padding: 2px 8px;
-  border-radius: 5px;
-  font-family: 'Courier New', monospace;
-}
-
-.device-browser__screen {
-  padding: 13px;
-  background: linear-gradient(160deg, #fff, #fff8ec);
-}
-
-.thumb-row {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 6px;
-  margin-bottom: 10px;
-}
-.thumb { display: block; height: 42px; border-radius: 7px; }
-.thumb--1 { background: linear-gradient(135deg, var(--orange-light), var(--orange)); }
-.thumb--2 { background: linear-gradient(135deg, var(--orange), var(--red)); }
-.thumb--3 { background: linear-gradient(135deg, var(--red), #b81f0c); }
-
-.skeleton-line {
-  height: 7px;
-  border-radius: 4px;
-  background: var(--line);
-  margin-bottom: 7px;
-}
-.skeleton-line--w80 { width: 80%; }
-.skeleton-line--w50 { width: 50%; margin-bottom: 0; }
-
-/* Badges */
-.badge {
-  position: absolute;
-  display: flex;
-  align-items: center;
   gap: 8px;
-  background: #fff;
-  border-radius: 14px;
-  padding: 10px 15px;
-  box-shadow: 0 16px 32px -16px rgba(32, 20, 0, 0.32);
-  z-index: 4;
-  animation: badgeSway 5s ease-in-out infinite;
+
+  margin-bottom: 30px;
 }
 
-@keyframes badgeSway {
-  0%, 100% { transform: translateY(0) rotate(0deg); }
-  50% { transform: translateY(-6px) rotate(1.5deg); }
-}
 
-.badge--rating {
-  top: 4px;
-  right: -4px;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 3px;
-}
-.badge__stars { color: var(--orange); font-size: 13px; letter-spacing: 2px; line-height: 1; }
-.badge__text { font-size: 11.5px; font-weight: 700; color: var(--ink); white-space: nowrap; }
+.category-filter button {
 
-.badge--check {
-  top: 96px;
-  left: -18px;
-  padding: 8px 13px;
-  animation-delay: 0.9s;
-}
-.badge__check {
-  width: 18px;
-  height: 18px;
-  flex-shrink: 0;
-  border-radius: 50%;
-  background: linear-gradient(135deg, var(--orange-light), var(--orange));
-  color: #fff;
-  font-size: 11px;
-  font-weight: 800;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
+  padding: 10px 19px;
 
-.badge--clients {
-  bottom: -6px;
-  left: 30px;
-  animation-delay: 1.6s;
-}
+  border:
+    1px solid
+    var(--color-border);
 
-.avatar-stack { display: flex; }
-.avatar {
-  width: 20px; height: 20px;
-  border-radius: 50%;
-  border: 2px solid #fff;
-  margin-left: -7px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 9px; font-weight: 800; color: #fff;
-  background: linear-gradient(135deg, var(--orange-light), var(--orange));
-}
-.avatar:first-child { margin-left: 0; }
-.avatar--2 { background: linear-gradient(135deg, var(--orange), var(--red)); }
-.avatar--3 { background: linear-gradient(135deg, var(--red), #b81f0c); }
+  border-radius: 100px;
 
-@media (prefers-reduced-motion: reduce) {
-  .visual-glow, .deco-dot, .deco-ring, .device-phone, .device-browser, .badge {
-    animation: none;
-  }
-}
+  background: transparent;
 
-@media (max-width: 900px) {
-  .hero-visual { display: none; }
-}
+  color: var(--color-text-secondary);
 
-/* ---------- Grid section ---------- */
-.portfolio-grid-section {
-  padding: 90px clamp(20px, 6vw, 80px);
-  background: #fff;
-}
+  font-family: var(--font-body);
 
-.section-title {
-  font-size: clamp(24px, 3vw, 32px);
-  font-weight: 800;
-  color: var(--ink);
-  letter-spacing: -0.01em;
-  margin: 0 0 32px;
-}
+  font-size: 13px;
 
-.filters {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-  margin-bottom: 40px;
-}
-
-.filter-btn {
-  padding: 9px 20px;
-  border-radius: 999px;
-  border: 1.5px solid var(--line);
-  background: #fff;
-  color: var(--ink-soft);
-  font-size: 13.5px;
-  font-weight: 700;
   cursor: pointer;
-  transition: all 0.2s ease;
+
+  transition: all .2s ease;
 }
 
-.filter-btn:hover { border-color: var(--orange-light); color: var(--ink); }
 
-.filter-btn--active {
-  background: var(--orange);
-  border-color: var(--orange);
-  color: #fff;
+.category-filter button:hover {
+
+  border-color: var(--color-red);
+
+  color: var(--color-red);
 }
 
-.project-grid {
+
+.category-filter button.active {
+
+  border-color: var(--color-red);
+
+  background: var(--color-red);
+
+  color: white;
+}
+
+
+/* =====================================================
+   PROJECT
+===================================================== */
+
+.projects {
+
+  width: 100%;
+
+  border-top:
+    1px solid
+    var(--color-border);
+}
+
+
+.project {
+
+  padding: 55px 0;
+
+  border-bottom:
+    1px solid
+    var(--color-border);
+}
+
+
+.project-index {
+
+  margin-bottom: 18px;
+
+  color: var(--color-deep-orange);
+
+  font-family: var(--font-heading);
+
+  font-size: 12px;
+
+  font-weight: 600;
+}
+
+
+.project-content {
+
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  gap: 28px;
-}
 
-.project-card {
-  border-radius: 18px;
-  background: var(--paper);
-  border: 1px solid var(--line);
-  overflow: hidden;
-  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
-}
+  grid-template-columns:
+    minmax(300px, .65fr)
+    minmax(0, 1.35fr);
 
-.project-card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 18px 40px -18px rgba(230, 82, 31, 0.35);
-}
+  gap: 90px;
 
-/* ---------- Scroll reveal: muncul dari bawah saat masuk viewport ---------- */
-.reveal {
-  opacity: 0;
-  transform: translateY(36px);
-  transition: opacity 0.75s ease, transform 0.75s ease;
-}
-
-.reveal.is-revealed {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .reveal {
-    transition: none;
-    opacity: 1;
-    transform: none;
-  }
-}
-
-/* Browser mockup (kartu grid) */
-.browser-frame {
-  border-bottom: 1px solid var(--line);
-}
-
-.browser-frame__bar {
-  display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 10px 14px;
-  background: #fff;
 }
 
-.browser-frame__url {
-  margin-left: 10px;
-  font-size: 11.5px;
-  color: var(--ink-soft);
-  background: var(--cream);
-  padding: 3px 10px;
-  border-radius: 6px;
-  font-family: 'Courier New', monospace;
+
+.project-info {
+
+  max-width: 570px;
 }
 
-.browser-frame__screen {
-  height: 150px;
+
+.project-type {
+
   display: flex;
-  align-items: center;
-  justify-content: center;
-}
 
-.browser-frame__mark {
-  font-size: 46px;
-  font-weight: 800;
-  color: #fff;
-}
+  gap: 8px;
 
-.accent--orange .browser-frame__screen { background: linear-gradient(135deg, var(--orange), var(--red)); }
-.accent--red .browser-frame__screen { background: linear-gradient(135deg, var(--red), #b81f0c); }
-.accent--orange-light .browser-frame__screen { background: linear-gradient(135deg, var(--orange-light), var(--orange)); }
+  margin-bottom: 14px;
 
-.project-card__body { padding: 22px 22px 26px; }
+  color: var(--color-deep-orange);
 
-.project-card__tag {
-  display: inline-block;
+  font-family: var(--font-heading);
+
   font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 0.04em;
+
+  font-weight: 600;
+
+  letter-spacing: .05em;
+
   text-transform: uppercase;
-  color: var(--orange);
-  margin-bottom: 10px;
 }
 
-.project-card__title {
-  font-size: 18px;
-  font-weight: 800;
-  color: var(--ink);
-  margin: 0 0 8px;
-  letter-spacing: -0.01em;
-}
 
-.project-card__desc {
-  font-size: 14px;
-  line-height: 1.6;
-  color: var(--ink-soft);
-  margin: 0 0 16px;
-}
+.project-info h3 {
 
-.project-card__link {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 13.5px;
-  font-weight: 700;
-  color: var(--ink);
-  text-decoration: none;
-}
-
-.project-card__link .arrow { transition: transform 0.2s ease; }
-.project-card__link:hover .arrow { transform: translateX(4px); }
-.project-card__link:hover { color: var(--orange); }
-
-/* ---------- CTA ---------- */
-.portfolio-cta {
-  padding: 70px clamp(20px, 6vw, 80px);
-  background: var(--ink);
-}
-
-.portfolio-cta__inner {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 24px;
-  flex-wrap: wrap;
-}
-
-.portfolio-cta__title {
-  font-size: clamp(22px, 2.6vw, 28px);
-  font-weight: 800;
-  color: #fff;
-  margin: 0 0 8px;
-}
-
-.portfolio-cta__desc {
-  color: #cfc7b8;
-  font-size: 14.5px;
   margin: 0;
+
+  font-family: var(--font-heading);
+
+  font-size: clamp(30px, 3.2vw, 46px);
+
+  line-height: 1;
+
+  letter-spacing: -.045em;
 }
 
-.portfolio-cta__btn {
-  flex-shrink: 0;
-  background: var(--orange);
-  color: #fff;
-  font-weight: 700;
-  font-size: 14.5px;
-  padding: 14px 28px;
-  border-radius: 10px;
+
+.project-info p {
+
+  max-width: 520px;
+
+  margin-top: 20px;
+
+  color: var(--color-text-secondary);
+
+  font-size: 14px;
+
+  line-height: 1.8;
+}
+
+
+/* =====================================================
+   TAG
+===================================================== */
+
+.project-tags {
+
+  display: flex;
+
+  flex-wrap: wrap;
+
+  gap: 7px;
+
+  margin-top: 22px;
+}
+
+
+.project-tags span {
+
+  padding: 7px 11px;
+
+  border-radius: 5px;
+
+  background: #f0efe9;
+
+  color: var(--color-text-secondary);
+
+  font-size: 10px;
+}
+
+
+/* =====================================================
+   PROJECT BUTTON
+===================================================== */
+
+.project-button {
+
+  display: inline-flex;
+
+  align-items: center;
+
+  gap: 10px;
+
+  margin-top: 28px;
+
+  color: var(--color-text);
+
+  font-family: var(--font-heading);
+
+  font-size: 13px;
+
+  font-weight: 600;
+
   text-decoration: none;
-  transition: background 0.2s ease, transform 0.2s ease;
 }
 
-.portfolio-cta__btn:hover {
-  background: var(--red);
-  transform: translateY(-2px);
+
+.project-button span {
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  width: 32px;
+
+  height: 32px;
+
+  border:
+    1px solid
+    var(--color-border);
+
+  border-radius: 50%;
+
+  color: var(--color-red);
+
+  transition: all .2s ease;
 }
 
-/* ---------- Responsive ---------- */
-@media (max-width: 650px) {
-  .portfolio-hero { min-height: auto; padding: 120px 20px 60px; }
-  .stats-row { gap: 28px; }
-  .project-grid { grid-template-columns: 1fr; }
-  .portfolio-cta__inner { flex-direction: column; align-items: flex-start; }
+
+.project-button:hover span {
+
+  background: var(--color-red);
+
+  color: white;
+
+  transform:
+    translate(3px, -3px);
 }
+
+
+/* =====================================================
+   PROJECT VISUAL
+===================================================== */
+
+.project-visual {
+
+  position: relative;
+
+  width: 100%;
+
+  min-height: 430px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  overflow: hidden;
+
+  border-radius: 20px;
+}
+
+
+.theme-orange {
+
+  background:
+    linear-gradient(
+      135deg,
+      var(--color-yellow),
+      var(--color-orange) 55%,
+      var(--color-deep-orange)
+    );
+}
+
+
+.theme-yellow {
+
+  background:
+    linear-gradient(
+      135deg,
+      #FFF7B8,
+      var(--color-yellow) 55%,
+      var(--color-orange)
+    );
+}
+
+
+.theme-red {
+
+  background:
+    linear-gradient(
+      135deg,
+      #FFD9CC,
+      var(--color-orange) 55%,
+      var(--color-red)
+    );
+}
+
+
+.theme-light {
+
+  background:
+    linear-gradient(
+      135deg,
+      #F7F5EF,
+      var(--color-yellow)
+    );
+}
+
+
+/* =====================================================
+   WEBSITE MOCKUP
+===================================================== */
+
+.website-mockup {
+
+  width: 82%;
+
+  min-height: 320px;
+
+  overflow: hidden;
+
+  border-radius: 11px;
+
+  background: white;
+
+  box-shadow:
+    0 30px 70px
+    rgba(0,0,0,.18);
+
+  transform: rotate(-2deg);
+
+  transition: all .4s ease;
+}
+
+
+.project:hover .website-mockup {
+
+  transform:
+    rotate(0)
+    translateY(-7px);
+}
+
+
+.mockup-navbar {
+
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+
+  padding: 14px 20px;
+
+  border-bottom:
+    1px solid #eeeeee;
+}
+
+
+.mockup-logo {
+
+  font-family: var(--font-heading);
+
+  font-size: 10px;
+
+  font-weight: 700;
+}
+
+
+.mockup-menu {
+
+  display: flex;
+
+  gap: 5px;
+}
+
+
+.mockup-menu span {
+
+  width: 22px;
+
+  height: 3px;
+
+  border-radius: 10px;
+
+  background: #dddddd;
+}
+
+
+.mockup-body {
+
+  padding: 42px;
+}
+
+
+.mockup-body small {
+
+  color: var(--color-deep-orange);
+
+  font-size: 8px;
+
+  font-weight: 600;
+}
+
+
+.mockup-body h4 {
+
+  max-width: 550px;
+
+  margin: 12px 0;
+
+  font-family: var(--font-heading);
+
+  font-size: clamp(28px, 3vw, 42px);
+
+  line-height: 1;
+
+  letter-spacing: -.04em;
+}
+
+
+.mockup-description {
+
+  width: 55%;
+
+  height: 7px;
+
+  margin-top: 20px;
+
+  border-radius: 10px;
+
+  background: #eeeeee;
+}
+
+
+.mockup-description.short {
+
+  width: 35%;
+
+  margin-top: 8px;
+}
+
+
+.mockup-buttons {
+
+  display: flex;
+
+  gap: 8px;
+
+  margin-top: 28px;
+}
+
+
+.mockup-buttons i {
+
+  width: 70px;
+
+  height: 23px;
+
+  border-radius: 5px;
+
+  background: #eeeeee;
+}
+
+
+.mockup-buttons i:first-child {
+
+  background: var(--color-red);
+}
+
+
+.mockup-cards {
+
+  display: flex;
+
+  gap: 10px;
+
+  margin-top: 35px;
+}
+
+
+.mockup-cards div {
+
+  flex: 1;
+
+  height: 70px;
+
+  border-radius: 7px;
+
+  background: #f3f3f3;
+}
+
+
+/* =====================================================
+   DASHBOARD MOCKUP
+===================================================== */
+
+.dashboard-mockup {
+
+  display: flex;
+
+  width: 84%;
+
+  min-height: 320px;
+
+  overflow: hidden;
+
+  border-radius: 11px;
+
+  background: white;
+
+  box-shadow:
+    0 30px 70px
+    rgba(0,0,0,.18);
+
+  transform: rotate(1.5deg);
+
+  transition: all .4s ease;
+}
+
+
+.project:hover .dashboard-mockup {
+
+  transform:
+    rotate(0)
+    translateY(-7px);
+}
+
+
+.dashboard-sidebar {
+
+  width: 23%;
+
+  padding: 24px 18px;
+
+  background: #242424;
+
+  color: white;
+}
+
+
+.dashboard-sidebar strong {
+
+  font-family: var(--font-heading);
+
+  font-size: 10px;
+}
+
+
+.sidebar-items {
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 15px;
+
+  margin-top: 45px;
+}
+
+
+.sidebar-items i {
+
+  display: block;
+
+  width: 80%;
+
+  height: 5px;
+
+  border-radius: 10px;
+
+  background: #555555;
+}
+
+
+.sidebar-items i:first-child {
+
+  background: var(--color-orange);
+}
+
+
+.dashboard-content {
+
+  flex: 1;
+
+  padding: 25px;
+}
+
+
+.dashboard-top {
+
+  display: flex;
+
+  justify-content: space-between;
+}
+
+
+.dashboard-top span {
+
+  width: 80px;
+
+  height: 7px;
+
+  border-radius: 10px;
+
+  background: #eeeeee;
+}
+
+
+.dashboard-heading {
+
+  margin-top: 28px;
+}
+
+
+.dashboard-heading div {
+
+  width: 35%;
+
+  height: 9px;
+
+  border-radius: 10px;
+
+  background: #333333;
+}
+
+
+.dashboard-heading div:last-child {
+
+  width: 22%;
+
+  margin-top: 9px;
+
+  background: #eeeeee;
+}
+
+
+.dashboard-stats {
+
+  display: flex;
+
+  gap: 9px;
+
+  margin-top: 28px;
+}
+
+
+.dashboard-stats div {
+
+  flex: 1;
+
+  height: 60px;
+
+  border-radius: 7px;
+
+  background: #f3f3f3;
+}
+
+
+.dashboard-chart {
+
+  display: flex;
+
+  align-items: end;
+
+  gap: 9px;
+
+  height: 100px;
+
+  margin-top: 22px;
+
+  padding: 12px;
+
+  border-radius: 7px;
+
+  background: #f7f7f7;
+}
+
+
+.dashboard-chart span {
+
+  flex: 1;
+
+  height: 40%;
+
+  border-radius: 3px 3px 0 0;
+
+  background: var(--color-orange);
+}
+
+
+.dashboard-chart span:nth-child(2) {
+  height: 70%;
+}
+
+
+.dashboard-chart span:nth-child(3) {
+  height: 50%;
+}
+
+
+.dashboard-chart span:nth-child(4) {
+  height: 85%;
+}
+
+
+.dashboard-chart span:nth-child(5) {
+  height: 60%;
+}
+
+
+.dashboard-chart span:nth-child(6) {
+
+  height: 95%;
+
+  background: var(--color-red);
+}
+
+
+/* =====================================================
+   MOBILE MOCKUP
+===================================================== */
+
+.mobile-mockup {
+
+  display: flex;
+
+  justify-content: center;
+
+  width: 100%;
+}
+
+
+.phone {
+
+  position: relative;
+
+  width: 190px;
+
+  min-height: 360px;
+
+  padding: 23px 18px;
+
+  border: 6px solid #222222;
+
+  border-radius: 28px;
+
+  background: white;
+
+  box-shadow:
+    0 30px 70px
+    rgba(0,0,0,.2);
+
+  z-index: 2;
+
+  transition: all .4s ease;
+}
+
+
+.project:hover .phone {
+
+  transform:
+    translateY(-8px);
+}
+
+
+.phone-top {
+
+  width: 50px;
+
+  height: 5px;
+
+  margin: 0 auto 27px;
+
+  border-radius: 10px;
+
+  background: #222222;
+}
+
+
+.phone small {
+
+  color: var(--color-deep-orange);
+
+  font-size: 7px;
+
+  font-weight: 600;
+}
+
+
+.phone h4 {
+
+  margin: 10px 0 20px;
+
+  font-family: var(--font-heading);
+
+  font-size: 20px;
+
+  line-height: 1;
+}
+
+
+.phone-card {
+
+  height: 60px;
+
+  margin-top: 9px;
+
+  border-radius: 9px;
+
+  background: #f2f2f2;
+}
+
+
+.phone-card:first-of-type {
+
+  background: var(--color-yellow);
+}
+
+
+.phone-nav {
+
+  position: absolute;
+
+  left: 12px;
+
+  right: 12px;
+
+  bottom: 11px;
+
+  display: flex;
+
+  justify-content: space-around;
+
+  padding: 9px;
+
+  border-radius: 10px;
+
+  background: #f6f6f6;
+}
+
+
+.phone-nav i {
+
+  width: 11px;
+
+  height: 11px;
+
+  border-radius: 50%;
+
+  background: #cccccc;
+}
+
+
+.phone-nav i:first-child {
+
+  background: var(--color-red);
+}
+
+
+/* =====================================================
+   VISUAL NUMBER
+===================================================== */
+
+.visual-number {
+
+  position: absolute;
+
+  right: 25px;
+
+  bottom: 22px;
+
+  font-family: var(--font-heading);
+
+  font-size: 12px;
+
+  font-weight: 600;
+
+  color: rgba(26,26,26,.45);
+}
+
+
+/* =====================================================
+   CAPABILITIES
+===================================================== */
+
+.capabilities {
+
+  padding: 120px 0;
+
+  background: #f3f2ed;
+}
+
+
+.capabilities-heading {
+
+  margin-bottom: 60px;
+}
+
+
+.capabilities-heading h2 {
+
+  max-width: 800px;
+
+  margin: 0;
+
+  font-family: var(--font-heading);
+
+  font-size: clamp(42px, 5.5vw, 70px);
+
+  line-height: .98;
+
+  letter-spacing: -.055em;
+}
+
+
+.capabilities-heading h2 span {
+
+  display: block;
+
+  color: var(--color-text-secondary);
+}
+
+
+.capability-grid {
+
+  display: grid;
+
+  grid-template-columns: repeat(4, 1fr);
+
+  border-top:
+    1px solid
+    var(--color-border);
+}
+
+
+.capability {
+
+  min-height: 320px;
+
+  padding: 32px 30px 30px 0;
+
+  border-right:
+    1px solid
+    var(--color-border);
+}
+
+
+.capability:not(:first-child) {
+
+  padding-left: 30px;
+}
+
+
+.capability:last-child {
+
+  border-right: none;
+}
+
+
+.capability-number {
+
+  margin-bottom: 80px;
+
+  color: var(--color-deep-orange);
+
+  font-family: var(--font-heading);
+
+  font-size: 12px;
+
+  font-weight: 600;
+}
+
+
+.capability h3 {
+
+  margin: 0;
+
+  font-family: var(--font-heading);
+
+  font-size: 20px;
+
+  line-height: 1.2;
+}
+
+
+.capability p {
+
+  max-width: 270px;
+
+  margin-top: 14px;
+
+  color: var(--color-text-secondary);
+
+  font-size: 13px;
+
+  line-height: 1.75;
+}
+
+
+.capability-link {
+
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+
+  margin-top: 35px;
+
+  padding-top: 16px;
+
+  border-top:
+    1px solid
+    var(--color-border);
+
+  font-family: var(--font-heading);
+
+  font-size: 11px;
+
+  font-weight: 600;
+}
+
+
+.capability-link span {
+
+  color: var(--color-red);
+
+  font-size: 16px;
+}
+
+
+/* =====================================================
+   CTA
+===================================================== */
+
+.portfolio-cta-section {
+
+  padding: 110px 0;
+}
+
+
+.cta-box {
+
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+
+  gap: 70px;
+
+  padding: 70px;
+
+  overflow: hidden;
+
+  border-radius: 22px;
+
+  background:
+    linear-gradient(
+      120deg,
+      var(--color-yellow),
+      var(--color-orange) 55%,
+      var(--color-deep-orange)
+    );
+}
+
+
+.cta-text {
+
+  max-width: 800px;
+}
+
+
+.cta-text .eyebrow {
+
+  color: var(--color-red);
+}
+
+
+.cta-text h2 {
+
+  margin: 0;
+
+  font-family: var(--font-heading);
+
+  font-size: clamp(38px, 4.5vw, 60px);
+
+  line-height: .98;
+
+  letter-spacing: -.055em;
+}
+
+
+.cta-text h2 span {
+
+  display: block;
+
+  color: rgba(26,26,26,.55);
+}
+
+
+.cta-text p {
+
+  max-width: 560px;
+
+  margin-top: 20px;
+
+  color: rgba(26,26,26,.7);
+
+  font-size: 14px;
+
+  line-height: 1.8;
+}
+
+
+.cta-button {
+
+  display: inline-flex;
+
+  align-items: center;
+
+  gap: 12px;
+
+  flex-shrink: 0;
+
+  padding: 16px 23px;
+
+  border-radius: 10px;
+
+  background: var(--color-red);
+
+  color: white;
+
+  font-family: var(--font-heading);
+
+  font-size: 13px;
+
+  font-weight: 600;
+
+  text-decoration: none;
+
+  transition: all .2s ease;
+}
+
+
+.cta-button:hover {
+
+  transform: translateY(-3px);
+
+  box-shadow:
+    0 12px 30px
+    rgba(235,43,12,.25);
+}
+
+
+.cta-button span {
+
+  font-size: 17px;
+}
+
+
+/* =====================================================
+   TABLET
+===================================================== */
+
+@media (max-width: 1000px) {
+
+  .container {
+
+    padding-left: 40px;
+
+    padding-right: 40px;
+  }
+
+
+  .hero-content {
+
+    grid-template-columns: 1fr;
+
+    gap: 30px;
+  }
+
+
+  .hero-description {
+
+    padding-bottom: 0;
+  }
+
+
+  .section-heading {
+
+    grid-template-columns: 1fr;
+
+    gap: 25px;
+  }
+
+
+  .project-content {
+
+    grid-template-columns: 1fr;
+
+    gap: 50px;
+  }
+
+
+  .project-info {
+
+    max-width: 700px;
+  }
+
+
+  .capability-grid {
+
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+
+  .capability:nth-child(2) {
+
+    border-right: none;
+  }
+
+
+  .capability:nth-child(3),
+  .capability:nth-child(4) {
+
+    border-top:
+      1px solid
+      var(--color-border);
+  }
+
+
+  .cta-box {
+
+    padding: 50px;
+
+  }
+
+}
+
+
+/* =====================================================
+   MOBILE
+===================================================== */
+
+@media (max-width: 600px) {
+
+  .container {
+
+    width: 100%;
+
+    padding-left: 20px;
+
+    padding-right: 20px;
+  }
+
+
+  .portfolio-hero {
+
+    padding-top: 65px;
+  }
+
+
+  .hero-label {
+
+    margin-bottom: 25px;
+
+    font-size: 10px;
+  }
+
+
+  .hero-title h1 {
+
+    font-size: 46px;
+
+    line-height: .98;
+  }
+
+
+  .hero-description p {
+
+    font-size: 14px;
+  }
+
+
+  .portfolio-stats {
+
+    grid-template-columns: repeat(2, 1fr);
+
+    margin-top: 50px;
+  }
+
+
+  .stat {
+
+    min-height: 85px;
+
+    padding: 18px 12px;
+  }
+
+
+  .stat:first-child {
+
+    padding-left: 0;
+  }
+
+
+  .stat:nth-child(2) {
+
+    border-right: none;
+  }
+
+
+  .stat:nth-child(3) {
+
+    border-top:
+      1px solid
+      var(--color-border);
+  }
+
+
+  .stat:nth-child(4) {
+
+    border-top:
+      1px solid
+      var(--color-border);
+  }
+
+
+  .stat strong {
+
+    font-size: 23px;
+  }
+
+
+  .stat span {
+
+    font-size: 10px;
+  }
+
+
+  .portfolio-list {
+
+    padding: 80px 0;
+  }
+
+
+  .section-heading h2 {
+
+    font-size: 42px;
+  }
+
+
+  .category-filter {
+
+    margin-top: 30px;
+  }
+
+
+  .project {
+
+    padding: 40px 0;
+  }
+
+
+  .project-content {
+
+    gap: 35px;
+  }
+
+
+  .project-info h3 {
+
+    font-size: 32px;
+  }
+
+
+  .project-visual {
+
+    min-height: 310px;
+
+    border-radius: 15px;
+  }
+
+
+  .website-mockup {
+
+    width: 90%;
+  }
+
+
+  .dashboard-mockup {
+
+    width: 92%;
+  }
+
+
+  .mockup-body {
+
+    padding: 27px;
+  }
+
+
+  .mockup-body h4 {
+
+    font-size: 25px;
+  }
+
+
+  .capabilities {
+
+    padding: 80px 0;
+  }
+
+
+  .capabilities-heading h2 {
+
+    font-size: 42px;
+  }
+
+
+  .capability-grid {
+
+    grid-template-columns: 1fr;
+  }
+
+
+  .capability,
+  .capability:not(:first-child) {
+
+    min-height: auto;
+
+    padding: 28px 0;
+
+    border-right: none;
+
+    border-bottom:
+      1px solid
+      var(--color-border);
+  }
+
+
+  .capability-number {
+
+    margin-bottom: 35px;
+  }
+
+
+  .capability:last-child {
+
+    border-bottom: none;
+  }
+
+
+  .portfolio-cta-section {
+
+    padding: 70px 0;
+  }
+
+
+  .cta-box {
+
+    display: block;
+
+    padding: 38px 25px;
+
+    border-radius: 16px;
+  }
+
+
+  .cta-text h2 {
+
+    font-size: 38px;
+  }
+
+
+  .cta-button {
+
+    margin-top: 30px;
+  }
+
+}
+
 </style>
