@@ -1,852 +1,636 @@
 <template>
-  <main class="service-page">
-
-    <section class="service-hero">
-
-      <div class="hero-image">
-
+  <main class="solution-page">
+    <!-- ============ HERO (dengan foto) ============ -->
+    <section class="hero">
+      <div class="hero-media" aria-hidden="true">
         <img
           src="/team/team-3.jpg"
-          alt="Maintenance and Support"
+          alt=""
+          class="hero-img"
+          @error="onImgError"
         />
-
-        <div class="hero-gradient"></div>
-
+        <div v-if="imgFailed" class="hero-img-fallback"></div>
+        <div class="hero-fade"></div>
       </div>
 
-      <div class="container hero-container">
+      <div class="container hero-inner">
+        <nav class="breadcrumb reveal" data-reveal="fade-up">
+          <RouterLink to="/solutions" class="breadcrumb-link">Solution</RouterLink>
+          <span class="breadcrumb-sep">/</span>
+          <span class="breadcrumb-current">Maintenance & Support</span>
+        </nav>
 
-        <div class="hero-content">
-
-          <router-link to="/solutions" class="back-link">
-
-            <span class="back-icon">
-
-              <svg viewBox="0 0 24 24" fill="none">
-                <path
-                  d="M19 12H5M11 18L5 12L11 6"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                />
-              </svg>
-
-            </span>
-
-            Semua Solutions
-
-          </router-link>
-
-          <p class="eyebrow">
-            Maintenance & Support
-          </p>
-
-          <h1>
-            Produk digital yang
-            <span>tetap berjalan optimal.</span>
+        <div class="hero-copy">
+          <h1 class="hero-title reveal" data-reveal="fade-up" data-delay="80">
+            Maintenance<br />& Support
           </h1>
-
-          <p class="hero-description">
-            Kami membantu menjaga aplikasi tetap stabil melalui
-            monitoring, bug fixing, security update, dan technical support.
+          <p class="hero-lead reveal" data-reveal="fade-up" data-delay="160">
+            Sistem yang sudah live tetap butuh perhatian — kami menjaga
+            aplikasi Anda tetap stabil, aman, dan berjalan lancar.
           </p>
-
+          <p class="hero-desc reveal" data-reveal="fade-up" data-delay="220">
+            Kami menangani proses maintenance secara end-to-end: mulai dari
+            monitoring rutin, perbaikan bug, pembaruan keamanan, hingga backup
+            dan pemulihan sistem — dengan komunikasi yang transparan di setiap tahap.
+          </p>
         </div>
 
+        <button class="scroll-cue reveal" data-reveal="fade-up" data-delay="300" @click="scrollToServices">
+          <span>Layanan Kami</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 5v14M5 12l7 7 7-7" />
+          </svg>
+        </button>
       </div>
-
     </section>
 
-    <section class="intro section">
-
+    <!-- ============ SERVICES / SCOPE OF WORK ============ -->
+    <section id="services" class="section services">
       <div class="container">
-
-        <div class="intro-grid">
-
-          <div>
-
-            <p class="eyebrow">
-              Continuous Improvement
-            </p>
-
-            <h2>
-              Setelah produk diluncurkan, perjalanan belum selesai.
-            </h2>
-
-          </div>
-
-          <div class="intro-text">
-
-            <p>
-              Produk digital membutuhkan perhatian secara berkala
-              agar tetap aman, stabil, dan relevan dengan kebutuhan
-              pengguna.
-            </p>
-
-            <p>
-              Kami membantu tim Anda melakukan maintenance,
-              monitoring, improvement, dan technical support
-              setelah produk berjalan.
-            </p>
-
-          </div>
-
+        <div class="section-head reveal" data-reveal="fade-up">
+          <span class="eyebrow">Services</span>
+          <h2>Solusi Maintenance & Support yang Kami Sediakan</h2>
         </div>
 
-      </div>
-
-    </section>
-
-    <section class="services section">
-
-      <div class="container">
-
-        <div class="section-heading">
-
-          <div>
-
-            <p class="eyebrow">
-              What We Do
-            </p>
-
-            <h2>
-              Menjaga produk tetap optimal.
-            </h2>
-
-          </div>
-
-          <p>
-            Support berkelanjutan untuk memastikan produk digital
-            tetap memberikan performa terbaik.
-          </p>
-
-        </div>
-
-        <div class="service-grid">
-
+        <div class="services-grid">
           <article
-            v-for="item in services"
-            :key="item.number"
-            class="service-card"
+            v-for="(item, i) in scopeItems"
+            :key="item.title"
+            class="service-card reveal"
+            data-reveal="fade-up"
+            :data-delay="(i % 3) * 100"
           >
-
-            <div class="service-number">
-              {{ item.number }}
-            </div>
-
-            <h3>
-              {{ item.title }}
-            </h3>
-
-            <p>
-              {{ item.description }}
-            </p>
-
+            <span class="service-index">{{ item.index }}</span>
+            <div class="service-icon" v-html="item.icon"></div>
+            <h3>{{ item.title }}</h3>
+            <p>{{ item.desc }}</p>
           </article>
-
         </div>
-
       </div>
-
     </section>
 
-    <section class="process section">
-
+    <!-- ============ PROSES KERJA (timeline) ============ -->
+    <section class="section process">
       <div class="container">
-
-        <div class="section-heading center">
-
-          <p class="eyebrow">
-            Our Process
+        <div class="section-head reveal" data-reveal="fade-up">
+          <span class="eyebrow">Our Process</span>
+          <h2>Bagaimana Kami Bekerja</h2>
+          <p class="section-sub">
+            Proses yang terstruktur, dari monitoring hingga pelaporan rutin,
+            agar sistem Anda tetap berjalan tanpa gangguan.
           </p>
-
-          <h2>
-            Support yang terstruktur.
-          </h2>
-
-          <p>
-            Kami menangani masalah teknis secara sistematis
-            agar produk tetap dapat digunakan dengan baik.
-          </p>
-
         </div>
 
-        <div class="process-grid">
-
-          <article
-            v-for="item in process"
-            :key="item.number"
-            class="process-card"
-          >
-
-            <span>
-              {{ item.number }}
-            </span>
-
-            <div class="process-icon">
-
-              <svg viewBox="0 0 24 24" fill="none">
-                <path
-                  d="M5 12L10 17L19 7"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                />
-              </svg>
-
-            </div>
-
-            <h3>
-              {{ item.title }}
-            </h3>
-
-            <p>
-              {{ item.description }}
-            </p>
-
-          </article>
-
-        </div>
-
-      </div>
-
-    </section>
-
-    <section class="cta">
-
-      <div class="container">
-
-        <div class="cta-box">
-
-          <div>
-
-            <p class="eyebrow">
-              Start a Project
-            </p>
-
-            <h2>
-              Butuh partner untuk menjaga
-              <span>produk digital Anda?</span>
-            </h2>
-
-            <p>
-              Mari diskusikan kebutuhan maintenance dan
-              technical support untuk produk Anda.
-            </p>
-
+        <div class="timeline">
+          <div class="timeline-line" aria-hidden="true">
+            <div class="timeline-line-fill reveal" data-reveal="grow-line"></div>
           </div>
 
-          <router-link
-            to="/contact"
-            class="cta-button"
+          <div
+            v-for="(step, i) in processSteps"
+            :key="step.title"
+            class="timeline-step reveal"
+            data-reveal="fade-up"
+            :data-delay="i * 120"
           >
-            Hubungi Kami
-
-            <svg viewBox="0 0 24 24" fill="none">
-              <path
-                d="M5 12H19M13 6L19 12L13 18"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-            </svg>
-
-          </router-link>
-
+            <span class="timeline-dot">{{ step.number }}</span>
+            <h3>{{ step.title }}</h3>
+            <p>{{ step.desc }}</p>
+          </div>
         </div>
-
       </div>
-
     </section>
 
+    <!-- ============ TECH STACK ============ -->
+    <section class="section tech">
+      <div class="container">
+        <div class="section-head reveal" data-reveal="fade-up">
+          <span class="eyebrow">Tools</span>
+          <h2>Tools yang Kami Andalkan</h2>
+        </div>
+        <div class="tech-row reveal" data-reveal="fade-up" data-delay="100">
+          <span v-for="tech in techStack" :key="tech" class="tech-badge">{{ tech }}</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ WHY US ============ -->
+    <section class="section why">
+      <div class="container why-grid">
+        <div class="why-copy reveal" data-reveal="fade-up">
+          <span class="eyebrow">Kenapa Pilih Kami</span>
+          <h2>Dibangun dengan Standar yang Kami Pegang Teguh</h2>
+          <p class="section-sub">
+            Kami tidak hanya menunggu masalah muncul — kami memantau secara
+            aktif agar sistem Anda tetap andal setiap hari.
+          </p>
+        </div>
+
+        <div class="why-list">
+          <div
+            v-for="(point, i) in whyPoints"
+            :key="point.title"
+            class="why-item reveal"
+            data-reveal="fade-up"
+            :data-delay="i * 80"
+          >
+            <span class="why-check">✓</span>
+            <div>
+              <h4>{{ point.title }}</h4>
+              <p>{{ point.desc }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ FAQ ============ -->
+    <section class="section faq">
+      <div class="container">
+        <div class="section-head reveal" data-reveal="fade-up">
+          <span class="eyebrow">FAQ</span>
+          <h2>Pertanyaan yang Sering Ditanyakan</h2>
+        </div>
+
+        <div class="faq-list reveal" data-reveal="fade-up" data-delay="100">
+          <div
+            v-for="(item, i) in faqItems"
+            :key="item.q"
+            class="faq-item"
+            :class="{ 'is-open': openFaq === i }"
+          >
+            <button class="faq-question" @click="toggleFaq(i)" :aria-expanded="openFaq === i">
+              {{ item.q }}
+              <span class="faq-icon">{{ openFaq === i ? '−' : '+' }}</span>
+            </button>
+            <div class="faq-answer" :style="{ maxHeight: openFaq === i ? '200px' : '0px' }">
+              <p>{{ item.a }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ CTA AKHIR (satu-satunya tombol Hubungi Kami) ============ -->
+    <section class="section cta-final">
+      <div class="container cta-final-inner reveal" data-reveal="fade-up">
+        <div class="cta-text">
+          <h2>Siap Menjaga Sistem Anda Tetap Andal?</h2>
+          <p>Ceritakan kebutuhan Anda, tim kami siap membantu dengan paket maintenance yang sesuai.</p>
+        </div>
+        <RouterLink :to="{ name: 'Contact' }" class="btn btn-primary btn-cta">
+          Hubungi Kami
+        </RouterLink>
+      </div>
+    </section>
   </main>
 </template>
 
 <script setup>
-const services = [
+import { ref, onMounted, onBeforeUnmount } from 'vue'
+
+const imgFailed = ref(false)
+function onImgError() {
+  imgFailed.value = true
+}
+
+function scrollToServices() {
+  document.getElementById('services')?.scrollIntoView({ behavior: 'smooth' })
+}
+
+const scopeItems = [
   {
-    number: '01',
-    title: 'Bug Fixing',
-    description:
-      'Menangani bug dan masalah teknis agar aplikasi tetap stabil.'
+    index: '01',
+    title: 'Bug Fixing & Troubleshooting',
+    desc: 'Menemukan dan memperbaiki masalah pada sistem secara cepat dan tepat sasaran.',
+    icon: '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="8" y="6" width="8" height="12" rx="4"/><path d="M8 10H4M8 14H4M16 10h4M16 14h4M12 3v3M9 4l1.5 2M15 4l-1.5 2"/></svg>',
   },
   {
-    number: '02',
-    title: 'Performance Monitoring',
-    description:
-      'Memantau performa aplikasi untuk menemukan masalah sebelum mengganggu pengguna.'
+    index: '02',
+    title: 'Performance Optimization',
+    desc: 'Meningkatkan kecepatan dan efisiensi sistem agar tetap responsif seiring bertambahnya beban.',
+    icon: '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M13 2 3 14h8l-1 8 10-12h-8l1-8Z"/></svg>',
   },
   {
-    number: '03',
-    title: 'Security Update',
-    description:
-      'Menjaga dependency dan sistem tetap aman serta diperbarui.'
+    index: '03',
+    title: 'Security Patching & Updates',
+    desc: 'Pembaruan berkala untuk menutup celah keamanan dan menjaga sistem tetap up to date.',
+    icon: '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/></svg>',
   },
   {
-    number: '04',
-    title: 'Technical Support',
-    description:
-      'Memberikan bantuan teknis ketika bisnis membutuhkan support.'
-  }
+    index: '04',
+    title: 'Server Monitoring',
+    desc: 'Pemantauan kondisi server dan aplikasi secara real-time untuk mencegah downtime.',
+    icon: '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>',
+  },
+  {
+    index: '05',
+    title: 'Backup & Disaster Recovery',
+    desc: 'Cadangan data terjadwal dan rencana pemulihan agar bisnis Anda tetap berjalan saat insiden.',
+    icon: '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 3v6h-6"/></svg>',
+  },
+  {
+    index: '06',
+    title: 'Paket Support Berbasis SLA',
+    desc: 'Dukungan teknis dengan waktu respons terjamin sesuai tingkat prioritas kebutuhan Anda.',
+    icon: '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>',
+  },
 ]
 
-const process = [
+const processSteps = [
   {
     number: '01',
-    title: 'Monitor',
-    description:
-      'Memantau kondisi aplikasi dan infrastructure secara berkala.'
+    title: 'System Assessment',
+    desc: 'Meninjau kondisi sistem saat ini dan menyusun rencana maintenance yang sesuai.',
   },
   {
     number: '02',
-    title: 'Analyze',
-    description:
-      'Menganalisis masalah dan menentukan prioritas perbaikan.'
+    title: 'Monitoring Setup',
+    desc: 'Memasang alat pemantauan agar potensi masalah dapat terdeteksi lebih awal.',
   },
   {
     number: '03',
-    title: 'Improve',
-    description:
-      'Melakukan perbaikan dan peningkatan pada sistem.'
+    title: 'Ongoing Maintenance',
+    desc: 'Melakukan perbaikan, pembaruan, dan optimasi secara rutin dan terjadwal.',
   },
   {
     number: '04',
-    title: 'Maintain',
-    description:
-      'Menjaga sistem tetap stabil melalui maintenance berkelanjutan.'
-  }
+    title: 'Reporting & Review',
+    desc: 'Memberikan laporan berkala mengenai kondisi sistem dan rekomendasi perbaikan.',
+  },
 ]
+
+const techStack = ['New Relic', 'Datadog', 'Cloudflare', 'PagerDuty', 'GitHub', 'Jira']
+
+const whyPoints = [
+  {
+    title: 'Respons Cepat',
+    desc: 'Tim kami sigap menangani laporan masalah sesuai kesepakatan waktu respons.',
+  },
+  {
+    title: 'Monitoring Proaktif',
+    desc: 'Masalah potensial terdeteksi lebih awal sebelum berdampak ke pengguna Anda.',
+  },
+  {
+    title: 'Laporan Rutin & Transparan',
+    desc: 'Anda menerima laporan berkala mengenai kondisi dan performa sistem Anda.',
+  },
+  {
+    title: 'Paket Sesuai Kebutuhan',
+    desc: 'Skema maintenance yang fleksibel, disesuaikan dengan skala dan anggaran Anda.',
+  },
+]
+
+const faqItems = [
+  {
+    q: 'Apakah kalian bisa maintenance sistem yang bukan dibangun oleh tim kami?',
+    a: 'Bisa. Kami akan melakukan audit awal terlebih dahulu untuk memahami sistem sebelum memulai maintenance.',
+  },
+  {
+    q: 'Berapa waktu respons untuk laporan masalah mendesak?',
+    a: 'Waktu respons ditentukan berdasarkan paket SLA yang dipilih, mulai dari hitungan jam untuk kasus kritikal.',
+  },
+  {
+    q: 'Apakah backup data dilakukan secara otomatis?',
+    a: 'Ya, kami menjadwalkan backup otomatis secara berkala sesuai kebutuhan dan tingkat kritikalitas data Anda.',
+  },
+  {
+    q: 'Apakah ada kontrak jangka panjang?',
+    a: 'Kami menyediakan paket bulanan maupun tahunan, disesuaikan dengan preferensi dan kebutuhan Anda.',
+  },
+]
+
+const openFaq = ref(null)
+function toggleFaq(i) {
+  openFaq.value = openFaq.value === i ? null : i
+}
+
+let observer
+onMounted(() => {
+  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  const els = document.querySelectorAll('.reveal')
+
+  if (prefersReduced) {
+    els.forEach((el) => el.classList.add('is-visible'))
+    return
+  }
+
+  observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          const delay = entry.target.dataset.delay || 0
+          entry.target.style.transitionDelay = `${delay}ms`
+          entry.target.classList.add('is-visible')
+          observer.unobserve(entry.target)
+        }
+      })
+    },
+    { threshold: 0.15 }
+  )
+
+  els.forEach((el) => observer.observe(el))
+})
+
+onBeforeUnmount(() => {
+  if (observer) observer.disconnect()
+})
 </script>
 
 <style scoped>
-.service-page {
+.solution-page { overflow-x: hidden; }
+
+/* ---------- reveal animation ---------- */
+.reveal {
+  opacity: 0;
+  transition: opacity .6s ease, transform .6s ease;
+}
+.reveal[data-reveal="fade-up"] { transform: translateY(28px); }
+.reveal.is-visible { opacity: 1; transform: translateY(0); }
+.reveal[data-reveal="grow-line"] { transition: transform .9s ease; transform: scaleY(0); }
+.reveal[data-reveal="grow-line"].is-visible { transform: scaleY(1); }
+
+/* ---------- shared ---------- */
+.section-head { max-width: 620px; margin: 0 0 48px; }
+.section-head h2 { font-size: clamp(26px, 3.4vw, 36px); margin-top: 12px; }
+.section-sub { color: var(--color-text-secondary); margin-top: 14px; font-size: 16px; }
+
+/* ==================== HERO ==================== */
+.hero {
+  position: relative;
+  min-height: 640px;
+  display: flex;
+  align-items: flex-end;
+  padding-bottom: 64px;
+  overflow: hidden;
   background: var(--color-bg);
+}
+.hero-media {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+.hero-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: right center;
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, rgba(0,0,0,.35) 30%, #000 62%);
+  mask-image: linear-gradient(to right, transparent 0%, rgba(0,0,0,.35) 30%, #000 62%);
+}
+.hero-img-fallback {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 30% 20%, rgba(255,255,255,.35), transparent 45%),
+    radial-gradient(circle at 75% 70%, rgba(255,255,255,.2), transparent 40%),
+    linear-gradient(120deg, var(--color-yellow), var(--color-orange) 55%, var(--color-deep-orange));
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, rgba(0,0,0,.35) 30%, #000 62%);
+  mask-image: linear-gradient(to right, transparent 0%, rgba(0,0,0,.35) 30%, #000 62%);
+}
+.hero-fade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to right, var(--color-bg) 0%, rgba(250,250,250,.55) 34%, transparent 60%);
+}
+.hero-inner {
+  position: relative;
+  z-index: 1;
+  padding-top: 64px;
+  width: 100%;
+}
+.breadcrumb {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 14px; color: var(--color-text-secondary);
+  margin-bottom: 40px;
+}
+.breadcrumb-link { color: var(--color-text-secondary); text-decoration: none; }
+.breadcrumb-link:hover { color: var(--color-deep-orange); }
+.breadcrumb-current { color: var(--color-deep-orange); font-weight: 600; }
+
+.hero-copy { max-width: 620px; }
+.hero-title {
+  font-size: clamp(44px, 7vw, 84px);
+  font-weight: 700;
+  line-height: 1.02;
+  letter-spacing: -.02em;
   color: var(--color-text);
 }
-
-.container {
-  width: min(var(--container-width), calc(100% - 48px));
-  margin: 0 auto;
-}
-
-.section {
-  padding: 100px 0;
-}
-
-.service-hero {
-  position: relative;
-  min-height: 620px;
-
-  display: flex;
-  align-items: center;
-
-  overflow: hidden;
-}
-
-.hero-image {
-  position: absolute;
-  inset: 0;
-}
-
-.hero-image img {
-  position: absolute;
-  right: 0;
-  top: 0;
-
-  width: 58%;
-  height: 100%;
-
-  object-fit: cover;
-}
-
-.hero-gradient {
-  position: absolute;
-  inset: 0;
-
-  background: linear-gradient(
-    90deg,
-    var(--color-bg) 0%,
-    var(--color-bg) 30%,
-    rgba(250,250,250,.96) 43%,
-    rgba(250,250,250,.72) 57%,
-    rgba(250,250,250,.12) 75%,
-    transparent 100%
-  );
-}
-
-.hero-container {
-  position: relative;
-  z-index: 2;
-}
-
-.hero-content {
-  width: 54%;
-  padding: 90px 0;
-}
-
-.back-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 9px;
-
-  margin-bottom: 32px;
-
-  color: var(--color-text-secondary);
-  text-decoration: none;
-
-  font-size: 14px;
-}
-
-.back-link:hover {
-  color: var(--color-red);
-}
-
-.back-icon {
-  width: 34px;
-  height: 34px;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  border: 1px solid var(--color-border);
-  border-radius: 50%;
-
-  background: rgba(255,255,255,.8);
-}
-
-.back-icon svg {
-  width: 16px;
-}
-
-.eyebrow {
-  margin-bottom: 14px;
-
-  color: var(--color-deep-orange);
-
+.hero-lead {
+  font-size: clamp(18px, 2vw, 22px);
   font-family: var(--font-heading);
-  font-size: 13px;
   font-weight: 600;
-
-  letter-spacing: .05em;
-  text-transform: uppercase;
+  margin-top: 24px;
+  color: var(--color-text);
 }
-
-.hero-content h1 {
-  max-width: 700px;
-
-  margin: 0 0 24px;
-
-  font-family: var(--font-heading);
-  font-size: clamp(42px,5vw,64px);
-  line-height: 1.08;
-
-  letter-spacing: -2px;
-}
-
-.hero-content h1 span {
-  color: var(--color-deep-orange);
-}
-
-.hero-description {
-  max-width: 560px;
-
-  color: var(--color-text-secondary);
-
-  font-size: 17px;
-  line-height: 1.8;
-}
-
-.intro {
-  background: var(--color-surface);
-}
-
-.intro-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-
-  gap: 90px;
-}
-
-.intro h2 {
-  max-width: 520px;
-
-  font-family: var(--font-heading);
-  font-size: clamp(34px,4vw,48px);
-  line-height: 1.15;
-}
-
-.intro-text {
-  padding-top: 35px;
-}
-
-.intro-text p {
-  margin-bottom: 20px;
-
-  color: var(--color-text-secondary);
-
+.hero-desc {
   font-size: 16px;
-  line-height: 1.85;
-}
-
-.services {
-  background: var(--color-bg);
-}
-
-.section-heading {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-
-  gap: 50px;
-
-  margin-bottom: 50px;
-}
-
-.section-heading h2 {
-  font-family: var(--font-heading);
-  font-size: clamp(34px,4vw,48px);
-}
-
-.section-heading > p {
-  max-width: 420px;
-
   color: var(--color-text-secondary);
-
-  font-size: 15px;
-  line-height: 1.8;
+  margin-top: 18px;
+  max-width: 520px;
 }
-
-.section-heading.center {
-  display: block;
-
-  max-width: 650px;
-
-  margin: 0 auto 55px;
-
-  text-align: center;
-}
-
-.section-heading.center > p:last-child {
-  margin: 15px auto 0;
-}
-
-.service-grid {
-  display: grid;
-  grid-template-columns: repeat(2,1fr);
-  gap: 20px;
-}
-
-.service-card {
-  padding: 32px;
-
-  border: 1px solid var(--color-border);
-  border-radius: 16px;
-
-  background: var(--color-surface);
-
-  transition: .2s ease;
-}
-
-.service-card:hover {
-  transform: translateY(-5px);
-
-  border-color: var(--color-orange);
-
-  box-shadow: 0 18px 40px rgba(26,26,26,.07);
-}
-
-.service-number {
-  margin-bottom: 45px;
-
-  color: var(--color-orange);
-
-  font-family: var(--font-heading);
-  font-size: 13px;
-}
-
-.service-card h3 {
-  margin-bottom: 10px;
-
-  font-family: var(--font-heading);
-  font-size: 20px;
-}
-
-.service-card p {
-  color: var(--color-text-secondary);
-
-  font-size: 14px;
-  line-height: 1.7;
-}
-
-.process {
-  background: var(--color-surface);
-}
-
-.process-grid {
-  display: grid;
-  grid-template-columns: repeat(4,1fr);
-  gap: 18px;
-}
-
-.process-card {
-  min-height: 270px;
-
-  padding: 28px;
-
-  border: 1px solid var(--color-border);
-  border-radius: 16px;
-
-  background: var(--color-bg);
-}
-
-.process-card > span {
-  color: var(--color-orange);
-
-  font-family: var(--font-heading);
-  font-size: 13px;
-}
-
-.process-icon {
-  width: 42px;
-  height: 42px;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  margin: 40px 0 25px;
-
-  border-radius: 12px;
-
-  color: var(--color-deep-orange);
-
-  background: linear-gradient(
-    135deg,
-    var(--color-yellow),
-    var(--color-orange)
-  );
-}
-
-.process-icon svg {
-  width: 21px;
-}
-
-.process-card h3 {
-  margin-bottom: 9px;
-
-  font-family: var(--font-heading);
-  font-size: 18px;
-}
-
-.process-card p {
-  color: var(--color-text-secondary);
-
-  font-size: 14px;
-  line-height: 1.7;
-}
-
-.cta {
-  padding: 90px 0;
-
-  background: var(--color-surface);
-}
-
-.cta-box {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-
-  gap: 50px;
-
-  padding: 60px;
-
-  border: 1px solid var(--color-border);
-  border-radius: 24px;
-
-  background:
-    radial-gradient(
-      circle at 90% 10%,
-      rgba(251,159,55,.38),
-      transparent 32%
-    ),
-    linear-gradient(
-      135deg,
-      #fff6d4,
-      #fff
-    );
-}
-
-.cta-box h2 {
-  max-width: 680px;
-
-  font-family: var(--font-heading);
-  font-size: clamp(34px,4vw,48px);
-}
-
-.cta-box h2 span {
-  color: var(--color-deep-orange);
-}
-
-.cta-box > div > p:last-child {
-  max-width: 560px;
-
-  margin-top: 16px;
-
-  color: var(--color-text-secondary);
-
-  line-height: 1.7;
-}
-
-.cta-button {
+.scroll-cue {
+  margin-top: 48px;
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  gap: 9px;
-
-  flex-shrink: 0;
-
-  min-height: 52px;
-
-  padding: 0 25px;
-
-  border-radius: var(--radius);
-
-  color: #fff;
-
-  background: var(--color-red);
-
+  gap: 8px;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
   font-family: var(--font-heading);
-  font-size: 14px;
   font-weight: 600;
-
-  text-decoration: none;
+  font-size: 14px;
+  color: var(--color-deep-orange);
+}
+.scroll-cue svg { animation: bob 1.8s ease-in-out infinite; }
+@keyframes bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(4px); }
 }
 
-.cta-button:hover {
-  transform: translateY(-2px);
+/* ==================== SERVICES ==================== */
+.services { background: var(--color-surface); }
+.services-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+.service-card {
+  position: relative;
+  padding: 30px 26px;
+  border-radius: var(--radius);
+  border: 1px solid var(--color-border);
+  transition: border-color .25s ease, transform .25s ease, box-shadow .25s ease;
+}
+.service-card:hover {
+  border-color: var(--color-deep-orange);
+  transform: translateY(-6px);
+  box-shadow: 0 20px 40px -26px rgba(231, 81, 25, .4);
+}
+.service-index {
+  position: absolute;
+  top: 20px; right: 24px;
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--color-border);
+}
+.service-icon {
+  width: 50px; height: 50px;
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--color-yellow);
+  color: var(--color-deep-orange);
+  margin-bottom: 18px;
+}
+.service-card h3 { font-size: 17px; padding-right: 30px; }
+.service-card p { margin-top: 8px; color: var(--color-text-secondary); font-size: 14.5px; }
+
+/* ==================== PROCESS TIMELINE ==================== */
+.timeline {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 32px;
+  padding-top: 12px;
+}
+.timeline-line {
+  position: absolute;
+  top: 22px;
+  left: 0; right: 0;
+  height: 2px;
+  background: var(--color-border);
+  transform-origin: left center;
+}
+.timeline-line-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--color-orange), var(--color-red));
+  transform-origin: left center;
+}
+.timeline-step { position: relative; padding-top: 56px; }
+.timeline-dot {
+  position: absolute;
+  top: 0; left: 0;
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  background: var(--color-surface);
+  border: 2px solid var(--color-orange);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--color-deep-orange);
+}
+.timeline-step h3 { font-size: 17px; }
+.timeline-step p { margin-top: 8px; color: var(--color-text-secondary); font-size: 14.5px; }
+
+/* ==================== TECH ==================== */
+.tech-row { display: flex; flex-wrap: wrap; gap: 12px; }
+.tech-badge {
+  padding: 10px 20px;
+  border-radius: 999px;
+  border: 1.5px solid var(--color-border);
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: 14px;
+  transition: border-color .2s ease, color .2s ease;
+}
+.tech-badge:hover { border-color: var(--color-red); color: var(--color-red); }
+
+/* ==================== WHY US ==================== */
+.why { background: var(--color-surface); }
+.why-grid {
+  display: grid;
+  grid-template-columns: .85fr 1.15fr;
+  gap: 56px;
+  align-items: start;
+}
+.why-copy h2 { margin-top: 12px; font-size: clamp(26px, 3.2vw, 34px); }
+.why-list { display: flex; flex-direction: column; gap: 20px; }
+.why-item {
+  display: flex; gap: 16px;
+  padding: 20px;
+  border-radius: var(--radius);
+  border: 1px solid var(--color-border);
+}
+.why-check {
+  flex-shrink: 0;
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: var(--color-red);
+  color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; font-weight: 700;
+}
+.why-item h4 { font-size: 15.5px; }
+.why-item p { margin-top: 6px; color: var(--color-text-secondary); font-size: 14px; }
+
+/* ==================== FAQ ==================== */
+.faq-list { max-width: 760px; }
+.faq-item { border-bottom: 1px solid var(--color-border); }
+.faq-question {
+  width: 100%;
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  padding: 20px 0;
+  background: none; border: none; text-align: left; cursor: pointer;
+  font-family: var(--font-heading); font-weight: 600; font-size: 16px;
+  color: var(--color-text);
+}
+.faq-item.is-open .faq-question { color: var(--color-deep-orange); }
+.faq-icon { flex-shrink: 0; font-size: 20px; color: var(--color-orange); }
+.faq-answer { overflow: hidden; max-height: 0; transition: max-height .35s ease; }
+.faq-answer p { padding-bottom: 20px; color: var(--color-text-secondary); font-size: 15px; }
+
+/* ==================== CTA FINAL (satu-satunya CTA) ==================== */
+.cta-final { background: var(--color-surface); border-top: 1px solid var(--color-border); }
+.cta-final-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 32px;
+  flex-wrap: wrap;
+  padding: 44px 48px;
+  border-radius: var(--radius);
+  background: linear-gradient(120deg, var(--color-deep-orange), var(--color-red));
+}
+.cta-text h2 { color: #fff; font-size: clamp(24px, 3vw, 30px); }
+.cta-text p { color: rgba(255,255,255,.9); margin-top: 8px; font-size: 15px; }
+.btn-cta {
+  background: #fff;
+  color: var(--color-red);
+  white-space: nowrap;
+}
+.btn-cta:hover { opacity: .92; }
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+@media (max-width: 960px) {
+  .services-grid { grid-template-columns: repeat(2, 1fr); }
+  .timeline { grid-template-columns: repeat(2, 1fr); row-gap: 40px; }
+  .timeline-line { display: none; }
+  .why-grid { grid-template-columns: 1fr; }
+  .hero { min-height: 560px; }
 }
 
-.cta-button svg {
-  width: 18px;
+@media (max-width: 640px) {
+  .section { padding: 56px 0; }
+  .hero { min-height: 480px; padding-bottom: 40px; }
+  .hero-img, .hero-img-fallback {
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,.25) 25%, #000 55%);
+    mask-image: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,.25) 25%, #000 55%);
+    object-position: center 30%;
+  }
+  .hero-fade { background: linear-gradient(to bottom, var(--color-bg) 0%, rgba(250,250,250,.5) 30%, transparent 55%); }
+  .services-grid { grid-template-columns: 1fr; }
+  .timeline { grid-template-columns: 1fr; }
+  .cta-final-inner { flex-direction: column; align-items: flex-start; padding: 32px 24px; }
+  .btn-cta { width: 100%; text-align: center; }
 }
 
-@media (max-width:1000px) {
-  .hero-content {
-    width: 60%;
-  }
-
-  .hero-image img {
-    width: 62%;
-  }
-
-  .process-grid {
-    grid-template-columns: repeat(2,1fr);
-  }
-}
-
-@media (max-width:760px) {
-  .container {
-    width: calc(100% - 32px);
-  }
-
-  .section {
-    padding: 75px 0;
-  }
-
-  .service-hero {
-    min-height: 540px;
-  }
-
-  .hero-image img {
-    width: 48%;
-  }
-
-  .hero-content {
-    width: 66%;
-    padding: 60px 0;
-  }
-
-  .hero-content h1 {
-    font-size: 38px;
-  }
-
-  .intro-grid {
-    grid-template-columns: 1fr;
-    gap: 25px;
-  }
-
-  .intro-text {
-    padding-top: 0;
-  }
-
-  .section-heading {
-    display: block;
-  }
-
-  .section-heading > p {
-    margin-top: 18px;
-  }
-
-  .service-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .process-grid {
-    grid-template-columns: repeat(2,1fr);
-  }
-
-  .cta-box {
-    padding: 40px 28px;
-  }
-}
-
-@media (max-width:520px) {
-  .service-hero {
-    min-height: 500px;
-  }
-
-  .hero-image img {
-    width: 44%;
-  }
-
-  .hero-content {
-    width: 73%;
-    padding: 45px 0;
-  }
-
-  .hero-content h1 {
-    font-size: 31px;
-  }
-
-  .hero-description {
-    font-size: 14px;
-  }
-
-  .intro h2,
-  .section-heading h2,
-  .cta-box h2 {
-    font-size: 32px;
-  }
-
-  .process-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .process-card {
-    min-height: auto;
-  }
-
-  .cta-box {
-    display: block;
-  }
-
-  .cta-button {
-    width: 100%;
-    margin-top: 28px;
-  }
+@media (prefers-reduced-motion: reduce) {
+  .reveal { transition: none; }
+  .scroll-cue svg { animation: none; }
 }
 </style>

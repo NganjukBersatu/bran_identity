@@ -74,10 +74,22 @@
         </div>
       </router-link>
 
+
       <!-- =========================
            DESKTOP NAVIGATION
       ========================== -->
       <nav class="desktop-nav">
+
+        <!-- HOME -->
+        <router-link
+          to="/"
+          class="nav-link"
+          :class="{ active: route.path === '/' }"
+          @click="closeDropdown"
+        >
+          Home
+        </router-link>
+
 
         <!-- SOLUTION -->
         <div
@@ -115,6 +127,7 @@
 
           </div>
 
+
           <!-- DROPDOWN -->
           <transition name="dropdown">
             <div
@@ -144,6 +157,7 @@
           </transition>
         </div>
 
+
         <!-- PORTFOLIO -->
         <router-link
           to="/portfolio"
@@ -152,6 +166,7 @@
         >
           Portfolio
         </router-link>
+
 
         <!-- TESTIMONI -->
         <router-link
@@ -162,6 +177,7 @@
           Testimoni
         </router-link>
 
+
         <!-- TENTANG KAMI -->
         <router-link
           to="/tentang-kami"
@@ -171,6 +187,7 @@
           Tentang Kami
         </router-link>
 
+
         <!-- BLOG -->
         <router-link
           to="/blog"
@@ -179,6 +196,7 @@
         >
           Blog
         </router-link>
+
 
         <!-- CONTACT US -->
         <router-link
@@ -190,6 +208,7 @@
         </router-link>
 
       </nav>
+
 
       <!-- =========================
            MOBILE BUTTON
@@ -208,6 +227,7 @@
 
     </div>
 
+
     <!-- =========================
          MOBILE NAVIGATION
     ========================== -->
@@ -217,10 +237,22 @@
         class="mobile-nav"
       >
 
-        <!-- Solution mobile -->
+        <!-- HOME -->
+        <router-link
+          to="/"
+          class="mobile-nav-link"
+          :class="{ active: route.path === '/' }"
+          @click="closeMenu"
+        >
+          Home
+        </router-link>
+
+
+        <!-- SOLUTION MOBILE -->
         <div class="mobile-solution">
 
           <div class="mobile-solution-header">
+
             <router-link
               to="/solutions"
               class="mobile-nav-link"
@@ -251,8 +283,11 @@
                 />
               </svg>
             </button>
+
           </div>
 
+
+          <!-- MOBILE SOLUTIONS LIST -->
           <transition name="mobile-solutions">
             <div
               v-if="mobileSolutionOpen"
@@ -264,6 +299,10 @@
                 :key="item.slug"
                 :to="`/solutions/${item.slug}`"
                 class="mobile-solution-item"
+                :class="{
+                  active:
+                    route.path === `/solutions/${item.slug}`
+                }"
                 @click="closeMenu"
               >
                 {{ item.title }}
@@ -274,46 +313,56 @@
 
         </div>
 
-        <!-- Portfolio -->
+
+        <!-- PORTFOLIO -->
         <router-link
           to="/portfolio"
           class="mobile-nav-link"
+          :class="{ active: route.path === '/portfolio' }"
           @click="closeMenu"
         >
           Portfolio
         </router-link>
 
-        <!-- Testimoni -->
+
+        <!-- TESTIMONI -->
         <router-link
           to="/testimoni"
           class="mobile-nav-link"
+          :class="{ active: route.path === '/testimoni' }"
           @click="closeMenu"
         >
           Testimoni
         </router-link>
 
-        <!-- Tentang Kami -->
+
+        <!-- TENTANG KAMI -->
         <router-link
           to="/tentang-kami"
           class="mobile-nav-link"
+          :class="{ active: route.path === '/tentang-kami' }"
           @click="closeMenu"
         >
           Tentang Kami
         </router-link>
 
-        <!-- Blog -->
+
+        <!-- BLOG -->
         <router-link
           to="/blog"
           class="mobile-nav-link"
+          :class="{ active: route.path === '/blog' }"
           @click="closeMenu"
         >
           Blog
         </router-link>
 
-        <!-- Contact -->
+
+        <!-- CONTACT -->
         <router-link
           to="/contact"
           class="mobile-nav-link"
+          :class="{ active: route.path === '/contact' }"
           @click="closeMenu"
         >
           Contact Us
@@ -325,6 +374,7 @@
   </header>
 </template>
 
+
 <script setup>
 import {
   ref,
@@ -334,14 +384,15 @@ import {
 } from 'vue'
 
 import { useRoute } from 'vue-router'
-
 import { solutions } from '../router/solutions.js'
+
 
 /* =========================
    ROUTER
 ========================= */
 
 const route = useRoute()
+
 
 /* =========================
    STATE
@@ -357,6 +408,7 @@ const mobileSolutionOpen = ref(false)
 
 let closeTimer = null
 
+
 /* =========================
    HOME CHECK
 ========================= */
@@ -364,6 +416,7 @@ let closeTimer = null
 const isHome = computed(() => {
   return route.path === '/'
 })
+
 
 /* =========================
    SOLUTION PAGE CHECK
@@ -373,6 +426,7 @@ const isSolutionPage = computed(() => {
   return route.path.startsWith('/solutions')
 })
 
+
 /* =========================
    SCROLL
 ========================= */
@@ -380,6 +434,7 @@ const isSolutionPage = computed(() => {
 const handleScroll = () => {
   isScrolled.value = window.scrollY > 40
 }
+
 
 /* =========================
    DESKTOP DROPDOWN
@@ -394,6 +449,7 @@ const openDropdown = () => {
   dropdownOpen.value = true
 }
 
+
 const scheduleCloseDropdown = () => {
   if (closeTimer) {
     clearTimeout(closeTimer)
@@ -404,6 +460,7 @@ const scheduleCloseDropdown = () => {
   }, 180)
 }
 
+
 const cancelCloseDropdown = () => {
   if (closeTimer) {
     clearTimeout(closeTimer)
@@ -413,6 +470,7 @@ const cancelCloseDropdown = () => {
   dropdownOpen.value = true
 }
 
+
 const closeDropdown = () => {
   dropdownOpen.value = false
 
@@ -421,6 +479,7 @@ const closeDropdown = () => {
     closeTimer = null
   }
 }
+
 
 /* =========================
    MOBILE
@@ -434,11 +493,13 @@ const toggleMobile = () => {
   }
 }
 
+
 const closeMenu = () => {
   mobileOpen.value = false
   mobileSolutionOpen.value = false
   dropdownOpen.value = false
 }
+
 
 /* =========================
    ESCAPE KEY
@@ -449,6 +510,7 @@ const handleKeydown = (event) => {
     closeMenu()
   }
 }
+
 
 /* =========================
    LIFECYCLE
@@ -469,6 +531,7 @@ onMounted(() => {
   )
 })
 
+
 onUnmounted(() => {
   window.removeEventListener(
     'scroll',
@@ -486,6 +549,7 @@ onUnmounted(() => {
 })
 </script>
 
+
 <style scoped>
 
 /* =====================================================
@@ -494,8 +558,10 @@ onUnmounted(() => {
 
 .navbar {
   position: fixed;
+
   top: 0;
   left: 0;
+
   width: 100%;
   height: 88px;
 
@@ -509,15 +575,19 @@ onUnmounted(() => {
   background: var(--color-surface);
 }
 
+
 /* =====================================================
    TRANSPARENT HOME
 ===================================================== */
 
 .navbar-transparent {
   background: transparent;
+
   box-shadow: none;
+
   backdrop-filter: none;
 }
+
 
 /* =====================================================
    SCROLLED / OTHER PAGE
@@ -525,9 +595,13 @@ onUnmounted(() => {
 
 .navbar-scrolled {
   background: rgba(255, 255, 255, 0.96);
-  box-shadow: 0 8px 30px rgba(26, 26, 26, 0.08);
+
+  box-shadow:
+    0 8px 30px rgba(26, 26, 26, 0.08);
+
   backdrop-filter: blur(12px);
 }
+
 
 /* =====================================================
    CONTAINER
@@ -544,9 +618,12 @@ onUnmounted(() => {
   margin: 0 auto;
 
   display: flex;
+
   align-items: center;
+
   justify-content: space-between;
 }
+
 
 /* =====================================================
    BRAND
@@ -554,7 +631,9 @@ onUnmounted(() => {
 
 .brand {
   display: inline-flex;
+
   align-items: center;
+
   gap: 12px;
 
   text-decoration: none;
@@ -562,21 +641,26 @@ onUnmounted(() => {
   flex-shrink: 0;
 }
 
+
 .brand-icon {
   width: 42px;
   height: 42px;
 
   display: flex;
+
   align-items: center;
+
   justify-content: center;
 
   color: var(--color-red);
 }
 
+
 .brand-icon svg {
   width: 42px;
   height: 42px;
 }
+
 
 /* =====================================================
    BRAND TEXT
@@ -584,13 +668,16 @@ onUnmounted(() => {
 
 .brand-text {
   display: flex;
+
   flex-direction: column;
 }
+
 
 .brand-name {
   font-family: var(--font-heading);
 
   font-size: 20px;
+
   line-height: 1.1;
 
   font-weight: 700;
@@ -602,11 +689,13 @@ onUnmounted(() => {
   transition: color 0.3s ease;
 }
 
+
 .brand-name span {
   color: var(--color-deep-orange);
 
   transition: color 0.3s ease;
 }
+
 
 .brand-tagline {
   margin-top: 4px;
@@ -614,6 +703,7 @@ onUnmounted(() => {
   font-family: var(--font-body);
 
   font-size: 9px;
+
   line-height: 1;
 
   color: #777;
@@ -623,22 +713,28 @@ onUnmounted(() => {
   transition: color 0.3s ease;
 }
 
+
 /* =====================================================
    TRANSPARENT BRAND
 ===================================================== */
 
 .navbar-transparent .brand-name {
   color: #ffffff;
-  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.25);
+
+  text-shadow:
+    0 1px 8px rgba(0, 0, 0, 0.25);
 }
+
 
 .navbar-transparent .brand-name span {
   color: #ffffff;
 }
 
+
 .navbar-transparent .brand-tagline {
   color: rgba(255, 255, 255, 0.82);
 }
+
 
 /* =====================================================
    DESKTOP NAV
@@ -648,10 +744,12 @@ onUnmounted(() => {
   height: 100%;
 
   display: flex;
+
   align-items: center;
 
   gap: 34px;
 }
+
 
 /* =====================================================
    NAV LINK
@@ -661,7 +759,9 @@ onUnmounted(() => {
   position: relative;
 
   display: inline-flex;
+
   align-items: center;
+
   gap: 6px;
 
   height: 100%;
@@ -669,7 +769,9 @@ onUnmounted(() => {
   color: var(--color-text);
 
   font-family: var(--font-body);
+
   font-size: 14px;
+
   font-weight: 500;
 
   text-decoration: none;
@@ -680,13 +782,16 @@ onUnmounted(() => {
     color 0.25s ease;
 }
 
+
 .nav-link:hover {
   color: var(--color-deep-orange);
 }
 
+
 .nav-link.active {
   color: var(--color-deep-orange);
 }
+
 
 /* =====================================================
    TRANSPARENT NAV LINK
@@ -694,13 +799,17 @@ onUnmounted(() => {
 
 .navbar-transparent .nav-link {
   color: #ffffff;
-  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.3);
+
+  text-shadow:
+    0 1px 8px rgba(0, 0, 0, 0.3);
 }
+
 
 .navbar-transparent .nav-link:hover,
 .navbar-transparent .nav-link.active {
   color: #ffffff;
 }
+
 
 /* =====================================================
    SOLUTION DROPDOWN
@@ -712,27 +821,35 @@ onUnmounted(() => {
   height: 100%;
 
   display: flex;
+
   align-items: center;
 }
+
 
 .solution-nav-wrapper {
   height: 100%;
 
   display: flex;
+
   align-items: center;
 }
+
 
 .solution-link {
   cursor: pointer;
 }
 
+
 .dropdown-arrow {
-  transition: transform 0.25s ease;
+  transition:
+    transform 0.25s ease;
 }
+
 
 .dropdown-arrow.rotate {
   transform: rotate(180deg);
 }
+
 
 /* =====================================================
    DROPDOWN MENU
@@ -742,6 +859,7 @@ onUnmounted(() => {
   position: absolute;
 
   top: calc(100% - 1px);
+
   left: 50%;
 
   transform: translateX(-50%);
@@ -762,7 +880,10 @@ onUnmounted(() => {
   z-index: 10000;
 }
 
-/* small triangle */
+
+/* =====================================================
+   DROPDOWN TRIANGLE
+===================================================== */
 
 .dropdown-menu::before {
   content: '';
@@ -770,18 +891,24 @@ onUnmounted(() => {
   position: absolute;
 
   top: -7px;
+
   left: 50%;
 
   width: 13px;
+
   height: 13px;
 
-  transform: translateX(-50%) rotate(45deg);
+  transform:
+    translateX(-50%)
+    rotate(45deg);
 
   background: var(--color-surface);
 
   border-left: 1px solid var(--color-border);
+
   border-top: 1px solid var(--color-border);
 }
+
 
 /* =====================================================
    DROPDOWN ITEM
@@ -791,6 +918,7 @@ onUnmounted(() => {
   position: relative;
 
   display: flex;
+
   align-items: center;
 
   min-height: 48px;
@@ -804,13 +932,16 @@ onUnmounted(() => {
   text-decoration: none;
 
   font-family: var(--font-body);
+
   font-size: 14px;
+
   font-weight: 500;
 
   transition:
     background-color 0.2s ease,
     color 0.2s ease;
 }
+
 
 .dropdown-item:hover {
   color: var(--color-deep-orange);
@@ -823,6 +954,7 @@ onUnmounted(() => {
     );
 }
 
+
 .dropdown-item.active {
   color: var(--color-deep-orange);
 
@@ -833,6 +965,7 @@ onUnmounted(() => {
       rgba(251, 159, 55, 0.14)
     );
 }
+
 
 /* =====================================================
    DROPDOWN ANIMATION
@@ -845,6 +978,7 @@ onUnmounted(() => {
     transform 0.18s ease;
 }
 
+
 .dropdown-enter-from,
 .dropdown-leave-to {
   opacity: 0;
@@ -854,6 +988,7 @@ onUnmounted(() => {
     translateY(-8px);
 }
 
+
 /* =====================================================
    MOBILE TOGGLE
 ===================================================== */
@@ -862,26 +997,32 @@ onUnmounted(() => {
   display: none;
 
   width: 44px;
+
   height: 44px;
 
   padding: 0;
 
   border: none;
+
   background: transparent;
 
   cursor: pointer;
 
   flex-direction: column;
+
   justify-content: center;
+
   align-items: center;
 
   gap: 5px;
 }
 
+
 .mobile-toggle span {
   display: block;
 
   width: 22px;
+
   height: 2px;
 
   border-radius: 2px;
@@ -894,21 +1035,30 @@ onUnmounted(() => {
     background-color 0.25s ease;
 }
 
+
 .navbar-transparent .mobile-toggle span {
   background: #ffffff;
 }
 
+
 .mobile-toggle span:nth-child(1).open {
-  transform: translateY(7px) rotate(45deg);
+  transform:
+    translateY(7px)
+    rotate(45deg);
 }
+
 
 .mobile-toggle span:nth-child(2).open {
   opacity: 0;
 }
 
+
 .mobile-toggle span:nth-child(3).open {
-  transform: translateY(-7px) rotate(-45deg);
+  transform:
+    translateY(-7px)
+    rotate(-45deg);
 }
+
 
 /* =====================================================
    MOBILE NAV
@@ -917,6 +1067,7 @@ onUnmounted(() => {
 .mobile-nav {
   display: none;
 }
+
 
 /* =====================================================
    RESPONSIVE TABLET
@@ -928,15 +1079,18 @@ onUnmounted(() => {
     width: calc(100% - 40px);
   }
 
+
   .desktop-nav {
     gap: 22px;
   }
+
 
   .nav-link {
     font-size: 13px;
   }
 
 }
+
 
 /* =====================================================
    RESPONSIVE MOBILE
@@ -948,61 +1102,78 @@ onUnmounted(() => {
     height: 76px;
   }
 
+
   .navbar-container {
     width: calc(100% - 32px);
   }
+
 
   .desktop-nav {
     display: none;
   }
 
+
   .mobile-toggle {
     display: flex;
   }
 
+
   .brand-icon,
   .brand-icon svg {
     width: 38px;
+
     height: 38px;
   }
+
 
   .brand-name {
     font-size: 18px;
   }
 
+
   .brand-tagline {
     font-size: 8px;
   }
 
-  /* mobile panel */
+
+  /* =================================================
+     MOBILE PANEL
+  ================================================= */
 
   .mobile-nav {
     position: absolute;
 
     top: 100%;
+
     left: 0;
 
     width: 100%;
 
     display: flex;
+
     flex-direction: column;
 
     padding: 12px 16px 20px;
 
-    background: rgba(255, 255, 255, 0.98);
+    background:
+      rgba(255, 255, 255, 0.98);
 
-    border-top: 1px solid var(--color-border);
+    border-top:
+      1px solid var(--color-border);
 
     box-shadow:
       0 20px 40px rgba(26, 26, 26, 0.12);
 
-    max-height: calc(100vh - 76px);
+    max-height:
+      calc(100vh - 76px);
 
     overflow-y: auto;
   }
 
+
   .mobile-nav-link {
     display: flex;
+
     align-items: center;
 
     min-height: 48px;
@@ -1016,6 +1187,7 @@ onUnmounted(() => {
     font-family: var(--font-body);
 
     font-size: 15px;
+
     font-weight: 500;
 
     border-radius: 8px;
@@ -1025,6 +1197,7 @@ onUnmounted(() => {
       background-color 0.2s ease;
   }
 
+
   .mobile-nav-link:hover,
   .mobile-nav-link.active {
     color: var(--color-deep-orange);
@@ -1033,31 +1206,43 @@ onUnmounted(() => {
       rgba(251, 159, 55, 0.08);
   }
 
-  /* mobile solution */
+
+  /* =================================================
+     MOBILE SOLUTION
+  ================================================= */
 
   .mobile-solution {
     width: 100%;
   }
 
+
   .mobile-solution-header {
     display: flex;
+
     align-items: center;
+
     justify-content: space-between;
   }
+
 
   .mobile-solution-header .mobile-nav-link {
     flex: 1;
   }
 
+
   .mobile-solution-toggle {
     width: 42px;
+
     height: 42px;
 
     display: flex;
+
     align-items: center;
+
     justify-content: center;
 
     border: none;
+
     background: transparent;
 
     color: var(--color-text);
@@ -1065,24 +1250,31 @@ onUnmounted(() => {
     cursor: pointer;
   }
 
+
   .mobile-solution-toggle svg {
-    transition: transform 0.25s ease;
+    transition:
+      transform 0.25s ease;
   }
+
 
   .mobile-solution-toggle svg.rotate {
     transform: rotate(180deg);
   }
+
 
   .mobile-solutions-list {
     margin: 2px 0 8px 12px;
 
     padding-left: 12px;
 
-    border-left: 1px solid var(--color-border);
+    border-left:
+      1px solid var(--color-border);
   }
+
 
   .mobile-solution-item {
     display: flex;
+
     align-items: center;
 
     min-height: 44px;
@@ -1102,7 +1294,9 @@ onUnmounted(() => {
       background-color 0.2s ease;
   }
 
-  .mobile-solution-item:hover {
+
+  .mobile-solution-item:hover,
+  .mobile-solution-item.active {
     color: var(--color-deep-orange);
 
     background:
@@ -1110,6 +1304,7 @@ onUnmounted(() => {
   }
 
 }
+
 
 /* =====================================================
    MOBILE SMALL
@@ -1121,38 +1316,49 @@ onUnmounted(() => {
     height: 70px;
   }
 
+
   .navbar-container {
     width: calc(100% - 24px);
   }
+
 
   .brand {
     gap: 8px;
   }
 
+
   .brand-icon,
   .brand-icon svg {
     width: 34px;
+
     height: 34px;
   }
+
 
   .brand-name {
     font-size: 16px;
   }
 
+
   .brand-tagline {
     font-size: 7px;
   }
 
+
   .mobile-toggle {
     width: 40px;
+
     height: 40px;
   }
 
+
   .mobile-nav {
-    max-height: calc(100vh - 70px);
+    max-height:
+      calc(100vh - 70px);
   }
 
 }
+
 
 /* =====================================================
    MOBILE MENU ANIMATION
@@ -1165,12 +1371,15 @@ onUnmounted(() => {
     transform 0.2s ease;
 }
 
+
 .mobile-menu-enter-from,
 .mobile-menu-leave-to {
   opacity: 0;
 
-  transform: translateY(-8px);
+  transform:
+    translateY(-8px);
 }
+
 
 /* =====================================================
    MOBILE SOLUTIONS ANIMATION
@@ -1181,18 +1390,23 @@ onUnmounted(() => {
   transition:
     opacity 0.2s ease,
     max-height 0.25s ease;
+
   overflow: hidden;
 }
+
 
 .mobile-solutions-enter-from,
 .mobile-solutions-leave-to {
   opacity: 0;
+
   max-height: 0;
 }
+
 
 .mobile-solutions-enter-to,
 .mobile-solutions-leave-from {
   opacity: 1;
+
   max-height: 500px;
 }
 
