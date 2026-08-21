@@ -3,8 +3,8 @@ import { ref, onMounted, onBeforeUnmount } from 'vue'
 
 // GANTI array ini sesuai nama file foto tim di web/public/team/
 const teamPhotos = [
-  { src: '/team/team-4.jpg', alt: 'Tim BRAN Identity sedang berdiskusi' },
-  { src: '/team/team-2.jpg', alt: 'Tim BRAN Identity mengerjakan proyek' },
+  { src: '/team/team-5.jpg', alt: 'Tim BRAN Identity sedang berdiskusi' },
+  { src: '/team/team-4.jpg', alt: 'Tim BRAN Identity mengerjakan proyek' },
   { src: '/team/team-3.jpg', alt: 'Tim BRAN Identity di kantor' },
 ]
 
