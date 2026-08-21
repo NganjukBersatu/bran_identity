@@ -9,6 +9,7 @@ import SolutionsView from '../views/solutions.vue'
 import PortfolioView from '../views/portfolio.vue'
 import TestimoniView from '../views/testimoni.vue'
 import BlogView from '../views/blog.vue'
+import blogRoutes from './blog.js'
 import TentangKamiView from '../views/tentangkami.vue'
 import ContactUs from '../views/ContactUs.vue'
 
@@ -65,6 +66,14 @@ const router = createRouter({
       name: 'blog',
       component: BlogView,
     },
+
+    {
+      path: '/blog',
+      name: 'blog',
+      component: BlogView,
+    },
+
+    ...blogRoutes,
 
     {
       path: '/tentang-kami',

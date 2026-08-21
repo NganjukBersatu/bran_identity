@@ -1,5 +1,6 @@
 <script setup>
 import { ref, computed } from 'vue'
+import { articles } from '../data/articles'
 
 const activeCategory = ref('Semua')
 
@@ -9,76 +10,6 @@ const categories = [
   'Software Development',
   'Business',
   'Tips & Insight'
-]
-
-const articles = [
-  {
-    id: 1,
-    category: 'Software Development',
-    title: 'Membangun Software yang Siap Berkembang Bersama Bisnis',
-    excerpt:
-      'Bagaimana pendekatan software development yang tepat dapat membantu bisnis berkembang lebih cepat, stabil, dan terukur.',
-    date: '18 Agustus 2026',
-    readTime: '5 min read',
-    image:
-      'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=1000&q=85',
-    featured: true
-  },
-  {
-    id: 2,
-    category: 'Technology',
-    title: 'Mengapa Transformasi Digital Penting untuk Bisnis Modern?',
-    excerpt:
-      'Transformasi digital bukan hanya tentang teknologi, tetapi bagaimana teknologi membantu bisnis bekerja lebih efektif.',
-    date: '15 Agustus 2026',
-    readTime: '4 min read',
-    image:
-      'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=900&q=85'
-  },
-  {
-    id: 3,
-    category: 'Business',
-    title: 'Kapan Bisnis Membutuhkan Custom Software?',
-    excerpt:
-      'Kenali tanda-tanda bahwa solusi software custom mulai menjadi kebutuhan penting bagi perusahaan.',
-    date: '12 Agustus 2026',
-    readTime: '6 min read',
-    image:
-      'https://images.unsplash.com/photo-1553877522-43269d4ea984?auto=format&fit=crop&w=900&q=85'
-  },
-  {
-    id: 4,
-    category: 'Tips & Insight',
-    title: '5 Hal yang Harus Dipersiapkan Sebelum Membuat Website',
-    excerpt:
-      'Website yang baik dimulai dari perencanaan yang matang. Berikut beberapa hal yang perlu dipersiapkan.',
-    date: '09 Agustus 2026',
-    readTime: '5 min read',
-    image:
-      'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?auto=format&fit=crop&w=900&q=85'
-  },
-  {
-    id: 5,
-    category: 'Technology',
-    title: 'AI dalam Pengembangan Software: Peluang dan Tantangannya',
-    excerpt:
-      'Artificial Intelligence semakin banyak digunakan dalam software development. Apa saja manfaat dan tantangannya?',
-    date: '06 Agustus 2026',
-    readTime: '7 min read',
-    image:
-      'https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=900&q=85'
-  },
-  {
-    id: 6,
-    category: 'Software Development',
-    title: 'Frontend, Backend, dan API: Memahami Fondasi Aplikasi Modern',
-    excerpt:
-      'Memahami hubungan frontend, backend, dan API akan membantu Anda melihat bagaimana sebuah aplikasi bekerja.',
-    date: '03 Agustus 2026',
-    readTime: '6 min read',
-    image:
-      'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?auto=format&fit=crop&w=900&q=85'
-  }
 ]
 
 const filteredArticles = computed(() => {
@@ -259,10 +190,10 @@ function setCategory(category) {
 
             <div class="featured-bottom">
 
-              <a href="#" class="read-more">
+              <router-link :to="`/blog/${articles[0].id}`" class="read-more">
                 Baca selengkapnya
                 <span>↗</span>
-              </a>
+              </router-link>
 
               <span class="article-number">
                 01 / 06
@@ -365,10 +296,10 @@ function setCategory(category) {
                 {{ article.excerpt }}
               </p>
 
-              <a href="#" class="article-link">
+              <router-link :to="`/blog/${article.id}`" class="article-link">
                 Baca artikel
                 <span>→</span>
-              </a>
+              </router-link>
 
             </div>
 
