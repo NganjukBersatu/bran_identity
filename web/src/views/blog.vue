@@ -1,6 +1,8 @@
 <script setup>
-import { ref, computed } from 'vue'
-import { articles } from '../data/articles'
+import { ref, computed, onMounted, onBeforeUnmount, watch, nextTick } from 'vue'
+import { useArticles } from '../composables/useArticles.js'
+
+const { articles } = useArticles()
 
 const activeCategory = ref('Semua')
 
@@ -13,11 +15,11 @@ const categories = [
 ]
 
 const filteredArticles = computed(() => {
-  if (activeCategory.value === 'Semua') {
-    return articles
+    if (activeCategory.value === 'Semua') {
+    return articles.value
   }
 
-  return articles.filter(
+  return articles.value.filter(
     article => article.category === activeCategory.value
   )
 })
@@ -25,10 +27,61 @@ const filteredArticles = computed(() => {
 function setCategory(category) {
   activeCategory.value = category
 }
+
+// ---------- scroll-reveal entrance animation ----------
+const pageRoot = ref(null)
+let observer = null
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
+function bindReveal() {
+  if (!pageRoot.value) return
+
+  const els = pageRoot.value.querySelectorAll('.reveal:not(.reveal-bound)')
+
+  els.forEach((el) => {
+    el.classList.add('reveal-bound')
+
+    if (reduceMotion) {
+      el.classList.add('is-visible')
+      return
+    }
+
+    observer.observe(el)
+  })
+}
+
+onMounted(async () => {
+  if (!reduceMotion) {
+    observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('is-visible')
+            observer.unobserve(entry.target)
+          }
+        })
+      },
+      { threshold: 0.15, rootMargin: '0px 0px -60px 0px' }
+    )
+  }
+
+  await nextTick()
+  bindReveal()
+})
+
+// Kartu artikel baru muncul tiap kali kategori difilter — perlu di-bind ulang.
+watch(filteredArticles, async () => {
+  await nextTick()
+  bindReveal()
+})
+
+onBeforeUnmount(() => {
+  if (observer) observer.disconnect()
+})
 </script>
 
 <template>
-  <main class="blog-page">
+  <main class="blog-page" ref="pageRoot">
 
     <!-- =====================================================
          INTRO
@@ -36,7 +89,7 @@ function setCategory(category) {
     <section class="blog-intro">
       <div class="container intro-container">
 
-        <div class="intro-left">
+        <div class="intro-left reveal reveal--up">
           <span class="eyebrow">
             Blog & Insight
           </span>
@@ -48,7 +101,7 @@ function setCategory(category) {
           </h1>
         </div>
 
-        <div class="intro-right">
+        <div class="intro-right reveal reveal--up" style="--reveal-delay: 120ms">
           <p>
             Temukan insight, teknologi, strategi digital, dan pengalaman
             software development dari tim kami untuk membantu bisnis
@@ -80,7 +133,7 @@ function setCategory(category) {
 
         <div class="info-grid">
 
-          <div class="info-item">
+          <div class="info-item reveal reveal--up">
             <span class="info-number">06</span>
             <div>
               <strong>Artikel terbaru</strong>
@@ -88,7 +141,7 @@ function setCategory(category) {
             </div>
           </div>
 
-          <div class="info-item">
+          <div class="info-item reveal reveal--up" style="--reveal-delay: 90ms">
             <span class="info-number">03</span>
             <div>
               <strong>Topik utama</strong>
@@ -96,7 +149,7 @@ function setCategory(category) {
             </div>
           </div>
 
-          <div class="info-item">
+          <div class="info-item reveal reveal--up" style="--reveal-delay: 180ms">
             <span class="info-number">05+</span>
             <div>
               <strong>Menit membaca</strong>
@@ -104,7 +157,7 @@ function setCategory(category) {
             </div>
           </div>
 
-          <div class="info-item info-highlight">
+          <div class="info-item info-highlight reveal reveal--up" style="--reveal-delay: 270ms">
             <span class="info-icon">✦</span>
             <div>
               <strong>Digital knowledge</strong>
@@ -124,7 +177,7 @@ function setCategory(category) {
     <section id="featured" class="section featured-section">
       <div class="container">
 
-        <div class="section-heading">
+        <div class="section-heading reveal reveal--up">
 
           <div>
             <span class="eyebrow">
@@ -147,7 +200,7 @@ function setCategory(category) {
         </div>
 
 
-        <article class="featured-card">
+        <article class="featured-card reveal reveal--scale" style="--reveal-delay: 140ms">
 
           <!-- IMAGE -->
           <div class="featured-image">
@@ -215,7 +268,7 @@ function setCategory(category) {
     <section id="artikel" class="section article-section">
       <div class="container">
 
-        <div class="article-header">
+        <div class="article-header reveal reveal--up">
 
           <div>
             <span class="eyebrow">
@@ -259,7 +312,8 @@ function setCategory(category) {
           <article
             v-for="(article, index) in filteredArticles"
             :key="article.id"
-            class="article-card"
+            class="article-card reveal reveal--up"
+            :style="{ '--reveal-delay': `${(index % 3) * 90}ms` }"
           >
 
             <div class="article-image">
@@ -320,7 +374,7 @@ function setCategory(category) {
         <div class="topics-wrapper">
 
           <!-- LEFT -->
-          <div class="topics-content">
+          <div class="topics-content reveal reveal--left">
 
             <span class="eyebrow">
               Explore Topics
@@ -348,7 +402,7 @@ function setCategory(category) {
           <!-- RIGHT -->
           <div class="topic-list">
 
-            <div class="topic-item">
+            <div class="topic-item reveal reveal--up">
 
               <span class="topic-number">
                 01
@@ -371,7 +425,7 @@ function setCategory(category) {
             </div>
 
 
-            <div class="topic-item topic-active">
+            <div class="topic-item topic-active reveal reveal--up" style="--reveal-delay: 90ms">
 
               <span class="topic-number">
                 02
@@ -394,7 +448,7 @@ function setCategory(category) {
             </div>
 
 
-            <div class="topic-item">
+            <div class="topic-item reveal reveal--up" style="--reveal-delay: 180ms">
 
               <span class="topic-number">
                 03
@@ -430,7 +484,7 @@ function setCategory(category) {
     <section class="cta-section">
       <div class="container">
 
-        <div class="cta-card">
+        <div class="cta-card reveal reveal--scale">
 
           <div class="cta-pattern"></div>
 
@@ -566,6 +620,30 @@ function setCategory(category) {
   letter-spacing: .09em;
   line-height: 1.4;
   text-transform: uppercase;
+}
+
+
+/* =========================================================
+   SCROLL-REVEAL ANIMATION
+========================================================= */
+
+.reveal {
+  opacity: 0;
+  transition: opacity .7s cubic-bezier(.22,.61,.36,1), transform .7s cubic-bezier(.22,.61,.36,1);
+  transition-delay: var(--reveal-delay, 0ms);
+  will-change: opacity, transform;
+}
+.reveal--up { transform: translateY(28px); }
+.reveal--left { transform: translateX(-24px); }
+.reveal--scale { transform: scale(.96); }
+
+.reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal { transition: none !important; }
 }
 
 

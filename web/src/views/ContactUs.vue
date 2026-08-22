@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted, onBeforeUnmount, nextTick } from 'vue'
 
 const WHATSAPP_NUMBER = '6283838438195'
 const WHATSAPP_DISPLAY = '+62 838-3843-8195'
@@ -34,20 +34,54 @@ Pesan: ${form.value.pesan}`
 
   window.location.href = whatsappUrl
 }
+
+// ---------- scroll-reveal entrance animation ----------
+const pageRoot = ref(null)
+let observer = null
+
+onMounted(async () => {
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  await nextTick()
+
+  const els = pageRoot.value ? pageRoot.value.querySelectorAll('.reveal') : []
+
+  if (reduceMotion) {
+    els.forEach((el) => el.classList.add('is-visible'))
+    return
+  }
+
+  observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('is-visible')
+          observer.unobserve(entry.target)
+        }
+      })
+    },
+    { threshold: 0.15, rootMargin: '0px 0px -60px 0px' }
+  )
+
+  els.forEach((el) => observer.observe(el))
+})
+
+onBeforeUnmount(() => {
+  if (observer) observer.disconnect()
+})
 </script>
 
 <template>
-  <section class="contact-page">
+  <section class="contact-page" ref="pageRoot">
     <div class="container">
 
-      <div class="page-title">
+      <div class="page-title reveal reveal--up">
         <span class="eyebrow">GET IN TOUCH</span>
         <h1>Contact Us</h1>
       </div>
 
       <div class="contact-container">
 
-        <div class="contact-content">
+        <div class="contact-content reveal reveal--up" style="--reveal-delay: 100ms">
           <span class="contact-label">CONTACT US</span>
 
           <h2>
@@ -93,7 +127,7 @@ Pesan: ${form.value.pesan}`
           </div>
         </div>
 
-        <div class="contact-form">
+        <div class="contact-form reveal reveal--up" style="--reveal-delay: 180ms">
           <h3>Hubungi Kami</h3>
 
           <form @submit.prevent="kirimPesan">
@@ -185,6 +219,24 @@ Pesan: ${form.value.pesan}`
   width: 100%;
   max-width: var(--container-width);
   margin: 0 auto;
+}
+
+/* ---------- SCROLL-REVEAL ANIMATION ---------- */
+.reveal {
+  opacity: 0;
+  transition: opacity .7s cubic-bezier(.22,.61,.36,1), transform .7s cubic-bezier(.22,.61,.36,1);
+  transition-delay: var(--reveal-delay, 0ms);
+  will-change: opacity, transform;
+}
+.reveal--up { transform: translateY(28px); }
+
+.reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal { transition: none !important; }
 }
 
 .eyebrow {
@@ -413,9 +465,47 @@ textarea {
   cursor: not-allowed;
 }
 
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 1100px) {
+  .contact-page {
+    padding: 90px 5%;
+  }
+
+  .contact-container {
+    gap: 50px;
+  }
+
+  .contact-content h2 {
+    font-size: 34px;
+  }
+}
+
+@media (max-width: 900px) {
+  .contact-container {
+    grid-template-columns: 1fr;
+    gap: 44px;
+  }
+
+  .contact-content > p {
+    max-width: 100%;
+  }
+
+  .contact-form {
+    max-width: 560px;
+  }
+}
+
 @media (max-width: 768px) {
   .contact-page {
     padding: 60px 20px;
+  }
+
+  .page-title {
+    margin-bottom: 44px;
   }
 
   .page-title h1 {
@@ -429,6 +519,67 @@ textarea {
 
   .contact-content h2 {
     font-size: 32px;
+  }
+
+  .contact-form {
+    padding: 28px;
+  }
+}
+
+@media (max-width: 480px) {
+  .contact-page {
+    padding: 48px 16px;
+  }
+
+  .page-title {
+    margin-bottom: 36px;
+  }
+
+  .page-title h1 {
+    font-size: 26px;
+  }
+
+  .contact-content h2 {
+    font-size: 26px;
+  }
+
+  .contact-content > p {
+    font-size: 14.5px;
+  }
+
+  .contact-info {
+    gap: 16px;
+    margin-top: 26px;
+  }
+
+  .icon {
+    width: 40px;
+    height: 40px;
+    font-size: 17px;
+  }
+
+  .contact-form {
+    padding: 22px;
+    border-radius: 16px;
+  }
+
+  .contact-form h3 {
+    font-size: 21px;
+    margin-bottom: 20px;
+  }
+
+  .form-group {
+    margin-bottom: 14px;
+  }
+
+  input,
+  textarea {
+    padding: 12px 14px;
+    font-size: 13.5px;
+  }
+
+  .submit-btn {
+    font-size: 13px;
   }
 }
 </style>
