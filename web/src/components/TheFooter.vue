@@ -25,7 +25,10 @@ const socials = [
   <footer class="footer">
     <div class="container footer__grid">
       <div class="footer__brand">
-        <span class="footer__logo">Nama Software House</span>
+        <div class="footer__logo-row">
+          <img src="/logos/image.png" alt="Logo" class="footer__logo-img" />
+          <span class="footer__logo">BRAN IDENTITY</span>
+        </div>
         <p>Mitra digital untuk membantu bisnis Anda bertumbuh lewat teknologi.</p>
 
         <div class="footer__socials">
@@ -101,6 +104,20 @@ const socials = [
   display: grid;
   grid-template-columns: 1.6fr 1fr 1fr 1.2fr;
   gap: 40px;
+}
+
+.footer__logo-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.footer__logo-img {
+  width: 34px;
+  height: 34px;
+  object-fit: contain;
+  border-radius: 8px;
+  flex-shrink: 0;
 }
 
 .footer__logo {
