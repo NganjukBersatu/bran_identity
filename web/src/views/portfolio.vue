@@ -81,6 +81,9 @@ const filteredProjects = computed(() => {
 
 function selectCategory(cat) {
   activeCategory.value = cat
+  nextTick(() => {
+    observeReveals()
+  })
 }
 
 function observeReveals() {

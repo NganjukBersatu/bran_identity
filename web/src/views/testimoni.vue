@@ -70,7 +70,7 @@
             v-for="(t, i) in testimonials"
             :key="t.name"
             class="bi-card reveal"
-            :style="{ transitionDelay: `${(i % 3) * 0.1}s` }"
+            :style="{ transitionDelay: `${(i % 4) * 0.1}s` }"
           >
             <span class="bi-card__quotemark">“</span>
             <p class="bi-card__quote">{{ t.quote }}</p>
@@ -170,7 +170,10 @@ const testimonials = ref([
     quote: 'Sistem pendaftaran online mengurangi antrian di klinik kami sampai separuhnya. Pasien juga lebih senang karena tidak perlu menunggu lama.' },
 
   { name: 'Farhan Maulana', role: 'Business Analyst', company: 'Logistik Cepat', photo: 'https://i.pravatar.cc/120?img=20', rating: 4,
-    quote: 'Laporan real-time yang mereka bangun bantu kami ambil keputusan lebih cepat, walau di awal integrasinya butuh beberapa penyesuaian.' }
+    quote: 'Laporan real-time yang mereka bangun bantu kami ambil keputusan lebih cepat, walau di awal integrasinya butuh beberapa penyesuaian.' },
+
+  { name: 'Dewi Anjani', role: 'Founder', company: 'Griya Sewa Nusantara', photo: 'https://i.pravatar.cc/120?img=48', rating: 5,
+    quote: 'Sistem manajemen properti kami sekarang jauh lebih rapi, laporan sewa bulanan yang dulu manual sekarang otomatis dan langsung bisa diunduh.' }
 ])
 
 let observer = null
@@ -297,23 +300,25 @@ onBeforeUnmount(() => {
 .bi-testi__head { text-align: center; max-width: 560px; margin: 0 auto 42px; }
 .bi-testi__title { font-size: clamp(25px, 3vw, 32px); margin-bottom: 10px; }
 .bi-testi__desc { color: var(--color-text-secondary); font-size: 14px; }
-.bi-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+
+/* 4 kolom sejajar kesamping supaya kiri-kanan tidak kosong */
+.bi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
 
 .bi-card {
   position: relative; background: var(--color-surface); border: 1px solid var(--color-border);
-  border-radius: 14px; padding: 27px 23px 21px; display: flex; flex-direction: column; gap: 14px;
+  border-radius: 14px; padding: 22px 18px 18px; display: flex; flex-direction: column; gap: 12px;
   transition: transform .2s ease, box-shadow .2s ease, opacity .6s ease;
 }
 .bi-card:hover { transform: translateY(-4px); box-shadow: 0 18px 35px -24px rgba(26, 26, 26, .3); }
-.bi-card__quotemark { position: absolute; top: 7px; left: 17px; font-family: Georgia, serif; font-size: 50px; font-weight: 700; color: var(--color-orange); opacity: .32; line-height: 1; }
-.bi-card__quote { position: relative; z-index: 1; font-size: 13.5px; line-height: 1.75; color: var(--color-text); }
+.bi-card__quotemark { position: absolute; top: 6px; left: 14px; font-family: Georgia, serif; font-size: 44px; font-weight: 700; color: var(--color-orange); opacity: .32; line-height: 1; }
+.bi-card__quote { position: relative; z-index: 1; font-size: 13px; line-height: 1.7; color: var(--color-text); }
 .bi-card__stars { display: flex; gap: 2px; }
 .bi-star { color: var(--color-orange); font-size: 13px; }
 .bi-star--off { color: var(--color-border); }
-.bi-card__footer { display: flex; align-items: center; gap: 11px; padding-top: 13px; border-top: 1px solid var(--color-border); }
-.bi-card__avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
+.bi-card__footer { display: flex; align-items: center; gap: 10px; padding-top: 12px; border-top: 1px solid var(--color-border); }
+.bi-card__avatar { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
 .bi-card__who { display: flex; flex-direction: column; font-size: 11px; }
-.bi-card__who strong { font-family: var(--font-heading); color: var(--color-deep-orange); font-size: 12px; }
+.bi-card__who strong { font-family: var(--font-heading); color: var(--color-deep-orange); font-size: 11.5px; }
 .bi-card__who span { color: var(--color-text-secondary); }
 
 /* ===== CTA ===== */
@@ -328,8 +333,11 @@ onBeforeUnmount(() => {
 .bi-cta__inner p { color: rgba(255,255,255,.84); font-size: 13px; margin-bottom: 9px; }
 
 /* ===== Responsive ===== */
+@media (max-width: 1100px) {
+  .bi-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
 @media (max-width: 900px) {
-  .bi-grid { grid-template-columns: 1fr 1fr; }
   .bi-hero__title { max-width: 750px; }
 }
 
