@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { useAdminAuth } from '../composables/useAdminAuth.js'
 
 // ===============================
 // MAIN PAGES
@@ -23,6 +24,12 @@ import MobileAppView from '../views/mobile-app.vue'
 import UIUXDesignView from '../views/ui-ux-design.vue'
 import CloudDevOpsView from '../views/cloud-devops.vue'
 import MaintenanceSupportView from '../views/maintenance-support.vue'
+
+// ===============================
+// ADMIN (login + upload artikel)
+// ===============================
+
+import adminRoutes from './admin.js'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -67,12 +74,6 @@ const router = createRouter({
       component: BlogView,
     },
 
-    {
-      path: '/blog',
-      name: 'blog',
-      component: BlogView,
-    },
-
     ...blogRoutes,
 
     {
@@ -86,6 +87,12 @@ const router = createRouter({
       name: 'Contact',
       component: ContactUs
     },
+
+    // ==========================================
+    // ADMIN
+    // ==========================================
+
+    ...adminRoutes,
 
     // ==========================================
     // DETAIL SOLUTIONS
@@ -147,6 +154,20 @@ const router = createRouter({
       behavior: 'smooth',
     }
   },
+})
+
+// ==========================================
+// AUTH GUARD — halaman dengan meta.requiresAuth
+// hanya bisa diakses kalau sudah login sebagai admin
+// ==========================================
+
+router.beforeEach((to) => {
+  if (to.meta.requiresAuth) {
+    const { isLoggedIn } = useAdminAuth()
+    if (!isLoggedIn.value) {
+      return { path: '/admin/login' }
+    }
+  }
 })
 
 export default router

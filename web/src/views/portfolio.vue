@@ -1,5 +1,8 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount, nextTick } from 'vue'
+
+const pageRoot = ref(null)
+let observer = null
 
 const categories = [
   'Semua',
@@ -79,14 +82,48 @@ const filteredProjects = computed(() => {
 function selectCategory(cat) {
   activeCategory.value = cat
 }
+
+function observeReveals() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    const els = pageRoot.value ? pageRoot.value.querySelectorAll('.reveal') : []
+    els.forEach((el) => el.classList.add('is-visible'))
+    return
+  }
+
+  if (observer) observer.disconnect()
+
+  observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('is-visible')
+          observer.unobserve(entry.target)
+        }
+      })
+    },
+    { threshold: 0.15, rootMargin: '0px 0px -60px 0px' }
+  )
+
+  const els = pageRoot.value ? pageRoot.value.querySelectorAll('.reveal') : []
+  els.forEach((el) => observer.observe(el))
+}
+
+onMounted(async () => {
+  await nextTick()
+  observeReveals()
+})
+
+onBeforeUnmount(() => {
+  if (observer) observer.disconnect()
+})
 </script>
 
 <template>
-  <section class="portfolio-page">
+  <section class="portfolio-page" ref="pageRoot">
     <div class="container">
 
       <!-- Hero -->
-      <div class="portfolio-hero">
+      <div class="portfolio-hero reveal reveal--up">
         <span class="eyebrow">KARYA KAMI</span>
         <h1>
           Portofolio yang
@@ -100,7 +137,7 @@ function selectCategory(cat) {
       </div>
 
       <!-- Filter -->
-      <div class="filter-bar">
+      <div class="filter-bar reveal reveal--up" style="--reveal-delay: 100ms">
         <button
           v-for="cat in categories"
           :key="cat"
@@ -113,11 +150,12 @@ function selectCategory(cat) {
       </div>
 
       <!-- Grid -->
-      <transition-group name="fade" tag="div" class="portfolio-grid">
+      <div class="portfolio-grid">
         <article
-          v-for="project in filteredProjects"
+          v-for="(project, index) in filteredProjects"
           :key="project.title"
-          class="project-card"
+          class="project-card reveal reveal--up"
+          :style="{ '--reveal-delay': `${index * 80}ms` }"
         >
           <div class="project-thumb">
             <img :src="project.image" :alt="project.title" />
@@ -128,14 +166,14 @@ function selectCategory(cat) {
             <h3>{{ project.title }}</h3>
           </div>
         </article>
-      </transition-group>
+      </div>
 
       <p v-if="filteredProjects.length === 0" class="empty-state">
         Belum ada project untuk kategori ini.
       </p>
 
       <!-- CTA -->
-      <div class="portfolio-cta">
+      <div class="portfolio-cta reveal reveal--scale">
         <h2>Punya project yang mau diwujudkan?</h2>
         <p>Ceritakan kebutuhan bisnismu, kami bantu rancang solusinya.</p>
         <a href="/contact" class="btn btn-primary">Hubungi Kami →</a>
@@ -151,6 +189,25 @@ function selectCategory(cat) {
   background: var(--color-bg);
 }
 
+/* ---------- SCROLL-REVEAL ANIMATION ---------- */
+.reveal {
+  opacity: 0;
+  transition: opacity .7s cubic-bezier(.22,.61,.36,1), transform .7s cubic-bezier(.22,.61,.36,1);
+  transition-delay: var(--reveal-delay, 0ms);
+  will-change: opacity, transform;
+}
+.reveal--up { transform: translateY(28px); }
+.reveal--scale { transform: scale(.96); }
+
+.reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal { transition: none !important; }
+}
+
 /* ===== Hero ===== */
 .portfolio-hero {
   max-width: 640px;
@@ -159,7 +216,7 @@ function selectCategory(cat) {
 }
 
 .portfolio-hero h1 {
-  font-size: 48px;
+  font-size: clamp(30px, 4.2vw, 48px);
   line-height: 1.15;
   margin: 16px 0 20px;
   color: var(--color-text);
@@ -301,15 +358,6 @@ function selectCategory(cat) {
   padding: 40px 0;
 }
 
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.2s ease;
-}
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
-}
-
 /* ===== CTA ===== */
 .portfolio-cta {
   max-width: 600px;
@@ -329,23 +377,138 @@ function selectCategory(cat) {
 }
 
 /* ===== Responsive ===== */
-@media (max-width: 1024px) {
+
+@media (max-width: 1100px) {
   .portfolio-grid {
-    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
   }
 }
 
-@media (max-width: 600px) {
+@media (max-width: 1024px) {
   .portfolio-page {
-    padding: 60px 20px 80px;
+    padding: 90px 5% 100px;
   }
 
-  .portfolio-hero h1 {
-    font-size: 34px;
+  .portfolio-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 860px) {
+  .portfolio-page {
+    padding: 80px 5% 90px;
+  }
+
+  .portfolio-hero {
+    margin-bottom: 40px;
+  }
+
+  .portfolio-hero p {
+    font-size: 15px;
+  }
+
+  .filter-bar {
+    gap: 8px;
+    margin-bottom: 40px;
+  }
+
+  .filter-chip {
+    font-size: 13px;
+    padding: 8px 16px;
+  }
+
+  .portfolio-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 18px;
+  }
+
+  .project-thumb {
+    height: 150px;
+  }
+
+  .portfolio-cta {
+    margin-top: 70px;
+  }
+
+  .portfolio-cta h2 {
+    font-size: 26px;
+  }
+}
+
+@media (max-width: 640px) {
+  .portfolio-page {
+    padding: 64px 20px 72px;
+  }
+
+  .portfolio-hero {
+    margin-bottom: 32px;
+  }
+
+  .filter-bar {
+    justify-content: flex-start;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    padding-bottom: 4px;
+    margin-bottom: 32px;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .filter-bar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .filter-chip {
+    flex-shrink: 0;
   }
 
   .portfolio-grid {
     grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .project-thumb {
+    height: 190px;
+  }
+
+  .portfolio-cta {
+    margin-top: 56px;
+  }
+
+  .portfolio-cta h2 {
+    font-size: 22px;
+  }
+
+  .portfolio-cta p {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 420px) {
+  .portfolio-page {
+    padding: 48px 16px 56px;
+  }
+
+  .portfolio-hero h1 {
+    font-size: 28px;
+  }
+
+  .portfolio-hero p {
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+  .filter-chip {
+    font-size: 12px;
+    padding: 7px 14px;
+  }
+
+  .project-info {
+    padding: 14px 14px 16px;
+  }
+
+  .project-info h3 {
+    font-size: 15.5px;
   }
 }
 </style>

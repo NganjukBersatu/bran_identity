@@ -1,9 +1,9 @@
 <template>
-  <div class="about-page">
+  <div class="about-page" ref="pageRoot">
     <!-- HERO -->
     <section class="about-hero">
       <div class="about-hero__grid">
-        <div class="container about-hero__intro">
+        <div class="container about-hero__intro reveal reveal--up">
           <span class="about-hero__since">Sejak 2019</span>
           <h1 class="about-hero__title">
             Studio kecil, cara kerja yang serius
@@ -15,22 +15,19 @@
           </p>
 
           <div class="about-hero__facts">
-            <div class="fact">
-              <strong>120+</strong>
-              <span>Proyek selesai</span>
-            </div>
-            <div class="fact">
-              <strong>6</strong>
-              <span>Tahun berjalan</span>
-            </div>
-            <div class="fact">
-              <strong>5</strong>
-              <span>Orang di tim inti</span>
+            <div
+              class="fact reveal reveal--up"
+              v-for="(f, i) in facts"
+              :key="f.label"
+              :style="{ '--reveal-delay': `${120 + i * 90}ms` }"
+            >
+              <strong>{{ f.value }}</strong>
+              <span>{{ f.label }}</span>
             </div>
           </div>
         </div>
 
-        <div class="about-hero__media">
+        <div class="about-hero__media reveal reveal--fade" style="--reveal-delay: 150ms">
           <img
             src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1200&q=80"
             alt="Tim Bran Identity sedang bekerja"
@@ -42,7 +39,7 @@
     <!-- STORY -->
     <section class="story">
       <div class="container story__inner">
-        <div class="story__text">
+        <div class="story__text reveal reveal--up">
           <span class="eyebrow"><span class="eyebrow__dot"></span>Cerita Kami</span>
           <h2 class="story__title">Dari proyek freelance, jadi studio yang dipercaya</h2>
           <p>
@@ -61,7 +58,13 @@
         </div>
 
         <div class="story__timeline" role="list">
-          <div class="timeline-item" role="listitem" v-for="item in milestones" :key="item.year">
+          <div
+            class="timeline-item reveal reveal--left"
+            role="listitem"
+            v-for="(item, i) in milestones"
+            :key="item.year"
+            :style="{ '--reveal-delay': `${i * 100}ms` }"
+          >
             <span class="timeline-item__year">{{ item.year }}</span>
             <span class="timeline-item__marker" aria-hidden="true"></span>
             <div class="timeline-item__content">
@@ -76,13 +79,18 @@
     <!-- VALUES -->
     <section class="values">
       <div class="container">
-        <div class="values__head">
+        <div class="values__head reveal reveal--up">
           <span class="eyebrow"><span class="eyebrow__dot"></span>Cara Kami Berpikir</span>
           <h2>Yang kami pegang di setiap proyek</h2>
         </div>
 
         <div class="values__grid">
-          <article class="value-card" v-for="v in values" :key="v.title">
+          <article
+            class="value-card reveal reveal--up"
+            v-for="(v, i) in values"
+            :key="v.title"
+            :style="{ '--reveal-delay': `${i * 100}ms` }"
+          >
             <div class="value-card__icon" v-html="v.icon"></div>
             <h3>{{ v.title }}</h3>
             <p>{{ v.desc }}</p>
@@ -94,13 +102,18 @@
     <!-- PROCESS -->
     <section class="process">
       <div class="container">
-        <div class="process__head">
+        <div class="process__head reveal reveal--up">
           <span class="eyebrow"><span class="eyebrow__dot"></span>Cara Kami Bekerja</span>
           <h2>Lima tahap, satu tujuan: produk yang benar-benar dipakai</h2>
         </div>
 
         <div class="process__row">
-          <div class="process-step" v-for="(p, i) in process" :key="p.title">
+          <div
+            class="process-step reveal reveal--up"
+            v-for="(p, i) in process"
+            :key="p.title"
+            :style="{ '--reveal-delay': `${i * 90}ms` }"
+          >
             <div class="process-step__num">{{ String(i + 1).padStart(2, '0') }}</div>
             <h3>{{ p.title }}</h3>
             <p>{{ p.desc }}</p>
@@ -111,7 +124,7 @@
 
     <!-- CTA -->
     <section class="about-cta">
-      <div class="container about-cta__inner">
+      <div class="container about-cta__inner reveal reveal--scale">
         <h2>Punya proyek yang ingin didiskusikan?</h2>
         <p>Ceritakan kebutuhan Anda, dan mari mulai diskusi awal tanpa biaya.</p>
         <a
@@ -126,6 +139,17 @@
 </template>
 
 <script setup>
+import { ref, onMounted, onBeforeUnmount, nextTick } from 'vue'
+
+const pageRoot = ref(null)
+let observer = null
+
+const facts = [
+  { value: '120+', label: 'Proyek selesai' },
+  { value: '6', label: 'Tahun berjalan' },
+  { value: '5', label: 'Orang di tim inti' },
+]
+
 const milestones = [
   {
     year: '2019',
@@ -199,6 +223,36 @@ const process = [
     desc: 'Deploy produk ke pengguna nyata, dan tetap mendampingi setelah proyek selesai.',
   },
 ]
+
+onMounted(async () => {
+  await nextTick()
+
+  const els = pageRoot.value ? pageRoot.value.querySelectorAll('.reveal') : []
+
+  // Kalau user minta reduced motion, langsung tampilkan semua tanpa animasi.
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    els.forEach((el) => el.classList.add('is-visible'))
+    return
+  }
+
+  observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('is-visible')
+          observer.unobserve(entry.target)
+        }
+      })
+    },
+    { threshold: 0.15, rootMargin: '0px 0px -60px 0px' }
+  )
+
+  els.forEach((el) => observer.observe(el))
+})
+
+onBeforeUnmount(() => {
+  if (observer) observer.disconnect()
+})
 </script>
 
 <style scoped>
@@ -221,9 +275,28 @@ const process = [
   margin-right: 8px;
 }
 
+/* ---------- SCROLL-REVEAL ANIMATION ---------- */
+.reveal {
+  opacity: 0;
+  transition: opacity .7s cubic-bezier(.22,.61,.36,1), transform .7s cubic-bezier(.22,.61,.36,1);
+  transition-delay: var(--reveal-delay, 0ms);
+  will-change: opacity, transform;
+}
+.reveal--up { transform: translateY(28px); }
+.reveal--left { transform: translateX(-24px); }
+.reveal--fade { transform: none; }
+.reveal--scale { transform: scale(.96); }
+
+.reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal { transition: none !important; }
+}
+
 /* ---------- HERO ---------- */
-/* Deliberately different from the Testimoni hero: left-aligned, no pill eyebrow,
-   paired with a compact facts card instead of being centered/plain. */
 .about-hero {
   border-bottom: 1px solid var(--color-border);
   overflow: hidden;
@@ -308,6 +381,12 @@ const process = [
   .about-hero__intro { padding: 48px 24px; }
 }
 
+@media (max-width: 380px) {
+  .about-hero__intro { padding: 36px 18px; }
+  .about-hero__facts { gap: 20px; }
+  .fact strong { font-size: 20px; }
+}
+
 /* ---------- STORY + TIMELINE ---------- */
 .story { padding: 96px 0; }
 .story__inner {
@@ -386,13 +465,18 @@ const process = [
   margin: 0;
 }
 
-@media (max-width: 420px) {
-  .timeline-item { grid-template-columns: 40px 16px 1fr; column-gap: 10px; }
-  .timeline-item__year { font-size: 11.5px; }
+@media (max-width: 1100px) {
+  .story__inner { gap: 40px; }
 }
 
 @media (max-width: 860px) {
   .story__inner { grid-template-columns: 1fr; gap: 44px; }
+  .story { padding: 64px 0; }
+}
+
+@media (max-width: 420px) {
+  .timeline-item { grid-template-columns: 40px 16px 1fr; column-gap: 10px; }
+  .timeline-item__year { font-size: 11.5px; }
 }
 
 /* ---------- VALUES ---------- */
@@ -427,6 +511,11 @@ const process = [
 .value-card h3 { font-size: 15.5px; margin-bottom: 8px; }
 .value-card p { font-size: 13.5px; color: var(--color-text-secondary); }
 
+@media (max-width: 640px) {
+  .values { padding: 64px 0; }
+  .value-card { padding: 22px 18px; }
+}
+
 /* ---------- PROCESS ---------- */
 .process { padding: 96px 0; }
 .process__head { max-width: 620px; margin-bottom: 48px; }
@@ -455,6 +544,7 @@ const process = [
 }
 @media (max-width: 560px) {
   .process__row { grid-template-columns: 1fr; }
+  .process { padding: 64px 0; }
 }
 
 .process-step { position: relative; z-index: 1; }
@@ -497,4 +587,8 @@ const process = [
 .about-cta .btn-primary:hover { opacity: .9; }
 .about-cta .btn__arrow { transition: transform .15s ease; }
 .about-cta .btn-primary:hover .btn__arrow { transform: translateX(3px); }
+
+@media (max-width: 560px) {
+  .about-cta { margin: 0 16px 64px; padding: 44px 24px; border-radius: 18px; }
+}
 </style>

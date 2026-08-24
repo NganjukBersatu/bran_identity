@@ -1,18 +1,19 @@
 <script setup>
-import { computed } from 'vue'
+import { computed, ref, onMounted, onBeforeUnmount, watch, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { articles } from '../data/articles'
+import { useArticles } from '../composables/useArticles.js'
 
 const route = useRoute()
 const router = useRouter()
+const { articles } = useArticles()
 
 const article = computed(() =>
-  articles.find(a => a.id === Number(route.params.id))
+  articles.value.find(a => a.id === Number(route.params.id))
 )
 
 const relatedArticles = computed(() => {
   if (!article.value) return []
-  return articles
+  return articles.value
     .filter(a => a.id !== article.value.id)
     .slice(0, 3)
 })
@@ -21,10 +22,62 @@ function goToArticle(id) {
   router.push(`/blog/${id}`)
   window.scrollTo({ top: 0, behavior: 'smooth' })
 }
+
+// ---------- scroll-reveal entrance animation ----------
+const pageRoot = ref(null)
+let observer = null
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
+function bindReveal() {
+  if (!pageRoot.value) return
+
+  const els = pageRoot.value.querySelectorAll('.reveal:not(.reveal-bound)')
+
+  els.forEach((el) => {
+    el.classList.add('reveal-bound')
+
+    if (reduceMotion) {
+      el.classList.add('is-visible')
+      return
+    }
+
+    observer.observe(el)
+  })
+}
+
+onMounted(async () => {
+  if (!reduceMotion) {
+    observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('is-visible')
+            observer.unobserve(entry.target)
+          }
+        })
+      },
+      { threshold: 0.15, rootMargin: '0px 0px -60px 0px' }
+    )
+  }
+
+  await nextTick()
+  bindReveal()
+})
+
+// Artikel bisa berganti (klik "artikel lainnya") tanpa remount komponen,
+// jadi kita perlu bind ulang elemen baru yang muncul.
+watch(() => route.params.id, async () => {
+  await nextTick()
+  bindReveal()
+})
+
+onBeforeUnmount(() => {
+  if (observer) observer.disconnect()
+})
 </script>
 
 <template>
-  <main class="blog-detail-page">
+  <main class="blog-detail-page" ref="pageRoot">
 
     <!-- =====================================================
          NOT FOUND
@@ -46,7 +99,7 @@ function goToArticle(id) {
            HERO
       ====================================================== -->
       <section class="detail-hero">
-        <div class="container">
+        <div class="container reveal reveal--up">
 
           <router-link to="/blog" class="back-link">
             <span>←</span>
@@ -72,7 +125,7 @@ function goToArticle(id) {
       ====================================================== -->
       <section class="detail-image-section">
         <div class="container">
-          <div class="detail-image">
+          <div class="detail-image reveal reveal--fade" style="--reveal-delay: 120ms">
             <img :src="article.image" :alt="article.title" />
           </div>
         </div>
@@ -85,7 +138,7 @@ function goToArticle(id) {
       <section class="section detail-content-section">
         <div class="container content-container">
 
-          <article class="detail-content">
+          <article class="detail-content reveal reveal--up" style="--reveal-delay: 180ms">
             <p class="lead">{{ article.excerpt }}</p>
 
             <p v-for="(paragraph, index) in article.content" :key="index">
@@ -94,7 +147,7 @@ function goToArticle(id) {
           </article>
 
           <aside class="detail-sidebar">
-            <div class="sidebar-card">
+            <div class="sidebar-card reveal reveal--up" style="--reveal-delay: 260ms">
               <strong>Butuh solusi software untuk bisnis Anda?</strong>
               <p>Diskusikan kebutuhan digital Anda bersama tim kami.</p>
               <router-link to="/contact" class="btn btn-primary">
@@ -114,16 +167,17 @@ function goToArticle(id) {
       <section class="section related-section" v-if="relatedArticles.length">
         <div class="container">
 
-          <div class="section-heading">
+          <div class="section-heading reveal reveal--up">
             <span class="eyebrow">Baca Juga</span>
             <h2>Artikel lainnya</h2>
           </div>
 
           <div class="article-grid">
             <article
-              v-for="related in relatedArticles"
+              v-for="(related, index) in relatedArticles"
               :key="related.id"
-              class="article-card"
+              class="article-card reveal reveal--up"
+              :style="{ '--reveal-delay': `${index * 100}ms` }"
               @click="goToArticle(related.id)"
             >
               <div class="article-image">
@@ -258,6 +312,26 @@ function goToArticle(id) {
 
 .btn-primary:hover {
   background: var(--color-deep-orange);
+}
+
+
+/* ---------- SCROLL-REVEAL ANIMATION ---------- */
+.reveal {
+  opacity: 0;
+  transition: opacity .7s cubic-bezier(.22,.61,.36,1), transform .7s cubic-bezier(.22,.61,.36,1);
+  transition-delay: var(--reveal-delay, 0ms);
+  will-change: opacity, transform;
+}
+.reveal--up { transform: translateY(28px); }
+.reveal--fade { transform: none; }
+
+.reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal { transition: none !important; }
 }
 
 
@@ -525,6 +599,10 @@ function goToArticle(id) {
     padding: 50px 0;
   }
 
+  .detail-hero {
+    padding: 120px 0 32px;
+  }
+
   .detail-image {
     height: 260px;
     border-radius: 14px;
@@ -532,6 +610,25 @@ function goToArticle(id) {
 
   .article-grid {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .detail-hero {
+    padding: 100px 0 26px;
+  }
+
+  .detail-hero h1 {
+    font-size: 26px;
+  }
+
+  .sidebar-card {
+    padding: 22px;
+  }
+
+  .featured-content,
+  .detail-content .lead {
+    font-size: 16px;
   }
 }
 
