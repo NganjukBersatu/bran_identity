@@ -6,8 +6,13 @@ import { ref, onMounted, onBeforeUnmount } from 'vue'
 // title dipecah jadi { main, highlight } supaya bagian penting bisa ditonjolkan warna aksen.
 const slides = [
   {
-    src: '/team/team-5.jpg',
+    src: '/team/team-4.jpg',
     alt: 'Tim BRAN Identity sedang berdiskusi',
+    // Titik fokus crop untuk foto ini (object-position). Atur per foto
+    // supaya subjek utama (orang/wajah) selalu berada di posisi yang
+    // enak dilihat meski dimensi file aslinya berbeda-beda — ini yang
+    // membuat semua foto terasa "senada" dan tidak jomplang.
+    objectPosition: 'center 20%',
     tag: 'Software House',
     title: { main: 'Mitra Digital untuk', highlight: 'Bisnis Anda' },
     subtitle:
@@ -16,8 +21,9 @@ const slides = [
     ctaLink: '/layanan/konsultasi',
   },
   {
-    src: '/team/team-4.jpg',
+    src: '/team/team-5.jpg',
     alt: 'Tim BRAN Identity mengerjakan proyek',
+    objectPosition: 'center 25%',
     tag: 'Cara Kami Bekerja',
     title: { main: 'Dibangun Sesuai Kebutuhan,', highlight: 'Bukan Template' },
     subtitle:
@@ -28,6 +34,7 @@ const slides = [
   {
     src: '/team/team-3.jpg',
     alt: 'Tim BRAN Identity di kantor',
+    objectPosition: 'center 15%',
     tag: 'Tim & Layanan',
     title: { main: 'Tim Berpengalaman, Siap Jadi', highlight: 'Partner Jangka Panjang' },
     subtitle:
@@ -108,11 +115,27 @@ const isRevealed = ref(false)
 onMounted(() => {
   startAutoplay()
 
+  const revealHero = () => {
+    isRevealed.value = true
+  }
+
   if (heroEl.value) {
-    // trigger di frame berikutnya supaya transisi CSS sempat terpasang
+    // Double rAF: frame pertama memastikan browser sudah commit style
+    // awal (opacity:0, translateY) ke layar, baru di frame kedua kita
+    // ubah ke state akhir. Single rAF sering "keduluan" sebelum style
+    // awal ke-paint, sehingga transisi terasa patah/meloncat langsung
+    // ke posisi akhir alih-alih meluncur mulus.
     requestAnimationFrame(() => {
-      isRevealed.value = true
+      requestAnimationFrame(revealHero)
     })
+
+    // Pastikan foto slide pertama sudah selesai di-decode sebelum
+    // animasi zoom/fade berjalan, supaya main thread tidak sibuk
+    // decode gambar besar di tengah-tengah animasi (penyebab stutter).
+    const firstImg = heroEl.value.querySelector('.hero__photo--active')
+    if (firstImg?.decode) {
+      firstImg.decode().catch(() => {})
+    }
   } else {
     isRevealed.value = true
   }
@@ -139,13 +162,17 @@ onBeforeUnmount(stopAutoplay)
         :alt="slide.alt"
         class="hero__photo"
         :class="{ 'hero__photo--active': i === activeIndex }"
+        :style="{ objectPosition: slide.objectPosition || 'center' }"
+        :loading="i === 0 ? 'eager' : 'lazy'"
+        :fetchpriority="i === 0 ? 'high' : 'auto'"
+        decoding="async"
       />
       <div class="hero__scrim"></div>
     </div>
 
     <!-- Konten teks di atas foto: ganti mengikuti slide aktif -->
     <div class="container hero__content">
-      <Transition name="hero-text" mode="out-in">
+      <Transition name="hero-text">
         <div :key="activeIndex" class="hero__text">
           <span class="hero__tag">
             <span class="hero__tag-dot"></span>
@@ -217,27 +244,46 @@ onBeforeUnmount(stopAutoplay)
 }
 
 /* ---- Animasi masuk section saat pertama kali muncul ---- */
-.hero__content,
+.hero__content {
+  opacity: 0;
+  /* muncul "dari dalam" — scale kecil ke ukuran normal tanpa translate,
+     jadi tidak ada gerakan naik/geser yang bisa terasa patah saat
+     bersaing dengan reflow tinggi konten. Cuma membesar + fade. */
+  transform: scale3d(0.96, 0.96, 1);
+  transform-origin: left center;
+  will-change: opacity, transform;
+  transition: opacity 0.7s cubic-bezier(0.4, 0, 0.2, 1),
+              transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+}
 .hero__nav,
 .hero__dots {
   opacity: 0;
-  transform: translateY(18px);
-  transition: opacity 0.7s ease, transform 0.7s ease;
+  transform: scale3d(0.92, 0.92, 1);
+  will-change: opacity, transform;
+  transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+              transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .hero--revealed .hero__content {
   opacity: 1;
-  transform: translateY(0);
+  transform: scale3d(1, 1, 1);
   transition-delay: 0.1s;
 }
 .hero--revealed .hero__nav {
   opacity: 1;
-  transform: translateY(0);
+  transform: scale3d(1, 1, 1);
   transition-delay: 0.35s;
 }
 .hero--revealed .hero__dots {
   opacity: 1;
-  transform: translateY(0);
+  transform: scale3d(1, 1, 1);
   transition-delay: 0.4s;
+}
+/* Lepas will-change setelah reveal selesai supaya browser tidak terus
+   menyimpan layer GPU untuk elemen yang sudah diam. */
+.hero--revealed .hero__content,
+.hero--revealed .hero__nav,
+.hero--revealed .hero__dots {
+  transition-property: opacity, transform;
 }
 @media (prefers-reduced-motion: reduce) {
   .hero__content,
@@ -246,6 +292,7 @@ onBeforeUnmount(stopAutoplay)
     opacity: 1;
     transform: none;
     transition: none;
+    will-change: auto;
   }
 }
 
@@ -264,14 +311,23 @@ onBeforeUnmount(stopAutoplay)
   object-fit: cover;
   object-position: center;
   opacity: 0;
-  transform: scale(1.06);
-  transition: opacity 1s ease, transform 7s ease;
+  transform: scale3d(1.06, 1.06, 1);
+  will-change: opacity, transform;
+  transition: opacity 1.1s cubic-bezier(0.4, 0, 0.2, 1),
+              transform 7s cubic-bezier(0.25, 0.1, 0.25, 1);
 }
 
 .hero__photo--active {
   opacity: 1;
-  transform: scale(1);
+  transform: scale3d(1, 1, 1);
   z-index: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero__photo {
+    transition: opacity 0.4s ease;
+    transform: none !important;
+  }
 }
 
 .hero__scrim {
@@ -325,6 +381,7 @@ onBeforeUnmount(stopAutoplay)
   border-radius: 50%;
   background: var(--color-orange, #ea580c);
   box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.35);
+  flex-shrink: 0;
 }
 
 .hero__content h1 {
@@ -334,6 +391,7 @@ onBeforeUnmount(stopAutoplay)
   line-height: 1.18;
   margin-bottom: 16px;
   text-shadow: 0 2px 12px rgba(0, 0, 0, 0.35);
+  word-break: break-word;
 }
 
 .hero__highlight {
@@ -362,21 +420,27 @@ onBeforeUnmount(stopAutoplay)
   text-shadow: 0 1px 6px rgba(0, 0, 0, 0.3);
 }
 
-/* ---- Transisi teks saat slide berganti ---- */
+/* ---- Transisi teks saat slide berganti ----
+   "Muncul dari dalam": scale kecil → normal + fade, tanpa translate
+   sama sekali. Ini paling smooth karena tidak ada gerakan naik/geser
+   yang bisa bentrok dengan tinggi konten yang berubah antar slide —
+   murni membesar di tempat, jadi tidak pernah terasa patah. */
 .hero-text-enter-active {
-  transition: opacity 0.5s ease, transform 0.5s ease;
+  transition: opacity 0.45s cubic-bezier(0.4, 0, 0.2, 1),
+              transform 0.45s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .hero-text-leave-active {
-  transition: opacity 0.3s ease, transform 0.3s ease;
+  transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: absolute;
 }
 .hero-text-enter-from {
   opacity: 0;
-  transform: translateY(14px);
+  transform: scale3d(0.94, 0.94, 1);
 }
 .hero-text-leave-to {
   opacity: 0;
-  transform: translateY(-10px);
+  transform: scale3d(1.03, 1.03, 1);
 }
 @media (prefers-reduced-motion: reduce) {
   .hero-text-enter-active,
@@ -459,6 +523,17 @@ onBeforeUnmount(stopAutoplay)
   cursor: pointer;
   padding: 0;
   transition: background 0.2s ease, width 0.2s ease;
+  /* target sentuh 44px tanpa memperbesar tampilan dot secara visual */
+  position: relative;
+}
+.hero__dot::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 32px;
+  height: 32px;
+  transform: translate(-50%, -50%);
 }
 
 .hero__dot--active {
@@ -471,7 +546,7 @@ onBeforeUnmount(stopAutoplay)
    RESPONSIVE
    Breakpoint: 1024 (tablet lanskap),
    768 (tablet potret), 480 (mobile),
-   360 (mobile kecil)
+   360 (mobile kecil), + landscape phone
    Prinsip: min-height dikecilkan bertahap
    & padding dirapatkan supaya tidak ada
    sisa area foto kosong di bawah tombol.
@@ -481,6 +556,18 @@ onBeforeUnmount(stopAutoplay)
   .hero {
     min-height: 560px;
   }
+  .hero__content {
+    max-width: 540px;
+  }
+  /* di lebar ini panah bisa menabrak teks jika judul panjang;
+     geser sedikit ke tepi dan kecilkan supaya tidak menutupi konten */
+  .hero__nav {
+    width: 42px;
+    height: 42px;
+    font-size: 15px;
+  }
+  .hero__nav--prev { left: 14px; }
+  .hero__nav--next { right: 14px; }
 }
 
 @media (max-width: 768px) {
@@ -493,6 +580,7 @@ onBeforeUnmount(stopAutoplay)
     max-width: 100%;
     text-align: center;
     margin: 0 auto;
+    transform-origin: center center;
   }
   .hero__text {
     min-height: 300px;
@@ -563,6 +651,56 @@ onBeforeUnmount(stopAutoplay)
   }
   .hero__subtitle {
     font-size: 13px;
+  }
+}
+
+@media (max-width: 480px) {
+  /* di layar sempit, perkecil jarak "membesar" supaya efeknya tetap
+     halus dan tidak terasa terlalu besar/mencolok di ruang terbatas */
+  .hero__content {
+    transform: scale3d(0.98, 0.98, 1);
+  }
+  .hero-text-enter-from {
+    transform: scale3d(0.97, 0.97, 1);
+  }
+  .hero-text-leave-to {
+    transform: scale3d(1.015, 1.015, 1);
+  }
+}
+
+/* HP dalam mode landscape (tinggi layar pendek): konten hero sering
+   ketinggian dan mendorong scroll berlebih, jadi kecilkan padding &
+   min-height teks berdasarkan tinggi viewport, bukan lebar. */
+@media (max-height: 480px) and (orientation: landscape) {
+  .hero {
+    padding-top: 56px;
+    min-height: 0;
+  }
+  .hero__content {
+    padding: 24px 0 32px;
+  }
+  .hero__text {
+    min-height: 0;
+  }
+  .hero__content h1 {
+    font-size: clamp(20px, 3.4vw, 30px);
+    margin-bottom: 8px;
+  }
+  .hero__subtitle {
+    margin-bottom: 14px;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .hero__nav {
+    width: 34px;
+    height: 34px;
+    font-size: 12px;
+  }
+  .hero__dots {
+    bottom: 8px;
   }
 }
 </style>
