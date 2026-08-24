@@ -26,7 +26,7 @@ const socials = [
     <div class="container footer__grid">
       <div class="footer__brand">
         <div class="footer__logo-row">
-          <img src="/logos/image.png" alt="Logo" class="footer__logo-img" />
+          <img src="/logos/logo.png" alt="Logo" class="footer__logo-img" />
           <span class="footer__logo">BRAN IDENTITY</span>
         </div>
         <p>Mitra digital untuk membantu bisnis Anda bertumbuh lewat teknologi.</p>

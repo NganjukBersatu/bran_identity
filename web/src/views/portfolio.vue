@@ -71,6 +71,118 @@ const projects = [
     tag: 'Finansial',
     image:
       'https://images.unsplash.com/photo-1561070791-2526d30994b5?auto=format&fit=crop&w=800&q=85'
+  },
+  {
+    title: 'Kopi Nusantara — Rebranding',
+    category: 'Brand Identity',
+    tag: 'F&B',
+    image:
+      'https://images.unsplash.com/photo-1447933601403-0c6688de566e?auto=format&fit=crop&w=800&q=85'
+  },
+  {
+    title: 'Klinik Sehat Prima',
+    category: 'Web Design',
+    tag: 'Kesehatan',
+    image:
+      'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&w=800&q=85'
+  },
+  {
+    title: 'EduNusantara — Company Profile',
+    category: 'Company Profile',
+    tag: 'Pendidikan',
+    image:
+      'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=800&q=85'
+  },
+  {
+    title: 'Ruang Kerja App',
+    category: 'App Design',
+    tag: 'Produktivitas',
+    image:
+      'https://images.unsplash.com/photo-1497215728101-856f4ea42174?auto=format&fit=crop&w=800&q=85'
+  },
+  {
+    title: 'EcoTravel — Landing Page',
+    category: 'Landing Page',
+    tag: 'Travel',
+    image:
+      'https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&w=800&q=85'
+  },
+  {
+    title: 'Sewa Alat Kita',
+    category: 'Web Design',
+    tag: 'Rental',
+    image:
+      'https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?auto=format&fit=crop&w=800&q=85'
+  },
+  {
+    title: 'Brand Identity — Titik Kumpul',
+    category: 'Brand Identity',
+    tag: 'Coworking',
+    image:
+      'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=800&q=85'
+  },
+  {
+    title: 'Ngaso Kuliner App',
+    category: 'App Design',
+    tag: 'Food Delivery',
+    image:
+      'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=800&q=85'
+  },
+  {
+    title: 'Griya Sewa Nusantara',
+    category: 'Web Design',
+    tag: 'Properti',
+    image:
+      'https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=800&q=85'
+  },
+  {
+    title: 'Agri Terhubung — Landing Page',
+    category: 'Landing Page',
+    tag: 'AgriTech',
+    image:
+      'https://images.unsplash.com/photo-1500595046743-cd271d694d30?auto=format&fit=crop&w=800&q=85'
+  },
+  {
+    title: 'Koperasi Sejahtera Bersama',
+    category: 'Company Profile',
+    tag: 'Koperasi',
+    image:
+      'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=800&q=85'
+  },
+  {
+    title: 'Brand Identity — Pasar Digital ID',
+    category: 'Brand Identity',
+    tag: 'Marketplace',
+    image:
+      'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&w=800&q=85'
+  },
+  {
+    title: 'Karyawan Prima — Sistem HR',
+    category: 'App Design',
+    tag: 'HR Tech',
+    image:
+      'https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=800&q=85'
+  },
+  {
+    title: 'Logistik Cepat — Dashboard',
+    category: 'Web Design',
+    tag: 'Logistik',
+    image:
+      'https://images.unsplash.com/photo-1494412651409-8963ce7935a7?auto=format&fit=crop&w=800&q=85'
+  },
+  {
+    title: 'PT Karya Bangun Sentosa',
+    category: 'Company Profile',
+    tag: 'Konstruksi',
+    image:
+      'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=800&q=85'
+  },
+  {
+    title: 'Belanja Cepat — Landing Page',
+    category: 'Landing Page',
+    tag: 'E-Commerce',
+    image:
+      'https://images.unsplash.com/photo-1472851294608-062f824d29cc?auto=format&fit=crop&w=800&q=85'
   }
 ]
 
@@ -158,7 +270,7 @@ onBeforeUnmount(() => {
           v-for="(project, index) in filteredProjects"
           :key="project.title"
           class="project-card reveal reveal--up"
-          :style="{ '--reveal-delay': `${index * 80}ms` }"
+          :style="{ '--reveal-delay': `${(index % 8) * 80}ms` }"
         >
           <div class="project-thumb">
             <img :src="project.image" :alt="project.title" />
@@ -179,7 +291,7 @@ onBeforeUnmount(() => {
       <div class="portfolio-cta reveal reveal--scale">
         <h2>Punya project yang mau diwujudkan?</h2>
         <p>Ceritakan kebutuhan bisnismu, kami bantu rancang solusinya.</p>
-        <a href="/contact" class="btn btn-primary">Hubungi Kami →</a>
+        <router-link to="/contact" class="btn btn-primary">Hubungi Kami →</router-link>
       </div>
 
     </div>

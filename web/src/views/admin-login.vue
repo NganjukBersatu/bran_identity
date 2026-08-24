@@ -139,13 +139,18 @@ function handleSubmit() {
 <style scoped>
 /* ===== BASE ===== */
 .admin-login-page {
-  min-height: 100vh;
+  /* Jarak aman dari navbar fixed. Sesuaikan angka ini kalau
+     tinggi navbar Anda berbeda dari 80px. */
+  --navbar-height: 80px;
+
+  min-height: calc(100vh - var(--navbar-height));
   width: 100%;
   box-sizing: border-box;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 35px 24px;
+  margin-top: var(--navbar-height);
   background: #fafafa;
   font-family: 'Inter', sans-serif;
   color: #1a1a1a;
@@ -580,7 +585,8 @@ function handleSubmit() {
 
 @media (max-width: 750px) {
   .admin-login-page {
-    min-height: 100vh;
+    --navbar-height: 70px;
+    min-height: calc(100vh - var(--navbar-height));
     padding: 25px 16px;
     align-items: flex-start;
   }
@@ -632,7 +638,10 @@ function handleSubmit() {
 }
 
 @media (max-width: 480px) {
-  .admin-login-page { padding: 16px 12px; }
+  .admin-login-page {
+    --navbar-height: 64px;
+    padding: 16px 12px;
+  }
   .login-wrapper { border-radius: 14px; }
 
   .login-left {

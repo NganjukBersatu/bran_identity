@@ -72,7 +72,7 @@
             class="bi-card reveal"
             :style="{ transitionDelay: `${(i % 4) * 0.1}s` }"
           >
-            <span class="bi-card__quotemark">“</span>
+            <span class="bi-card__quotemark">"</span>
             <p class="bi-card__quote">{{ t.quote }}</p>
 
             <div class="bi-card__stars" :aria-label="`Rating ${t.rating} dari 5`">
@@ -102,15 +102,10 @@
         <span class="cta-small">LET'S WORK TOGETHER</span>
         <h2>Siap menjadi cerita sukses berikutnya?</h2>
         <p>Ceritakan kebutuhan Anda, dan mari mulai diskusi awal tanpa biaya.</p>
-        <a
-          href="https://wa.me/6281234567890?text=Halo%20Brand%20Identity%2C%20saya%20ingin%20konsultasi%20proyek."
-          target="_blank"
-          rel="noopener"
-          class="btn btn-cta"
-        >
+        <router-link to="/contact" class="btn btn-cta">
           Diskusikan Proyek Anda
           <span>→</span>
-        </a>
+        </router-link>
       </div>
     </section>
 
@@ -277,7 +272,6 @@ onBeforeUnmount(() => {
 
 /* ===== Hero ===== */
 .bi-hero {
-  /* jarak atas supaya tidak ketutup navbar fixed Anda */
   padding: calc(72px + var(--navbar-height)) 0 60px;
   text-align: center; background: var(--color-bg); border-bottom: 1px solid var(--color-border);
 }
@@ -301,7 +295,6 @@ onBeforeUnmount(() => {
 .bi-testi__title { font-size: clamp(25px, 3vw, 32px); margin-bottom: 10px; }
 .bi-testi__desc { color: var(--color-text-secondary); font-size: 14px; }
 
-/* 4 kolom sejajar kesamping supaya kiri-kanan tidak kosong */
 .bi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
 
 .bi-card {
