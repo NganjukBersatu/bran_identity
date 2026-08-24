@@ -16,7 +16,7 @@ import BlogSection from '../components/BlogSection.vue'
   <ServicesSection :limit="3" show-view-all />
   <WhyUsSection />
   <ProcessSection />
-  <PortfolioSection :limit="3" show-view-all />
+  <PortfolioSection :limit="4" show-view-all />
   <TestimonialsSection />
   <CtaBanner />
   <BlogSection :limit="3" show-view-all />

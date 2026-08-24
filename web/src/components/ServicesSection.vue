@@ -1,28 +1,110 @@
 <script setup>
+import { ref, onMounted, onBeforeUnmount, nextTick } from 'vue'
+
 const props = defineProps({
   limit: { type: Number, default: null },
   showViewAll: { type: Boolean, default: false },
 })
 
+// ⚠️ Data ini DISAMAKAN dengan router/solutions.js supaya Home & halaman
+// Solutions (/solutions) konsisten. Teks untuk "Cloud & DevOps" dan
+// "Maintenance & Support" adalah PERKIRAAN — cek lagi ke router/solutions.js
+// aslimu dan sesuaikan kalau teksnya berbeda.
 const services = [
-  { number: '01', icon: 'chat', title: 'Konsultasi', slug: 'konsultasi', desc: 'Diskusi kebutuhan dan tujuan project Anda bersama tim ahli kami.' },
-  { number: '02', icon: 'clipboard', title: 'Perencanaan', slug: 'perencanaan', desc: 'Menyusun scope, timeline, dan estimasi biaya secara detail dan terstruktur.' },
-  { number: '03', icon: 'code', title: 'Development', slug: 'development', desc: 'Proses pengembangan dengan teknologi terbaru dan update berkala.' },
-  { number: '04', icon: 'rocket', title: 'Deploy', slug: null, desc: 'Peluncuran produk ke server produksi dengan performa optimal.' },
-  { number: '05', icon: 'headset', title: 'Support', slug: null, desc: 'Dukungan teknis dan pemeliharaan berkelanjutan setelah project selesai.' },
-  { number: '06', icon: 'chart', title: 'Optimasi', slug: null, desc: 'Meningkatkan performa dan fitur produk agar selalu relevan dan kompetitif.' },
+  {
+    number: '01',
+    icon: 'code',
+    title: 'Custom Software Development',
+    slug: 'custom-software',
+    desc: 'Aplikasi bisnis yang dirancang mengikuti proses kerja tim Anda, bukan template yang dipaksakan supaya cocok.',
+  },
+  {
+    number: '02',
+    icon: 'web',
+    title: 'Web Development',
+    slug: 'web-development',
+    desc: 'Company profile, e-commerce, sampai web app — dibangun cepat, ringan, dan mudah Anda kelola sendiri.',
+  },
+  {
+    number: '03',
+    icon: 'mobile',
+    title: 'Mobile App Development',
+    slug: 'mobile-app',
+    desc: 'Aplikasi Android, iOS, atau cross-platform yang tetap responsif walau dipakai ribuan pengguna sekaligus.',
+  },
+  {
+    number: '04',
+    icon: 'design',
+    title: 'UI/UX Design',
+    slug: 'ui-ux-design',
+    desc: 'Desain antarmuka berdasarkan riset perilaku pengguna nyata, supaya produk enak dipakai sejak hari pertama.',
+  },
+  {
+    number: '05',
+    icon: 'cloud',
+    title: 'Cloud & DevOps',
+    slug: 'cloud-devops',
+    desc: 'Infrastruktur cloud yang skalabel dan proses deployment otomatis, supaya rilis produk lebih cepat dan stabil.',
+  },
+  {
+    number: '06',
+    icon: 'headset',
+    title: 'Maintenance & Support',
+    slug: 'maintenance-support',
+    desc: 'Pemeliharaan rutin, perbaikan bug, dan dukungan teknis berkelanjutan setelah produk Anda live.',
+  },
 ]
 
 const displayedServices = props.limit ? services.slice(0, props.limit) : services
+
+// ===== Animasi masuk (reveal per-kartu, stagger) =====
+const sectionEl = ref(null)
+let observer = null
+
+function observeReveals() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    const els = sectionEl.value ? sectionEl.value.querySelectorAll('.reveal') : []
+    els.forEach((el) => el.classList.add('is-visible'))
+    return
+  }
+
+  if (observer) observer.disconnect()
+
+  observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('is-visible')
+          observer.unobserve(entry.target)
+        }
+      })
+    },
+    { threshold: 0.15, rootMargin: '0px 0px -60px 0px' }
+  )
+
+  const els = sectionEl.value ? sectionEl.value.querySelectorAll('.reveal') : []
+  els.forEach((el) => observer.observe(el))
+}
+
+onMounted(async () => {
+  await nextTick()
+  observeReveals()
+})
+
+onBeforeUnmount(() => {
+  if (observer) observer.disconnect()
+})
 </script>
 
 <template>
-  <section id="layanan" class="services-section">
+  <section id="layanan" class="services-section" ref="sectionEl">
     <div class="services-container">
       <div class="services-header">
-        <p class="services-eyebrow">LAYANAN KAMI</p>
-        <h2>Solusi Digital untuk <span>Bisnis Anda</span></h2>
-        <p class="services-description">
+        <p class="services-eyebrow reveal reveal--up">LAYANAN KAMI</p>
+        <h2 class="reveal reveal--up" style="--reveal-delay: 80ms">
+          Solusi Digital untuk <span>Bisnis Anda</span>
+        </h2>
+        <p class="services-description reveal reveal--up" style="--reveal-delay: 140ms">
           Kami menyediakan berbagai layanan pengembangan digital
           <br class="desktop-only" />
           yang disesuaikan dengan kebutuhan bisnis Anda.
@@ -30,32 +112,38 @@ const displayedServices = props.limit ? services.slice(0, props.limit) : service
       </div>
 
       <div class="services-grid">
-        <div v-for="service in displayedServices" :key="service.title" class="service-card">
+        <router-link
+          v-for="(service, index) in displayedServices"
+          :key="service.slug"
+          :to="`/solutions/${service.slug}`"
+          class="service-card reveal reveal--up"
+          :style="{ '--reveal-delay': `${200 + index * 90}ms` }"
+        >
           <div class="service-number">{{ service.number }}</div>
           <div class="card-decoration"></div>
           <div class="service-icon">
-            <svg v-if="service.icon === 'chat'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
-            <svg v-else-if="service.icon === 'clipboard'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M9 12h6M9 16h6"/></svg>
-            <svg v-else-if="service.icon === 'code'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
-            <svg v-else-if="service.icon === 'rocket'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="M12 15l-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 19 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></svg>
+            <svg v-if="service.icon === 'code'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+            <svg v-else-if="service.icon === 'web'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+            <svg v-else-if="service.icon === 'mobile'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="2"/><line x1="11" y1="18" x2="13" y2="18"/></svg>
+            <svg v-else-if="service.icon === 'design'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/></svg>
+            <svg v-else-if="service.icon === 'cloud'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg>
             <svg v-else-if="service.icon === 'headset'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 14v-3a9 9 0 0 1 18 0v3"/><path d="M21 15a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-1a2 2 0 0 1 2-2h3zM3 15a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-1a2 2 0 0 0-2-2H3z"/></svg>
-            <svg v-else-if="service.icon === 'chart'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
           </div>
           <div class="service-content">
             <h3>{{ service.title }}</h3>
             <div class="service-line"></div>
             <p>{{ service.desc }}</p>
-            <router-link :to="service.slug ? `/layanan/${service.slug}` : '/layanan'" class="service-link">
+            <span class="service-link">
               Selengkapnya <span>→</span>
-            </router-link>
+            </span>
           </div>
           <div class="dot-pattern">
             <span v-for="n in 9" :key="n"></span>
           </div>
-        </div>
+        </router-link>
       </div>
 
-      <div class="services-cta">
+      <div class="services-cta reveal reveal--scale" style="--reveal-delay: 700ms">
         <div class="cta-decoration cta-decoration-1"></div>
         <div class="cta-decoration cta-decoration-2"></div>
         <div class="cta-icon">💬</div>
@@ -66,8 +154,8 @@ const displayedServices = props.limit ? services.slice(0, props.limit) : service
         <a href="#" class="cta-button">Konsultasi Gratis <span>→</span></a>
       </div>
 
-      <div v-if="showViewAll" class="view-all">
-        <router-link to="/layanan" class="view-all-button">Lihat Semua Layanan <span>→</span></router-link>
+      <div v-if="showViewAll" class="view-all reveal reveal--up" style="--reveal-delay: 760ms">
+        <router-link to="/solutions" class="view-all-button">Lihat Semua Layanan <span>→</span></router-link>
       </div>
     </div>
   </section>
@@ -76,6 +164,23 @@ const displayedServices = props.limit ? services.slice(0, props.limit) : service
 <style scoped>
 .services-section { width: 100%; padding: 140px 20px 90px; background: #fffaf0; overflow: hidden; position: relative; z-index: 1; }
 .services-container { width: 100%; max-width: 1180px; margin: 0 auto; }
+
+/* ===== Animasi reveal (fade + slide up / scale), stagger ===== */
+.reveal {
+  opacity: 0;
+  transition: opacity 0.7s cubic-bezier(.22,.61,.36,1), transform 0.7s cubic-bezier(.22,.61,.36,1);
+  transition-delay: var(--reveal-delay, 0ms);
+  will-change: opacity, transform;
+}
+.reveal--up { transform: translateY(28px); }
+.reveal--scale { transform: scale(.96); }
+.reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .reveal { transition: none !important; }
+}
 
 /* Header */
 .services-header { text-align: center; margin-bottom: 48px; }
@@ -88,24 +193,24 @@ const displayedServices = props.limit ? services.slice(0, props.limit) : service
 .services-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; }
 
 /* Card */
-.service-card { position: relative; min-height: 300px; padding: 32px 30px 28px; background: #fffdf8; border: 1px solid rgba(255, 164, 71, 0.55); border-radius: 18px; overflow: hidden; box-shadow: 0 8px 25px rgba(180, 120, 40, 0.08); transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease; }
+.service-card { position: relative; display: block; text-decoration: none; color: inherit; min-height: 300px; padding: 32px 30px 28px; background: #fffdf8; border: 1px solid rgba(255, 164, 71, 0.55); border-radius: 18px; overflow: hidden; box-shadow: 0 8px 25px rgba(180, 120, 40, 0.08); transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease; }
 .service-card::before { content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 3px; background: linear-gradient(90deg, #fcef91, #ffa447, #f93827); }
 .service-card:hover { transform: translateY(-8px); border-color: #ffa447; box-shadow: 0 18px 35px rgba(239, 91, 35, 0.15); }
 
 .service-number { position: absolute; top: 0; right: 0; width: 58px; height: 52px; display: flex; align-items: center; justify-content: center; border-radius: 0 18px 0 18px; background: linear-gradient(135deg, #fcef91, #ffa447); color: #8e3b13; font-size: 16px; font-weight: 800; }
 
 .service-icon { position: relative; z-index: 2; width: 70px; height: 70px; display: flex; align-items: center; justify-content: center; margin-bottom: 24px; border-radius: 50%; background: #fcef91; color: #f15a24; box-shadow: 0 8px 18px rgba(255, 164, 71, 0.18); }
-.service-icon svg { width: 30px; height: 30px; }
+.service-icon svg { width: 30px; height: 30px; flex-shrink: 0; }
 
 .service-content { position: relative; z-index: 2; }
 .service-content h3 { margin: 0; color: #15191f; font-size: 20px; line-height: 1.3; font-weight: 750; }
 .service-line { width: 36px; height: 3px; margin: 12px 0 14px; border-radius: 10px; background: linear-gradient(90deg, #f93827, #ffa447); }
 .service-content p { margin: 0 0 22px; max-width: 290px; color: #666; font-size: 14px; line-height: 1.65; }
 
-.service-link { display: inline-flex; align-items: center; gap: 9px; color: #f04b1f; font-size: 14px; font-weight: 700; text-decoration: none; transition: gap 0.2s ease; }
+.service-link { display: inline-flex; align-items: center; gap: 9px; color: #f04b1f; font-size: 14px; font-weight: 700; transition: gap 0.2s ease; }
 .service-link span { font-size: 19px; transition: transform 0.2s ease; }
-.service-link:hover { gap: 13px; }
-.service-link:hover span { transform: translateX(3px); }
+.service-card:hover .service-link { gap: 13px; }
+.service-card:hover .service-link span { transform: translateX(3px); }
 
 .card-decoration { position: absolute; right: -55px; bottom: -65px; width: 160px; height: 160px; border-radius: 50%; background: rgba(255, 228, 166, 0.35); pointer-events: none; }
 .card-decoration::after { content: ""; position: absolute; top: 35px; left: 35px; width: 90px; height: 90px; border-radius: 50%; background: rgba(255, 164, 71, 0.08); }
@@ -135,10 +240,21 @@ const displayedServices = props.limit ? services.slice(0, props.limit) : service
 .view-all-button:hover { background: #f15a24; color: white; }
 .view-all-button span { font-size: 18px; }
 
-/* Tablet */
+/* ===== Responsive ===== */
+
+/* Tablet besar */
 @media (max-width: 950px) {
-  .services-grid { grid-template-columns: repeat(2, 1fr); }
+  .services-grid { grid-template-columns: repeat(2, 1fr); gap: 22px; }
   .services-cta { padding: 28px; }
+}
+
+/* Tablet kecil — transisi lebih halus sebelum ke 1 kolom */
+@media (max-width: 768px) {
+  .services-section { padding: 100px 18px 80px; }
+  .service-card { min-height: 290px; padding: 30px 26px; }
+  .service-icon { width: 66px; height: 66px; margin-bottom: 20px; }
+  .service-icon svg { width: 27px; height: 27px; }
+  .service-content p { max-width: 100%; }
 }
 
 /* Mobile */
@@ -150,10 +266,11 @@ const displayedServices = props.limit ? services.slice(0, props.limit) : service
   .desktop-only { display: none; }
   .services-grid { grid-template-columns: 1fr; gap: 20px; }
   .service-card { min-height: 280px; padding: 28px 25px; }
-  .service-icon { width: 62px; height: 62px; font-size: 26px; }
+  .service-icon { width: 62px; height: 62px; margin-bottom: 18px; }
+  .service-icon svg { width: 24px; height: 24px; }
   .service-content h3 { font-size: 19px; }
   .services-cta { flex-direction: column; align-items: flex-start; padding: 30px 24px; text-align: left; }
-  .cta-icon { width: 60px; height: 60px; margin: 0 0 20px; }
+  .cta-icon { width: 60px; height: 60px; margin: 0 0 20px; font-size: 24px; }
   .cta-content { margin-bottom: 24px; }
   .cta-content h3 { font-size: 20px; }
   .cta-content p { font-size: 13px; }
@@ -163,7 +280,11 @@ const displayedServices = props.limit ? services.slice(0, props.limit) : service
 /* Small mobile */
 @media (max-width: 400px) {
   .services-header h2 { font-size: 27px; }
-  .service-card { padding: 25px 22px; }
+  .service-card { padding: 25px 22px; min-height: 260px; }
+  .service-icon { width: 54px; height: 54px; margin-bottom: 16px; }
+  .service-icon svg { width: 21px; height: 21px; }
   .service-number { width: 50px; height: 46px; font-size: 14px; }
+  .service-content h3 { font-size: 17px; }
+  .service-content p { font-size: 13px; margin-bottom: 16px; }
 }
 </style>
