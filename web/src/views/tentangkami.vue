@@ -127,12 +127,9 @@
       <div class="container about-cta__inner reveal reveal--scale">
         <h2>Punya proyek yang ingin didiskusikan?</h2>
         <p>Ceritakan kebutuhan Anda, dan mari mulai diskusi awal tanpa biaya.</p>
-        <a
-          href="https://wa.me/6281234567890?text=Halo%20Brand%20Identity%2C%20saya%20ingin%20konsultasi%20proyek."
-          target="_blank"
-          rel="noopener"
-          class="btn btn-primary"
-        >Mulai Diskusi <span class="btn__arrow">→</span></a>
+        <router-link to="/contact" class="btn btn-primary">
+          Mulai Diskusi <span class="btn__arrow">→</span>
+        </router-link>
       </div>
     </section>
   </div>

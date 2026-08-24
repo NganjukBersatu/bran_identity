@@ -271,7 +271,9 @@ onBeforeUnmount(() => observer?.disconnect())
             <span class="eyebrow">Let's Build Something</span>
             <h2>Punya ide digital<br />yang ingin diwujudkan?</h2>
             <p>Diskusikan kebutuhan software bisnis Anda bersama tim kami.</p>
-            <a href="#" class="btn btn-light">Konsultasikan sekarang <span>↗</span></a>
+            <router-link to="/contact" class="btn btn-light">
+              Konsultasikan sekarang <span>↗</span>
+            </router-link>
           </div>
           <div class="cta-visual">
             <div class="cta-circle circle-one"></div>
