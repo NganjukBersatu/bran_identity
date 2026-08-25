@@ -921,6 +921,27 @@ onBeforeUnmount(() => observer?.disconnect())
   .topics-content h2 { font-size: 40px; }
   .cta-card { min-height: 390px; padding: 40px 30px; }
   .cta-visual { right: -55px; bottom: -50px; opacity: .35; }
+
+  /* Grid artikel jadi 4 kolom padat, khusus mobile */
+  .article-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+  .article-card { border-radius: 12px; }
+  .article-image { height: 90px; }
+  .article-number-card { display: none; }
+  .article-category { display: none; }
+  .article-content { padding: 10px; }
+  .article-content h3 {
+    margin-top: 0;
+    font-size: 11px;
+    line-height: 1.3;
+    font-weight: 700;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .article-content p { display: none; }
+  .article-meta { display: none; }
+  .article-link { display: none; }
 }
 
 @media (max-width: 520px) {
@@ -943,7 +964,6 @@ onBeforeUnmount(() => observer?.disconnect())
   .featured-content { padding: 26px; }
   .featured-content h3 { font-size: 27px; }
   .featured-bottom { align-items: flex-start; gap: 15px; }
-  .article-grid { grid-template-columns: 1fr; }
   .article-image { height: 235px; }
   .category-list { gap: 6px; }
   .category-button { padding: 8px 12px; font-size: 11px; }
@@ -964,5 +984,18 @@ onBeforeUnmount(() => observer?.disconnect())
   .circle-one { width: 160px; height: 160px; }
   .circle-two { width: 105px; height: 105px; }
   .cta-center { width: 55px; height: 55px; font-size: 20px; }
+
+  /* Grid artikel: 4 kolom tetap dipertahankan, disesuaikan lebih rapat */
+  .article-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+  .article-image { height: 78px; }
+  .article-content { padding: 8px; }
+  .article-content h3 { font-size: 10.5px; }
+}
+
+@media (max-width: 380px) {
+  .article-grid { gap: 6px; }
+  .article-image { height: 68px; }
+  .article-content { padding: 6px; }
+  .article-content h3 { font-size: 10px; }
 }
 </style>

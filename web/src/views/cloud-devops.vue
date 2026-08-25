@@ -120,8 +120,14 @@
           <span class="eyebrow mono">$ stack --list</span>
           <h2>Teknologi yang Kami Andalkan</h2>
         </div>
-        <div class="tech-row reveal" data-reveal="fade-up" data-delay="100">
-          <span v-for="tech in techStack" :key="tech" class="tech-badge mono">--{{ tech.toLowerCase().replace(/\s+/g, '-') }}</span>
+        <div class="tech-row">
+          <span
+            v-for="(tech, i) in techStack"
+            :key="tech"
+            class="tech-badge mono reveal"
+            data-reveal="fade-up"
+            :data-delay="i * 60"
+          >--{{ tech.toLowerCase().replace(/\s+/g, '-') }}</span>
         </div>
       </div>
     </section>
@@ -278,10 +284,14 @@ onBeforeUnmount(() => { if (observer) observer.disconnect() })
 .mono { font-family: 'JetBrains Mono', 'SFMono-Regular', Consolas, monospace; }
 
 /* ---------- reveal animation ---------- */
-.reveal { opacity: 0; transition: opacity .6s ease, transform .6s ease; }
-.reveal[data-reveal="fade-up"] { transform: translateY(28px); }
-.reveal[data-reveal="fade-left"] { transform: translateX(-24px); }
-.reveal.is-visible { opacity: 1; transform: translateY(0) translateX(0); }
+.reveal {
+  opacity: 0;
+  transition: opacity .7s cubic-bezier(0.16, 1, 0.3, 1), transform .7s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+.reveal[data-reveal="fade-up"] { transform: translateY(32px) scale(0.98); }
+.reveal[data-reveal="fade-left"] { transform: translateX(-28px); }
+.reveal.is-visible { opacity: 1; transform: translateY(0) translateX(0) scale(1); }
 .reveal[data-reveal="grow-line"] { transition: transform .9s ease; transform: scaleX(0); }
 .reveal[data-reveal="grow-line"].is-visible { transform: scaleX(1); }
 .reveal[data-reveal="grow-bar"] { transition: width 1s ease .1s; width: 0%; }
@@ -307,7 +317,7 @@ onBeforeUnmount(() => { if (observer) observer.disconnect() })
 .dot-y { background: #f2b544; }
 .dot-g { background: #35c470; }
 
-/* ==================== HERO (tidak diubah) ==================== */
+/* ==================== HERO ==================== */
 .hero { position: relative; min-height: 640px; display: flex; align-items: flex-end; padding-bottom: 64px; overflow: hidden; background: var(--color-bg); }
 .hero-media { position: absolute; inset: 0; z-index: 0; }
 .hero-img { width: 100%; height: 100%; object-fit: cover; object-position: right center; -webkit-mask-image: linear-gradient(to right, transparent 0%, rgba(0,0,0,.35) 30%, #000 62%); mask-image: linear-gradient(to right, transparent 0%, rgba(0,0,0,.35) 30%, #000 62%); }
@@ -348,7 +358,9 @@ onBeforeUnmount(() => { if (observer) observer.disconnect() })
   background: var(--color-bg);
   transition: border-color .25s ease, transform .25s ease, box-shadow .25s ease;
 }
-.service-card:hover { border-color: var(--color-deep-orange); transform: translateY(-6px); box-shadow: 0 20px 40px -26px rgba(231, 81, 25, .4); }
+@media (hover: hover) and (pointer: fine) {
+  .service-card:hover { border-color: var(--color-deep-orange); transform: translateY(-6px); box-shadow: 0 20px 40px -26px rgba(231, 81, 25, .4); }
+}
 .service-topbar {
   display: flex; align-items: center; gap: 6px;
   padding: 10px 14px;
@@ -473,6 +485,14 @@ onBeforeUnmount(() => { if (observer) observer.disconnect() })
 /* =========================================================
    RESPONSIVE
 ========================================================= */
+
+/* TABLET BESAR — 1100px */
+@media (max-width: 1100px) {
+  .hero { min-height: 600px; }
+  .hero-title { font-size: clamp(40px, 6.5vw, 72px); }
+  .services-grid { gap: 18px; }
+}
+
 @media (max-width: 960px) {
   .services-grid { grid-template-columns: repeat(2, 1fr); }
   .why-grid { grid-template-columns: 1fr; }
@@ -480,15 +500,111 @@ onBeforeUnmount(() => { if (observer) observer.disconnect() })
   .term-text { min-width: 100%; order: 3; }
 }
 
+/* TABLET — 900px */
+@media (max-width: 900px) {
+  .services-grid { grid-template-columns: repeat(2, 1fr); gap: 18px; }
+  .why-grid { grid-template-columns: 1fr; gap: 40px; }
+  .terminal-body { padding: 18px 18px 22px; }
+}
+
 @media (max-width: 640px) {
   .section { padding: 56px 0; }
-  .hero { min-height: 480px; padding-bottom: 40px; }
-  .hero-img, .hero-img-fallback { -webkit-mask-image: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,.25) 25%, #000 55%); mask-image: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,.25) 25%, #000 55%); object-position: center 30%; }
-  .hero-fade { background: linear-gradient(to bottom, var(--color-bg) 0%, rgba(250,250,250,.5) 30%, transparent 55%); }
-  .services-grid { grid-template-columns: 1fr; }
+
+  /* ---------- HERO (fix mobile): gambar jadi banner tetap di atas,
+     teks mengalir NORMAL di bawahnya — tidak ada lagi overlap/ketutupan. ---------- */
+  .hero {
+    display: block;           /* keluar dari flex align-items:flex-end */
+    min-height: auto;         /* tinggi hero cuma sebesar isinya */
+    padding-bottom: 0;
+  }
+  .hero-media {
+    position: relative;       /* keluar dari absolute inset:0 */
+    inset: auto;
+    height: 220px;            /* tinggi banner gambar tetap/fix */
+    width: 100%;
+  }
+  .hero-img,
+  .hero-img-fallback {
+    -webkit-mask-image: none; /* matikan fade kanan-kiri ala desktop */
+    mask-image: none;
+    object-position: center 25%;
+  }
+  /* fade tipis di bagian bawah gambar supaya transisi ke background halus */
+  .hero-media::after {
+    content: '';
+    position: absolute;
+    inset: auto 0 0 0;
+    height: 70px;
+    background: linear-gradient(to bottom, transparent, var(--color-bg));
+    pointer-events: none;
+  }
+  .hero-fade { display: none; } /* tidak perlu lagi, gambar sudah tidak dibelakang teks */
+
+  .hero-inner {
+    padding-top: 28px;
+    padding-bottom: 40px;
+  }
+  .breadcrumb { margin-bottom: 24px; }
+  .hero-copy { max-width: 100%; }
+  .hero-title { font-size: clamp(34px, 10vw, 44px); }
+  .hero-lead { margin-top: 18px; }
+  .hero-desc { margin-top: 14px; max-width: 100%; }
+  .scroll-cue { margin-top: 32px; }
+
+  /* ---------- SERVICES: 2 kolom x 2 kolom di mobile,
+     bukan 1 kolom (kartu jadi tidak terlalu panjang/lebar penuh). ---------- */
+  .services-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  .service-topbar { padding: 8px 10px; }
+  .service-stage { font-size: 9.5px; }
+  .service-body { padding: 16px 14px 18px; }
+  .service-icon {
+    width: 38px; height: 38px;
+    border-radius: 10px;
+    margin-bottom: 12px;
+  }
+  .service-icon svg { width: 20px; height: 20px; }
+  .service-card h3 {
+    font-size: 14px;
+    line-height: 1.35;
+  }
+  .service-card p {
+    margin-top: 6px;
+    font-size: 12px;
+    line-height: 1.5;
+  }
+
   .cta-final-inner { flex-direction: column; align-items: flex-start; padding: 40px 24px 28px; }
   .btn-cta { width: 100%; text-align: center; }
   .why-item { grid-template-columns: 4px 1fr; }
+}
+
+/* MOBILE BESAR — 480px */
+@media (max-width: 480px) {
+  .hero-lead { font-size: 17px; }
+  .hero-desc { font-size: 14px; }
+  .terminal-bar { padding: 10px 12px; }
+  .terminal-title { font-size: 11px; }
+  .term-text { font-size: 13.5px; }
+  .cta-final-inner { padding: 36px 18px 24px; }
+  .cta-text h2 { font-size: 22px; }
+}
+
+/* MOBILE KECIL — 380px */
+@media (max-width: 380px) {
+  .hero-media { height: 190px; }
+  .hero-title { font-size: clamp(30px, 9vw, 38px); }
+  .breadcrumb { margin-bottom: 20px; font-size: 13px; }
+
+  .services-grid { gap: 10px; }
+  .service-topbar { padding: 7px 9px; }
+  .service-body { padding: 14px 12px 16px; }
+  .service-icon { width: 34px; height: 34px; margin-bottom: 10px; }
+  .service-icon svg { width: 18px; height: 18px; }
+  .service-card h3 { font-size: 13px; }
+  .service-card p { font-size: 11.5px; }
+
+  .why-item { grid-template-columns: 4px 1fr; gap: 12px; }
+  .tech-badge { font-size: 12.5px; padding: 8px 12px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -1,12 +1,12 @@
 <template>
-  <div class="solutions-page">
+  <div class="solutions-page" ref="pageRoot">
     <navbar />
 
     <!-- =========================
          HERO
     ========================== -->
     <section class="solutions-hero">
-      <div class="hero-image-wrap">
+      <div class="hero-image-wrap reveal reveal--fade">
         <img
           src="/team/team-2.jpg"
           alt="Tim Bran Identity"
@@ -21,15 +21,15 @@
 
       <div class="hero-inner">
         <div class="hero-content">
-          <p class="eyebrow">Solutions</p>
+          <p class="eyebrow reveal reveal--up">Solutions</p>
 
-          <h1 class="hero-title">
+          <h1 class="hero-title reveal reveal--up" style="--reveal-delay: 90ms">
             Solusi Digital yang<br />
             <span class="highlight">Mendorong Pertumbuhan</span>
             Bisnis Anda
           </h1>
 
-          <p class="hero-desc">
+          <p class="hero-desc reveal reveal--up" style="--reveal-delay: 180ms">
             Kami membantu perusahaan dari berbagai industri untuk berkembang
             melalui produk dan layanan digital yang kami rancang dan bangun
             secara maksimal — dari ide awal hingga rilis dan perawatan jangka
@@ -48,7 +48,7 @@
     >
       <div class="grid-inner">
 
-        <div class="section-head">
+        <div class="section-head reveal reveal--up">
           <p class="eyebrow">Our Solutions</p>
 
           <h2 class="section-title">
@@ -58,11 +58,12 @@
 
         <div class="grid">
           <router-link
-            v-for="item in solutions"
+            v-for="(item, index) in solutions"
             :key="item.slug"
             :id="item.slug"
             :to="`/solutions/${item.slug}`"
-            class="card"
+            class="card reveal reveal--up"
+            :style="{ '--reveal-delay': `${200 + (index % 6) * 80}ms` }"
           >
             <div
               class="icon-wrap"
@@ -85,8 +86,62 @@
 </template>
 
 <script setup>
+import { ref, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import navbar from '../components/navbar.vue'
 import { solutions } from '../router/solutions.js'
+
+/* ---------- scroll-reveal ---------- */
+const pageRoot = ref(null)
+let observer = null
+
+function prefersReducedMotion() {
+  return (
+    typeof window !== 'undefined' &&
+    typeof window.matchMedia === 'function' &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  )
+}
+
+function bindReveal() {
+  if (!pageRoot.value) return
+
+  const els = pageRoot.value.querySelectorAll('.reveal:not(.reveal-bound)')
+
+  if (prefersReducedMotion() || typeof IntersectionObserver === 'undefined') {
+    els.forEach((el) => {
+      el.classList.add('reveal-bound', 'is-visible')
+    })
+    return
+  }
+
+  els.forEach((el) => {
+    el.classList.add('reveal-bound')
+    observer.observe(el)
+  })
+}
+
+onMounted(async () => {
+  if (!prefersReducedMotion() && typeof IntersectionObserver !== 'undefined') {
+    observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('is-visible')
+            observer.unobserve(entry.target)
+          }
+        })
+      },
+      { threshold: 0.15, rootMargin: '0px 0px -60px 0px' }
+    )
+  }
+
+  await nextTick()
+  bindReveal()
+})
+
+onBeforeUnmount(() => {
+  if (observer) observer.disconnect()
+})
 </script>
 
 <style scoped>
@@ -98,6 +153,39 @@ import { solutions } from '../router/solutions.js'
 .solutions-page {
   width: 100%;
   overflow: hidden;
+}
+
+
+/* =====================================================
+   REVEAL (animasi masuk)
+===================================================== */
+
+.reveal {
+  opacity: 0;
+
+  transition:
+    opacity 0.7s cubic-bezier(.22, .61, .36, 1),
+    transform 0.7s cubic-bezier(.22, .61, .36, 1);
+
+  transition-delay: var(--reveal-delay, 0ms);
+
+  will-change: opacity, transform;
+}
+
+.reveal--up { transform: translateY(28px); }
+.reveal--fade { transform: scale(1.03); }
+
+.reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    transition: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
 }
 
 
@@ -135,6 +223,8 @@ import { solutions } from '../router/solutions.js'
   z-index: 0;
 
   overflow: hidden;
+
+  background: var(--color-border);
 }
 
 .hero-image {
@@ -372,15 +462,25 @@ import { solutions } from '../router/solutions.js'
     background-color 0.3s ease;
 }
 
-.card:hover {
-  transform: translateY(-6px);
+@media (hover: hover) and (pointer: fine) {
+  .card:hover {
+    transform: translateY(-6px);
 
-  box-shadow:
-    0 20px 45px -24px rgba(26, 26, 26, 0.25);
+    box-shadow:
+      0 20px 45px -24px rgba(26, 26, 26, 0.25);
 
-  border-color: var(--color-orange);
+    border-color: var(--color-orange);
 
-  background: var(--color-surface);
+    background: var(--color-surface);
+  }
+}
+
+@media (hover: none) {
+  .card:active {
+    transform: scale(0.98);
+
+    border-color: var(--color-orange);
+  }
 }
 
 
@@ -564,9 +664,6 @@ import { solutions } from '../router/solutions.js'
     margin-bottom: 40px;
   }
 
-  /*
-   * TETAP 2 KOLOM
-   */
   .grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
 
@@ -620,11 +717,6 @@ import { solutions } from '../router/solutions.js'
     font-size: 30px;
   }
 
-
-  /*
-   * TETAP 2 KOLOM DI TABLET
-   */
-
   .grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
 
@@ -668,7 +760,7 @@ import { solutions } from '../router/solutions.js'
 @media (max-width: 600px) {
 
   .hero-image-wrap {
-    height: 270px;
+    height: 260px;
   }
 
   .hero-image-fade {
@@ -681,7 +773,7 @@ import { solutions } from '../router/solutions.js'
   }
 
   .hero-inner {
-    padding: 36px 20px 52px;
+    padding: 34px 20px 50px;
   }
 
   .eyebrow {
@@ -693,11 +785,11 @@ import { solutions } from '../router/solutions.js'
   .hero-title {
     font-size: clamp(27px, 8vw, 34px);
 
-    line-height: 1.2;
+    line-height: 1.22;
 
     letter-spacing: -0.02em;
 
-    margin-bottom: 18px;
+    margin-bottom: 16px;
   }
 
   .hero-desc {
@@ -710,7 +802,7 @@ import { solutions } from '../router/solutions.js'
   /* SOLUTIONS */
 
   .solutions-grid-section {
-    padding: 56px 0 64px;
+    padding: 52px 0 60px;
   }
 
   .grid-inner {
@@ -718,19 +810,14 @@ import { solutions } from '../router/solutions.js'
   }
 
   .section-head {
-    margin-bottom: 30px;
+    margin-bottom: 28px;
   }
 
   .section-title {
-    font-size: 26px;
+    font-size: 25px;
 
     line-height: 1.25;
   }
-
-
-  /*
-   * CARD TETAP 2 KOLOM
-   */
 
   .grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -752,15 +839,15 @@ import { solutions } from '../router/solutions.js'
   }
 
   .card-title {
-    font-size: 16px;
+    font-size: 15.5px;
 
     line-height: 1.35;
 
-    margin-bottom: 8px;
+    margin-bottom: 6px;
   }
 
   .card-desc {
-    font-size: 13px;
+    font-size: 12.5px;
 
     line-height: 1.5;
   }
@@ -770,20 +857,23 @@ import { solutions } from '../router/solutions.js'
 /* =====================================================
    SMALL MOBILE
    480px
+
+   Grid turun ke 1 kolom mulai di sini — 2 kolom pada
+   layar ini membuat judul & deskripsi terlalu sempit.
 ===================================================== */
 
 @media (max-width: 480px) {
 
   .hero-image-wrap {
-    height: 240px;
+    height: 230px;
   }
 
   .hero-inner {
-    padding: 32px 18px 46px;
+    padding: 30px 18px 42px;
   }
 
   .hero-title {
-    font-size: 27px;
+    font-size: 26px;
   }
 
   .hero-desc {
@@ -791,51 +881,50 @@ import { solutions } from '../router/solutions.js'
   }
 
   .grid-inner {
-    padding: 0 16px;
+    padding: 0 18px;
   }
 
   .solutions-grid-section {
-    padding: 50px 0 58px;
+    padding: 46px 0 54px;
   }
 
   .section-title {
-    font-size: 24px;
+    font-size: 23px;
   }
 
-
-  /*
-   * CARD MASIH 2 KOLOM
-   */
-
   .grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: 1fr;
 
-    gap: 10px;
+    gap: 14px;
   }
 
   .card {
-    padding: 16px;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 14px;
+
+    padding: 18px;
   }
 
   .icon-wrap {
-    width: 40px;
-    height: 40px;
+    width: 46px;
+    height: 46px;
 
-    margin-bottom: 12px;
+    margin-bottom: 0;
 
-    border-radius: 10px;
+    flex-shrink: 0;
   }
 
   .card-title {
-    font-size: 15px;
+    font-size: 16px;
 
-    line-height: 1.3;
+    margin-bottom: 6px;
   }
 
   .card-desc {
-    font-size: 12.5px;
+    font-size: 13px;
 
-    line-height: 1.5;
+    line-height: 1.55;
   }
 }
 
@@ -848,43 +937,37 @@ import { solutions } from '../router/solutions.js'
 @media (max-width: 380px) {
 
   .hero-image-wrap {
-    height: 220px;
+    height: 200px;
   }
 
   .hero-title {
-    font-size: 25px;
+    font-size: 23px;
   }
 
   .hero-desc {
-    font-size: 13px;
+    font-size: 12.5px;
   }
 
-  /*
-   * Hanya layar sangat kecil yang
-   * menggunakan 1 kolom.
-   */
-
   .grid {
-    grid-template-columns: 1fr;
-
-    gap: 14px;
+    gap: 12px;
   }
 
   .card {
-    padding: 20px;
+    padding: 15px;
+    gap: 12px;
   }
 
   .icon-wrap {
-    width: 44px;
-    height: 44px;
+    width: 40px;
+    height: 40px;
   }
 
   .card-title {
-    font-size: 17px;
+    font-size: 15px;
   }
 
   .card-desc {
-    font-size: 13px;
+    font-size: 12.5px;
   }
 }
 
