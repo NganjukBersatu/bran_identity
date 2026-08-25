@@ -463,10 +463,12 @@ onBeforeUnmount(() => {
   border: 1px solid var(--color-border);
   transition: border-color .25s ease, transform .25s ease, box-shadow .25s ease;
 }
-.service-card:hover {
-  border-color: var(--color-deep-orange);
-  transform: translateY(-6px);
-  box-shadow: 0 20px 40px -26px rgba(231, 81, 25, .4);
+@media (hover: hover) and (pointer: fine) {
+  .service-card:hover {
+    border-color: var(--color-deep-orange);
+    transform: translateY(-6px);
+    box-shadow: 0 20px 40px -26px rgba(231, 81, 25, .4);
+  }
 }
 .service-index {
   position: absolute;
@@ -616,17 +618,90 @@ onBeforeUnmount(() => {
 
 @media (max-width: 640px) {
   .section { padding: 56px 0; }
-  .hero { min-height: 480px; padding-bottom: 40px; }
+
+  /* ---------- HERO (fix mobile): gambar jadi banner tetap di atas,
+     teks mengalir NORMAL di bawahnya — tidak ada lagi overlap/ketutupan. ---------- */
+  .hero {
+    display: block;           /* keluar dari flex align-items:flex-end */
+    min-height: auto;         /* tinggi hero cuma sebesar isinya */
+    padding-bottom: 0;
+  }
+  .hero-media {
+    position: relative;       /* keluar dari absolute inset:0 */
+    inset: auto;
+    height: 220px;            /* tinggi banner gambar tetap/fix */
+    width: 100%;
+  }
+  .hero-img,
+  .hero-img-fallback {
+    -webkit-mask-image: none; /* matikan fade kanan-kiri ala desktop */
+    mask-image: none;
+    object-position: center 25%;
+  }
+  /* fade tipis di bagian bawah gambar supaya transisi ke background halus */
+  .hero-media::after {
+    content: '';
+    position: absolute;
+    inset: auto 0 0 0;
+    height: 70px;
+    background: linear-gradient(to bottom, transparent, var(--color-bg));
+    pointer-events: none;
+  }
+  .hero-fade { display: none; } /* tidak perlu lagi, gambar sudah tidak dibelakang teks */
+
+  .hero-inner {
+    padding-top: 28px;
+    padding-bottom: 40px;
+  }
+  .breadcrumb { margin-bottom: 24px; }
+  .hero-copy { max-width: 100%; }
+  .hero-title { font-size: clamp(34px, 10vw, 44px); }
+  .hero-lead { margin-top: 18px; }
+  .hero-desc { margin-top: 14px; max-width: 100%; }
+  .scroll-cue { margin-top: 32px; }
+
   .hero-img, .hero-img-fallback {
-    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,.25) 25%, #000 55%);
-    mask-image: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,.25) 25%, #000 55%);
     object-position: center 30%;
   }
-  .hero-fade { background: linear-gradient(to bottom, var(--color-bg) 0%, rgba(250,250,250,.5) 30%, transparent 55%); }
-  .services-grid { grid-template-columns: 1fr; }
+
+  /* Kartu layanan tetap 2 kolom di mobile — 1 kolom
+     membuat kartu terlalu besar/panjang di layar kecil. */
+  .services-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  .service-card { padding: 18px 16px; min-width: 0; }
+  .service-index { top: 14px; right: 16px; font-size: 11px; }
+  .service-icon {
+    width: 38px; height: 38px;
+    border-radius: 10px;
+    margin-bottom: 12px;
+  }
+  .service-icon svg { width: 20px; height: 20px; }
+  .service-card h3 {
+    font-size: 14px;
+    line-height: 1.35;
+    padding-right: 20px;
+  }
+  .service-card p {
+    margin-top: 6px;
+    font-size: 12px;
+    line-height: 1.5;
+  }
+
   .timeline { grid-template-columns: 1fr; }
   .cta-final-inner { flex-direction: column; align-items: flex-start; padding: 32px 24px; }
   .btn-cta { width: 100%; text-align: center; }
+}
+
+@media (max-width: 380px) {
+  .hero-media { height: 190px; }
+  .hero-title { font-size: clamp(30px, 9vw, 38px); }
+
+  .services-grid { gap: 10px; }
+  .service-card { padding: 15px 13px; }
+  .service-index { top: 12px; right: 13px; font-size: 10px; }
+  .service-icon { width: 34px; height: 34px; margin-bottom: 10px; }
+  .service-icon svg { width: 18px; height: 18px; }
+  .service-card h3 { font-size: 13px; padding-right: 16px; }
+  .service-card p { font-size: 11.5px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

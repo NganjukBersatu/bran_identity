@@ -13,11 +13,16 @@ const isVisible = ref(false)
 let observer = null
 
 onMounted(() => {
+  // Fallback untuk browser yang tidak support IntersectionObserver
+  if (typeof IntersectionObserver === 'undefined') {
+    isVisible.value = true
+    return
+  }
+
   observer = new IntersectionObserver(
     ([entry]) => {
       if (entry.isIntersecting) {
         isVisible.value = true
-
         // Setelah muncul, observer dihentikan
         // supaya animasi tidak berulang ketika scroll naik-turun
         observer.disconnect()
@@ -25,6 +30,7 @@ onMounted(() => {
     },
     {
       threshold: 0.15,
+      rootMargin: '0px 0px -10% 0px',
     }
   )
 
@@ -79,6 +85,7 @@ onBeforeUnmount(() => {
         <img
           src="/team/team-2.jpg"
           alt="Foto tim kami"
+          loading="lazy"
         />
       </div>
 
@@ -100,6 +107,8 @@ onBeforeUnmount(() => {
   grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
   gap: 64px;
   align-items: center;
+  max-width: 1180px;
+  margin: 0 auto;
 }
 
 
@@ -159,6 +168,7 @@ onBeforeUnmount(() => {
 
   opacity: 0;
   transform: translateY(18px);
+  will-change: opacity, transform;
 
   transition:
     opacity 0.6s ease var(--delay),
@@ -196,9 +206,18 @@ onBeforeUnmount(() => {
 
   margin-top: 1px;
 
+  opacity: 0;
+  transform: scale(0.5);
+
   transition:
-    transform 0.3s ease,
+    opacity 0.5s ease var(--delay),
+    transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) var(--delay),
     background-color 0.3s ease;
+}
+
+.whyus.is-visible .whyus__number {
+  opacity: 1;
+  transform: scale(1);
 }
 
 .whyus__list li:hover .whyus__number {
@@ -212,9 +231,11 @@ onBeforeUnmount(() => {
 
 .whyus__photo {
   min-width: 0;
+  overflow: hidden;
+  border-radius: var(--radius);
 
   opacity: 0;
-  transform: translateX(45px);
+  transform: translateX(45px) scale(0.97);
 
   transition:
     opacity 0.9s ease 0.15s,
@@ -223,7 +244,7 @@ onBeforeUnmount(() => {
 
 .whyus.is-visible .whyus__photo {
   opacity: 1;
-  transform: translateX(0);
+  transform: translateX(0) scale(1);
 }
 
 .whyus__photo img {
@@ -238,17 +259,36 @@ onBeforeUnmount(() => {
 
   border-radius: var(--radius);
 
-  transition:
-    transform 0.5s ease;
+  transition: transform 0.5s ease;
 }
 
-.whyus__photo {
-  overflow: hidden;
-  border-radius: var(--radius);
+/* Fallback untuk browser tanpa support aspect-ratio */
+@supports not (aspect-ratio: 4 / 3) {
+  .whyus__photo {
+    position: relative;
+    padding-top: 75%; /* 4:3 */
+  }
+
+  .whyus__photo img {
+    position: absolute;
+    inset: 0;
+    height: 100%;
+  }
 }
 
 .whyus__photo:hover img {
   transform: scale(1.03);
+}
+
+
+/* =====================================================
+   LARGE DESKTOP
+===================================================== */
+
+@media (min-width: 1200px) {
+  .whyus__inner {
+    gap: 80px;
+  }
 }
 
 
@@ -304,11 +344,12 @@ onBeforeUnmount(() => {
   }
 
   .whyus__photo {
-    transform: translateY(30px);
+    order: -1;
+    transform: translateY(30px) scale(0.98);
   }
 
   .whyus.is-visible .whyus__photo {
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
   }
 
   .whyus__text h2 {
@@ -380,13 +421,57 @@ onBeforeUnmount(() => {
 
 
 /* =====================================================
+   EXTRA SMALL MOBILE
+===================================================== */
+
+@media (max-width: 380px) {
+  .whyus__inner {
+    gap: 20px;
+  }
+
+  .whyus__text h2 {
+    font-size: 21px;
+    margin-bottom: 16px;
+  }
+
+  .whyus__list li {
+    font-size: 12.5px;
+    gap: 8px;
+  }
+
+  .whyus__number {
+    flex: 0 0 24px;
+    width: 24px;
+    height: 24px;
+    font-size: 10.5px;
+  }
+}
+
+
+/* =====================================================
+   LANDSCAPE / SHORT VIEWPORT
+===================================================== */
+
+@media (max-height: 480px) and (orientation: landscape) {
+  .whyus__inner {
+    gap: 24px;
+  }
+
+  .whyus__photo img {
+    aspect-ratio: 16 / 9;
+  }
+}
+
+
+/* =====================================================
    REDUCED MOTION
 ===================================================== */
 
 @media (prefers-reduced-motion: reduce) {
   .whyus__text,
   .whyus__photo,
-  .whyus__list li {
+  .whyus__list li,
+  .whyus__number {
     opacity: 1;
     transform: none;
     transition: none;

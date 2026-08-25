@@ -464,7 +464,6 @@ const scheduleCloseDropdown = () => {
 const cancelCloseDropdown = () => {
   if (closeTimer) {
     clearTimeout(closeTimer)
-    closeTimer = null
   }
 
   dropdownOpen.value = true
@@ -586,6 +585,28 @@ onUnmounted(() => {
   box-shadow: none;
 
   backdrop-filter: none;
+}
+
+/* Gradient tipis di belakang navbar transparan, independen dari
+   scrim hero — jaga-jaga supaya teks navbar tetap kebaca meski
+   bagian atas foto hero kebetulan terang. */
+.navbar-transparent::before {
+  content: '';
+
+  position: absolute;
+
+  inset: 0;
+
+  z-index: -1;
+
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.35) 0%,
+    rgba(0, 0, 0, 0.15) 60%,
+    rgba(0, 0, 0, 0) 100%
+  );
+
+  pointer-events: none;
 }
 
 
