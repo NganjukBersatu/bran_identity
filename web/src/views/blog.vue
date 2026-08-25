@@ -384,9 +384,13 @@ onBeforeUnmount(() => observer?.disconnect())
 .btn-light { background: #fff; color: var(--color-red); }
 .btn-light:hover { background: var(--color-yellow); }
 
-/* ===== INTRO ===== */
+/* ===== INTRO =====
+   NOTE: navbar is `position: fixed` with height 88px (desktop) /
+   76px (<=900px) / 70px (<=480px). padding-top here is kept
+   comfortably above the navbar height at every breakpoint so the
+   eyebrow/title never sits under the fixed header. */
 .blog-intro {
-  padding: 90px 0 55px;
+  padding: 96px 0 55px;
   background: radial-gradient(circle at 90% 0%, rgba(251,159,55,.13), transparent 32%), var(--color-bg);
 }
 .intro-container {
@@ -904,7 +908,8 @@ onBeforeUnmount(() => observer?.disconnect())
 @media (max-width: 760px) {
   .container { padding: 0 20px; }
   .section { padding: 70px 0; }
-  .blog-intro { padding: 65px 0 45px; }
+  /* navbar is 76px tall in this range — keep comfortably above it */
+  .blog-intro { padding: 96px 0 45px; }
   .intro-container { grid-template-columns: 1fr; gap: 25px; }
   .intro-left h1 { font-size: 46px; }
   .intro-right { padding-bottom: 0; }
@@ -925,7 +930,7 @@ onBeforeUnmount(() => observer?.disconnect())
 
 @media (max-width: 520px) {
   .container { padding: 0 18px; }
-  .blog-intro { padding: 48px 0 38px; }
+  .blog-intro { padding: 96px 0 38px; }
   .intro-left h1 { font-size: 37px; letter-spacing: -.045em; }
   .intro-right p { font-size: 14px; }
   .intro-links { flex-wrap: wrap; gap: 17px; }
@@ -964,5 +969,10 @@ onBeforeUnmount(() => observer?.disconnect())
   .circle-one { width: 160px; height: 160px; }
   .circle-two { width: 105px; height: 105px; }
   .cta-center { width: 55px; height: 55px; font-size: 20px; }
+}
+
+@media (max-width: 480px) {
+  /* navbar shrinks to 70px at this breakpoint too */
+  .blog-intro { padding: 86px 0 34px; }
 }
 </style>

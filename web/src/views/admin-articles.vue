@@ -149,8 +149,8 @@ function handleLogout() {
   --font-body: 'Inter', sans-serif;
 
   min-height: 100vh;
-padding: 120px 24px 40px;
-background: var(--color-bg);
+  padding: 120px 24px 40px;
+  background: var(--color-bg);
 }
 
 .admin-container { max-width: 860px; margin: 0 auto; }
@@ -227,7 +227,7 @@ input:focus, select:focus, textarea:focus { outline: none; border-color: var(--c
 .btn-primary:hover { opacity: .93; }
 .btn-outline { background: transparent; border: 1px solid var(--color-border); color: var(--color-text); flex-shrink: 0; }
 .btn-outline:hover { border-color: var(--color-red); color: var(--color-red); }
-.btn-danger { background: transparent; color: var(--color-red); border: 1px solid var(--color-border); }
+.btn-danger { background: transparent; color: var(--color-red); border: 1px solid var(--color-border); flex-shrink: 0; }
 .btn-danger:hover { background: var(--color-red); color: #fff; }
 
 .article-table { display: flex; flex-direction: column; gap: 10px; }
@@ -243,14 +243,60 @@ input:focus, select:focus, textarea:focus { outline: none; border-color: var(--c
   background: var(--color-surface);
 }
 
-.row-thumb { width: 64px; height: 48px; object-fit: cover; border-radius: 6px; }
-.row-info { display: flex; flex-direction: column; gap: 3px; font-size: 13px; }
+.row-thumb { width: 64px; height: 48px; object-fit: cover; border-radius: 6px; flex-shrink: 0; }
+
+.row-info {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-size: 13px;
+  min-width: 0; /* penting: biar teks bisa wrap/truncate, tidak mendorong kolom lain */
+}
+.row-info strong {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  line-height: 1.35;
+}
 .row-category { color: var(--color-deep-orange); font-size: 10px; font-weight: 700; text-transform: uppercase; }
 .row-date { color: var(--color-text-secondary); font-size: 11px; }
 
+/* ===== Responsive ===== */
+@media (max-width: 768px) {
+  .admin-page { padding: 100px 16px 32px; }
+}
+
 @media (max-width: 560px) {
   .admin-header { flex-direction: column; align-items: flex-start; gap: 12px; }
-  .article-row { grid-template-columns: 50px 1fr; }
-  .btn-danger { grid-column: 1 / -1; }
+  h1 { font-size: 21px; }
+
+  .admin-toolbar { flex-direction: column; align-items: flex-start; gap: 10px; }
+  .admin-toolbar .btn { align-self: stretch; text-align: center; }
+
+  /* Row artikel: thumbnail + info sejajar di baris pertama,
+     tombol hapus turun ke baris kedua full width, dengan jarak yang cukup */
+  .article-row {
+    grid-template-columns: 56px 1fr;
+    grid-template-rows: auto auto;
+    row-gap: 10px;
+    column-gap: 12px;
+    padding: 12px 14px;
+  }
+  .row-thumb { width: 56px; height: 44px; }
+  .row-info { font-size: 12.5px; }
+  .row-info strong { font-size: 13px; }
+  .btn-danger {
+    grid-column: 1 / -1;
+    width: 100%;
+    text-align: center;
+    padding: 9px 16px;
+  }
+}
+
+@media (max-width: 400px) {
+  .admin-page { padding: 92px 12px 28px; }
+  .article-row { padding: 10px 12px; column-gap: 10px; }
+  .row-thumb { width: 50px; height: 40px; }
 }
 </style>

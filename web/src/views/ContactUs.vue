@@ -468,6 +468,10 @@ textarea {
 
 /* =========================================================
    RESPONSIVE
+   NOTE: navbar is `position: fixed` with height 88px (desktop) /
+   76px (<=900px) / 70px (<=480px). padding-top on .contact-page
+   is kept comfortably above the navbar height at every breakpoint
+   so "GET IN TOUCH" / the H1 never sits under the fixed header.
 ========================================================= */
 
 @media (max-width: 1100px) {
@@ -501,7 +505,8 @@ textarea {
 
 @media (max-width: 768px) {
   .contact-page {
-    padding: 60px 20px;
+    /* navbar is 76px tall in this range — keep comfortably above it */
+    padding: 92px 20px 60px;
   }
 
   .page-title {
@@ -528,7 +533,8 @@ textarea {
 
 @media (max-width: 480px) {
   .contact-page {
-    padding: 48px 16px;
+    /* navbar shrinks to 70px at this breakpoint */
+    padding: 82px 16px 48px;
   }
 
   .page-title {

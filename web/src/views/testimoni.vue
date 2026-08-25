@@ -10,8 +10,8 @@
         </span>
 
         <h1 class="bi-hero__title reveal" style="transition-delay:.08s">
-          Produk digital yang dirancang untuk
-          <span>pertumbuhan bisnis Anda</span>
+          <span class="bi-hero__title-line">Produk digital yang dirancang untuk</span>
+          <span class="bi-hero__title-accent">pertumbuhan bisnis Anda</span>
         </h1>
 
         <p class="bi-hero__desc reveal" style="transition-delay:.16s">
@@ -21,15 +21,10 @@
         </p>
 
         <div class="bi-hero__actions reveal" style="transition-delay:.24s">
-          <a
-            href="https://wa.me/6281234567890?text=Halo%20Brand%20Identity%2C%20saya%20ingin%20konsultasi%20proyek."
-            target="_blank"
-            rel="noopener"
-            class="btn btn-primary"
-          >
+          <router-link to="/contact" class="btn btn-primary">
             Mulai Proyek Anda
             <span class="btn__arrow">→</span>
-          </a>
+          </router-link>
           <a href="#testimoni" class="btn btn-secondary">Baca Cerita Klien</a>
         </div>
       </div>
@@ -54,8 +49,7 @@
     <section class="bi-testi" id="testimoni">
       <div class="container">
         <div class="bi-testi__head">
-          <span class="eyebrow reveal">
-            <span class="eyebrow__dot"></span>
+          <span class="eyebrow eyebrow--plain reveal">
             Cerita Klien
           </span>
           <h2 class="bi-testi__title reveal" style="transition-delay:.08s">Cerita dari Klien Kami</h2>
@@ -197,9 +191,9 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@500;600;700;800&display=swap');
 
-/* ===== Variables & base ===== */
+/* ===== Variables & base (warna tidak diubah) ===== */
 .bi-page {
   --color-yellow: #FCEF92;
   --color-orange: #FB9F37;
@@ -214,7 +208,13 @@ onBeforeUnmount(() => {
   --font-body: 'Inter', sans-serif;
   --container-width: 1160px;
   --radius: 12px;
-  --navbar-height: 80px; /* sesuaikan dengan tinggi navbar Anda */
+
+  /* PENTING: ganti sesuai tinggi navbar ASLI kamu.
+     Cek lewat DevTools -> klik elemen <nav> -> tab Computed -> lihat "height".
+     Cek juga di mode mobile (375px), karena navbar mobile biasanya
+     tingginya beda dari navbar desktop. */
+  --navbar-height: 80px;
+  --navbar-height-mobile: 64px;
 
   min-height: 100vh;
   font-family: var(--font-body);
@@ -270,16 +270,75 @@ onBeforeUnmount(() => {
 }
 .eyebrow__dot { width: 6px; height: 6px; border-radius: 50%; background: var(--color-red); box-shadow: 0 0 0 3px rgba(235, 43, 12, .12); }
 
+/* Varian eyebrow polos ala "Karya Kami": tanpa dot, tanpa background pill */
+.eyebrow--plain {
+  background: none;
+  padding: 0;
+  margin-bottom: 10px;
+  font-size: 11px;
+  letter-spacing: .1em;
+}
+
 /* ===== Hero ===== */
 .bi-hero {
-  padding: calc(72px + var(--navbar-height)) 0 60px;
-  text-align: center; background: var(--color-bg); border-bottom: 1px solid var(--color-border);
+  padding-top: calc(var(--navbar-height) + 88px);
+  padding-bottom: 76px;
+  text-align: center;
+  background: var(--color-bg);
+  border-bottom: 1px solid var(--color-border);
 }
-.bi-hero__inner { max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; }
-.bi-hero__title { max-width: 850px; font-size: clamp(32px, 4vw, 40px); line-height: 1.18; letter-spacing: -1.3px; margin-bottom: 17px; }
-.bi-hero__title span { color: var(--color-red); }
-.bi-hero__desc { max-width: 620px; font-size: 14px; line-height: 1.75; color: var(--color-text-secondary); margin-bottom: 25px; }
-.bi-hero__actions { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+.bi-hero__inner {
+  max-width: 780px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.bi-hero__title {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-width: 720px;
+  margin-bottom: 22px;
+}
+.bi-hero__title-line {
+  font-size: clamp(26px, 3.2vw, 34px);
+  font-weight: 500;
+  line-height: 1.28;
+  letter-spacing: -0.3px;
+  color: var(--color-text-secondary);
+}
+.bi-hero__title-accent {
+  font-size: clamp(34px, 4.6vw, 48px);
+  font-weight: 800;
+  line-height: 1.14;
+  letter-spacing: -1.4px;
+  background: linear-gradient(90deg, var(--color-deep-orange), var(--color-red));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.bi-hero__desc {
+  max-width: 560px;
+  font-size: 15px;
+  line-height: 1.8;
+  color: var(--color-text-secondary);
+  margin-bottom: 32px;
+}
+
+.bi-hero__actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.bi-hero .btn-primary,
+.bi-hero .btn-secondary {
+  padding: 13px 24px;
+  font-size: 14px;
+}
 
 /* ===== Stats ===== */
 .bi-stats { background: var(--color-surface); border-bottom: 1px solid var(--color-border); }
@@ -331,14 +390,22 @@ onBeforeUnmount(() => {
 }
 
 @media (max-width: 900px) {
-  .bi-hero__title { max-width: 750px; }
+  .bi-hero__inner { max-width: 640px; }
 }
 
 @media (max-width: 640px) {
   .container { width: min(100% - 30px, var(--container-width)); }
-  .bi-hero { padding: calc(52px + var(--navbar-height)) 0 45px; }
-  .bi-hero__title { font-size: 29px; line-height: 1.2; letter-spacing: -.8px; }
-  .bi-hero__desc { font-size: 13px; line-height: 1.7; }
+
+  .bi-hero {
+    padding-top: calc(var(--navbar-height-mobile) + 60px);
+    padding-bottom: 52px;
+  }
+  .bi-hero__title { gap: 2px; margin-bottom: 16px; }
+  .bi-hero__title-line { font-size: 19px; }
+  .bi-hero__title-accent { font-size: 27px; letter-spacing: -0.8px; }
+  .bi-hero__desc { font-size: 13px; line-height: 1.7; margin-bottom: 24px; }
+  .bi-hero .btn-primary, .bi-hero .btn-secondary { padding: 11px 18px; font-size: 13px; }
+
   .bi-stats__row { padding: 22px 0; }
   .bi-stat__num { font-size: 20px; }
   .bi-stat__label { font-size: 9px; }
@@ -348,7 +415,9 @@ onBeforeUnmount(() => {
 }
 
 @media (max-width: 430px) {
-  .bi-hero__title { font-size: 27px; }
+  .bi-hero { padding-top: calc(var(--navbar-height-mobile) + 44px); }
+  .bi-hero__title-line { font-size: 17px; }
+  .bi-hero__title-accent { font-size: 24px; }
   .bi-hero__desc { font-size: 12px; }
   .bi-hero__actions { width: 100%; }
   .bi-hero__actions .btn { width: 100%; }

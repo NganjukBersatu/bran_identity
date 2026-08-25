@@ -299,8 +299,20 @@ onBeforeUnmount(() => {
 </template>
 
 <style scoped>
+/*
+  PENTING:
+  Ganti nilai di bawah ini sesuai tinggi navbar asli kamu.
+  Cara ceknya: buka DevTools -> klik elemen <nav> / navbar -> lihat
+  "height" di panel Computed/Box Model. Kalau navbar-mu berubah
+  tinggi di mobile, sesuaikan juga di media query paling bawah.
+*/
 .portfolio-page {
-  padding: 100px 6% 120px;
+  --navbar-height: 80px;
+
+  /* sebelumnya: padding: 100px 6% 120px;  <-- ini penyebab mepet navbar */
+  padding-top: calc(var(--navbar-height) + 60px);
+  padding-inline: 6%;
+  padding-bottom: 120px;
   background: var(--color-bg);
 }
 
@@ -501,7 +513,9 @@ onBeforeUnmount(() => {
 
 @media (max-width: 1024px) {
   .portfolio-page {
-    padding: 90px 5% 100px;
+    padding-top: calc(var(--navbar-height) + 40px);
+    padding-inline: 5%;
+    padding-bottom: 100px;
   }
 
   .portfolio-grid {
@@ -511,7 +525,9 @@ onBeforeUnmount(() => {
 
 @media (max-width: 860px) {
   .portfolio-page {
-    padding: 80px 5% 90px;
+    padding-top: calc(var(--navbar-height) + 30px);
+    padding-inline: 5%;
+    padding-bottom: 90px;
   }
 
   .portfolio-hero {
@@ -552,7 +568,9 @@ onBeforeUnmount(() => {
 
 @media (max-width: 640px) {
   .portfolio-page {
-    padding: 64px 20px 72px;
+    padding-top: calc(var(--navbar-height) + 24px);
+    padding-inline: 20px;
+    padding-bottom: 72px;
   }
 
   .portfolio-hero {
@@ -601,7 +619,9 @@ onBeforeUnmount(() => {
 
 @media (max-width: 420px) {
   .portfolio-page {
-    padding: 48px 16px 56px;
+    padding-top: calc(var(--navbar-height) + 20px);
+    padding-inline: 16px;
+    padding-bottom: 56px;
   }
 
   .portfolio-hero h1 {
