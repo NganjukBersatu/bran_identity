@@ -316,10 +316,9 @@ export const projects = [
     liveUrl: '',
     description:
       'Website listing properti sewa dengan fitur pencarian lokasi dan filter harga.',
-    coverImage:
-      'https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=1200&q=85',
+    coverImage: '/portfolio/griya.jpg',
     gallery: [
-      'https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=900&q=85'
+      '/portfolio/griya.jpg'
     ]
   },
   {
@@ -335,10 +334,9 @@ export const projects = [
     liveUrl: '',
     description:
       'Landing page untuk platform agriteknologi yang menghubungkan petani dengan pasar digital.',
-    coverImage:
-      'https://images.unsplash.com/photo-1500595046743-cd271d694d30?auto=format&fit=crop&w=1200&q=85',
+    coverImage: '/portfolio/perternakan.jpg',
     gallery: [
-      'https://images.unsplash.com/photo-1500595046743-cd271d694d30?auto=format&fit=crop&w=900&q=85'
+      '/portfolio/perternakan.jpg'
     ]
   },
   {
@@ -373,10 +371,9 @@ export const projects = [
     liveUrl: '',
     description:
       'Perancangan identitas visual untuk platform marketplace digital lokal.',
-    coverImage:
-      'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&w=1200&q=85',
+    coverImage: '/portfolio/pasar.jpg',
     gallery: [
-      'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&w=900&q=85'
+      '/portfolio/pasar.jpg'
     ]
   },
   {
