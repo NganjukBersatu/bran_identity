@@ -18,6 +18,54 @@ function setCategory(category) {
   activeCategory.value = category
 }
 
+/* ---------- FEATURED ARTICLE: auto-rotate ganti sendiri ---------- */
+const featuredIndex = ref(0)
+const AUTO_ROTATE_MS = 3000 // ganti tiap 3 detik, bisa disesuaikan
+let rotateTimer = null
+let isPaused = false
+
+// featured article sekarang diambil dari featuredIndex, bukan articles[0] statis
+const featuredArticle = computed(() => articles.value[featuredIndex.value] || null)
+const totalArticles = computed(() => articles.value.length)
+
+function goToFeatured(index) {
+  const len = articles.value.length
+  if (!len) return
+  featuredIndex.value = ((index % len) + len) % len
+}
+
+function nextFeatured() {
+  goToFeatured(featuredIndex.value + 1)
+}
+
+function startRotation() {
+  stopRotation()
+  if (articles.value.length <= 1) return
+  rotateTimer = setInterval(() => {
+    if (!isPaused) nextFeatured()
+  }, AUTO_ROTATE_MS)
+}
+
+function stopRotation() {
+  if (rotateTimer) {
+    clearInterval(rotateTimer)
+    rotateTimer = null
+  }
+}
+
+// jeda auto-rotate saat kursor ada di atas kartu featured (biar user nyaman baca)
+function pauseRotation() { isPaused = true }
+function resumeRotation() { isPaused = false }
+
+// kalau data articles berubah (misal fetch API selesai / berubah panjang), reset & mulai ulang rotasi
+watch(
+  () => articles.value.length,
+  (len) => {
+    if (featuredIndex.value >= len) featuredIndex.value = 0
+    startRotation()
+  }
+)
+
 /* ---------- scroll-reveal ---------- */
 let observer = null
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
@@ -51,6 +99,7 @@ onMounted(async () => {
   }
   await nextTick()
   bindReveal()
+  startRotation()
 })
 
 watch(filteredArticles, async () => {
@@ -58,7 +107,10 @@ watch(filteredArticles, async () => {
   bindReveal()
 })
 
-onBeforeUnmount(() => observer?.disconnect())
+onBeforeUnmount(() => {
+  observer?.disconnect()
+  stopRotation()
+})
 </script>
 
 <template>
@@ -89,7 +141,7 @@ onBeforeUnmount(() => observer?.disconnect())
       <div class="container">
         <div class="info-grid">
           <div class="info-item reveal reveal--up">
-            <span class="info-number">06</span>
+            <span class="info-number">{{ String(totalArticles).padStart(2, '0') }}</span>
             <div>
               <strong>Artikel terbaru</strong>
               <p>Insight teknologi dan bisnis</p>
@@ -120,7 +172,7 @@ onBeforeUnmount(() => observer?.disconnect())
       </div>
     </section>
 
-    <!-- FEATURED -->
+    <!-- FEATURED (sekarang dinamis, auto ganti sendiri) -->
     <section id="featured" class="section featured-section">
       <div class="container">
         <div class="section-heading reveal reveal--up">
@@ -135,30 +187,55 @@ onBeforeUnmount(() => observer?.disconnect())
           </p>
         </div>
 
-        <article class="featured-card reveal reveal--scale" style="--reveal-delay: 140ms">
-          <div class="featured-image">
-            <img :src="articles[0]?.image" :alt="articles[0]?.title" />
-            <div class="featured-overlay"></div>
-            <div class="image-label">{{ articles[0]?.category }}</div>
-            <div class="image-caption">
-              <span>01</span>
-              <span>Featured insight</span>
+        <article
+          v-if="featuredArticle"
+          class="featured-card reveal reveal--scale"
+          style="--reveal-delay: 140ms"
+          @mouseenter="pauseRotation"
+          @mouseleave="resumeRotation"
+        >
+          <Transition name="fade-swap">
+            <div class="featured-inner" :key="featuredArticle.id">
+              <div class="featured-image">
+                <img :src="featuredArticle.image" :alt="featuredArticle.title" />
+                <div class="featured-overlay"></div>
+                <div class="image-label">{{ featuredArticle.category }}</div>
+                <div class="image-caption">
+                  <span>{{ String(featuredIndex + 1).padStart(2, '0') }}</span>
+                  <span>Featured insight</span>
+                </div>
+              </div>
+              <div class="featured-content">
+                <div class="article-meta">
+                  <span>{{ featuredArticle.date }}</span>
+                  <span class="meta-line"></span>
+                  <span>{{ featuredArticle.readTime }}</span>
+                </div>
+                <h3>{{ featuredArticle.title }}</h3>
+                <p>{{ featuredArticle.excerpt }}</p>
+                <div class="featured-bottom">
+                  <router-link :to="`/blog/${featuredArticle.id}`" class="read-more">
+                    Baca selengkapnya <span>↗</span>
+                  </router-link>
+                  <span class="article-number">
+                    {{ String(featuredIndex + 1).padStart(2, '0') }} / {{ String(totalArticles).padStart(2, '0') }}
+                  </span>
+                </div>
+              </div>
             </div>
-          </div>
-          <div class="featured-content">
-            <div class="article-meta">
-              <span>{{ articles[0]?.date }}</span>
-              <span class="meta-line"></span>
-              <span>{{ articles[0]?.readTime }}</span>
-            </div>
-            <h3>{{ articles[0]?.title }}</h3>
-            <p>{{ articles[0]?.excerpt }}</p>
-            <div class="featured-bottom">
-              <router-link :to="`/blog/${articles[0]?.id}`" class="read-more">
-                Baca selengkapnya <span>↗</span>
-              </router-link>
-              <span class="article-number">01 / 06</span>
-            </div>
+          </Transition>
+
+          <!-- dot navigation, klik untuk pindah manual -->
+          <div class="featured-dots" v-if="totalArticles > 1">
+            <button
+              v-for="(a, i) in articles"
+              :key="a.id"
+              type="button"
+              class="featured-dot"
+              :class="{ active: i === featuredIndex }"
+              :aria-label="`Lihat artikel ${i + 1}`"
+              @click="goToFeatured(i)"
+            ></button>
           </div>
         </article>
       </div>
@@ -510,13 +587,16 @@ onBeforeUnmount(() => observer?.disconnect())
 /* ===== FEATURED ===== */
 .featured-section { background: var(--color-surface); }
 .featured-card {
-  display: grid;
-  grid-template-columns: 1.08fr .92fr;
-  min-height: 440px;
+  position: relative;
   overflow: hidden;
   border: 1px solid var(--color-border);
   border-radius: 20px;
   background: var(--color-bg);
+}
+.featured-inner {
+  display: grid;
+  grid-template-columns: 1.08fr .92fr;
+  min-height: 440px;
 }
 .featured-image {
   position: relative;
@@ -626,6 +706,55 @@ onBeforeUnmount(() => observer?.disconnect())
   color: #aaa;
   font-family: var(--font-heading);
   font-size: 11px;
+}
+
+/* transisi fade saat featured berganti otomatis
+   - tanpa mode="out-in" -> yang baru & lama saling tumpuk (crossfade), tidak ada jeda kosong
+   - yang lama dibuat absolute saat keluar, supaya yang baru langsung punya tinggi yang benar
+     dan tidak ada "lompatan" tinggi kartu
+   - tanpa transform, murni opacity, supaya terasa lebih soft/tidak nyentak */
+.fade-swap-enter-active,
+.fade-swap-leave-active {
+  transition: opacity .4s cubic-bezier(.33, 1, .68, 1), transform .4s cubic-bezier(.33, 1, .68, 1);
+}
+.fade-swap-enter-from {
+  opacity: 0;
+  transform: scale(.985);
+}
+.fade-swap-leave-to {
+  opacity: 0;
+  transform: scale(1.015);
+}
+.fade-swap-leave-active {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+}
+
+/* titik navigasi featured */
+.featured-dots {
+  position: absolute;
+  right: 24px;
+  bottom: 24px;
+  z-index: 3;
+  display: flex;
+  gap: 8px;
+}
+.featured-dot {
+  width: 8px;
+  height: 8px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(26,26,26,.18);
+  cursor: pointer;
+  transition: background .2s ease, transform .2s ease, width .2s ease;
+}
+.featured-dot:hover { background: rgba(26,26,26,.35); }
+.featured-dot.active {
+  width: 22px;
+  border-radius: 5px;
+  background: var(--color-red);
 }
 
 /* ===== ARTICLES ===== */
@@ -898,7 +1027,7 @@ onBeforeUnmount(() => observer?.disconnect())
   .info-item:nth-child(2) { border-right: 0; }
   .info-item:nth-child(-n+2) { border-bottom: 1px solid var(--color-border); }
   .section-heading, .article-header { grid-template-columns: 1fr 300px; gap: 30px; }
-  .featured-card { grid-template-columns: 1fr 1fr; }
+  .featured-inner { grid-template-columns: 1fr 1fr; }
   .featured-content { padding: 38px; }
   .article-grid { grid-template-columns: repeat(2, 1fr); }
   .topics-wrapper { grid-template-columns: 1fr 1fr; gap: 45px; }
@@ -919,9 +1048,10 @@ onBeforeUnmount(() => observer?.disconnect())
   .info-item:first-child { padding-left: 17px; }
   .section-heading, .article-header { grid-template-columns: 1fr; gap: 18px; }
   .section-heading h2, .article-header h2 { font-size: 38px; }
-  .featured-card { grid-template-columns: 1fr; }
+  .featured-inner { grid-template-columns: 1fr; }
   .featured-image { min-height: 320px; }
   .featured-content { padding: 32px; }
+  .featured-dots { right: 16px; bottom: 16px; }
   .topics-wrapper { grid-template-columns: 1fr; gap: 45px; }
   .topics-content h2 { font-size: 40px; }
   .cta-card { min-height: 390px; padding: 40px 30px; }

@@ -57,34 +57,83 @@
             Kepercayaan dibangun dari hasil kerja, bukan janji. Berikut cerita
             mereka setelah bekerja sama dengan kami.
           </p>
+
+          <button
+            type="button"
+            class="btn btn-primary bi-testi__cta reveal"
+            style="transition-delay:.22s"
+            @click="openModal"
+          >
+            Bagikan Ulasan Anda
+            <span class="btn__arrow">→</span>
+          </button>
         </div>
 
         <div class="bi-grid">
           <article
             v-for="(t, i) in testimonials"
-            :key="t.name"
-            class="bi-card reveal"
-            :style="{ transitionDelay: `${(i % 4) * 0.1}s` }"
+            :key="t.id"
+            class="bi-card"
+            :class="{ reveal: !t.isNew, 'is-visible': t.isNew }"
+            :style="{ transitionDelay: t.isNew ? '0s' : `${(i % 4) * 0.08}s` }"
           >
-            <span class="bi-card__quotemark">"</span>
-            <p class="bi-card__quote">{{ t.quote }}</p>
+            <!-- Menu titik tiga -->
+            <div class="bi-card__menu">
+              <button
+                type="button"
+                class="bi-card__menu-trigger"
+                :aria-expanded="openMenuId === t.id"
+                aria-label="Menu ulasan"
+                @click.stop="toggleMenu(t.id)"
+              >
+                ⋮
+              </button>
 
-            <div class="bi-card__stars" :aria-label="`Rating ${t.rating} dari 5`">
-              <span
-                v-for="n in 5"
-                :key="n"
-                class="bi-star"
-                :class="{ 'bi-star--off': n > t.rating }"
-              >★</span>
+              <div v-if="openMenuId === t.id" class="bi-card__menu-dropdown">
+                <button
+                  type="button"
+                  class="bi-card__menu-item bi-card__menu-item--danger"
+                  @click="deleteTestimonial(t.id)"
+                >
+                  Hapus
+                </button>
+              </div>
             </div>
 
-            <div class="bi-card__footer">
-              <img :src="t.photo" :alt="t.name" class="bi-card__avatar" />
+            <div class="bi-card__header">
+              <img
+                v-if="t.photo"
+                :src="t.photo"
+                :alt="t.name"
+                class="bi-card__avatar"
+              />
+              <div
+                v-else
+                class="bi-card__avatar bi-card__avatar--initials"
+                :style="{ background: getAvatarColor(t.name) }"
+              >
+                {{ getInitials(t.name) }}
+              </div>
+
               <div class="bi-card__who">
                 <strong>{{ t.name }}</strong>
                 <span>{{ t.role }}, {{ t.company }}</span>
               </div>
             </div>
+
+            <div class="bi-card__meta">
+              <div class="bi-card__stars" :aria-label="`Rating ${t.rating} dari 5`">
+                <span
+                  v-for="n in 5"
+                  :key="n"
+                  class="bi-star"
+                  :class="{ 'bi-star--off': n > t.rating }"
+                >★</span>
+              </div>
+              <span class="bi-card__time">{{ formatTime(t.createdAt) }}</span>
+            </div>
+
+            <p class="bi-card__quote">{{ t.quote }}</p>
           </article>
         </div>
       </div>
@@ -103,11 +152,128 @@
       </div>
     </section>
 
+    <!-- ================= MODAL FORM ULASAN ================= -->
+    <Teleport to="body">
+      <Transition name="modal">
+        <div
+          v-if="isModalOpen"
+          class="bi-modal-overlay"
+          @click.self="closeModal"
+        >
+          <div class="bi-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+            <div class="bi-modal__header">
+              <div>
+                <h3 id="modal-title" class="bi-modal__title">Bagikan Ulasan Anda</h3>
+                <p class="bi-modal__subtitle">Bagikan rating dan cerita pengalaman Anda bersama kami.</p>
+              </div>
+              <button
+                type="button"
+                class="bi-modal__close"
+                aria-label="Tutup"
+                @click="closeModal"
+              >
+                ×
+              </button>
+            </div>
+
+            <form class="bi-form" @submit.prevent="submitTestimonial">
+              <div class="bi-form__row">
+                <div class="bi-form__group">
+                  <label for="name">Nama Lengkap</label>
+                  <input
+                    id="name"
+                    v-model.trim="form.name"
+                    type="text"
+                    placeholder="Contoh: Bagas Wirawan"
+                    required
+                    autofocus
+                  />
+                </div>
+                <div class="bi-form__group">
+                  <label for="role">Jabatan / Role</label>
+                  <input
+                    id="role"
+                    v-model.trim="form.role"
+                    type="text"
+                    placeholder="Contoh: Co-Founder"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div class="bi-form__group">
+                <label for="company">Perusahaan / Brand</label>
+                <input
+                  id="company"
+                  v-model.trim="form.company"
+                  type="text"
+                  placeholder="Contoh: Belanja Cepat"
+                  required
+                />
+              </div>
+
+              <div class="bi-form__group">
+                <label>Rating</label>
+                <div class="bi-form__stars" role="radiogroup" aria-label="Pilih rating">
+                  <button
+                    v-for="n in 5"
+                    :key="n"
+                    type="button"
+                    class="bi-form-star"
+                    :class="{ 'bi-form-star--active': n <= (hoverRating || form.rating) }"
+                    :aria-label="`${n} bintang`"
+                    @click="form.rating = n"
+                    @mouseenter="hoverRating = n"
+                    @mouseleave="hoverRating = 0"
+                  >
+                    ★
+                  </button>
+                </div>
+                <p class="bi-form__rating-text">
+                  {{ form.rating ? `${form.rating} dari 5 bintang` : 'Pilih rating Anda' }}
+                </p>
+              </div>
+
+              <div class="bi-form__group">
+                <label for="quote">Ulasan / Cerita Anda</label>
+                <textarea
+                  id="quote"
+                  v-model.trim="form.quote"
+                  rows="4"
+                  placeholder="Ceritakan pengalaman Anda bekerja sama dengan kami..."
+                  required
+                ></textarea>
+              </div>
+
+              <div class="bi-form__actions">
+                <button type="submit" class="btn btn-primary" :disabled="!canSubmit">
+                  Kirim Ulasan
+                  <span class="btn__arrow">→</span>
+                </button>
+                <button type="button" class="btn btn-secondary" @click="closeModal">
+                  Batal
+                </button>
+              </div>
+
+              <p v-if="formSuccess" class="bi-form__success">
+                Terima kasih! Ulasan Anda berhasil ditambahkan.
+              </p>
+              <p v-if="formError" class="bi-form__error">
+                {{ formError }}
+              </p>
+            </form>
+          </div>
+        </div>
+      </Transition>
+    </Teleport>
+
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount, watch, nextTick } from 'vue'
+
+const STORAGE_KEY = 'bi-testimonials'
 
 const stats = [
   { num: '120+', label: 'Proyek selesai' },
@@ -115,60 +281,302 @@ const stats = [
   { num: '4.9/5', label: 'Rating rata-rata' }
 ]
 
-const testimonials = ref([
-  { name: 'Bagas Wirawan', role: 'Co-Founder', company: 'Belanja Cepat', photo: 'https://i.pravatar.cc/120?img=52', rating: 5,
-    quote: 'Sprint pertama sempat meleset seminggu karena scope kami sendiri yang berubah. Tim Brand Identity jujur soal itu daripada diam-diam mengejar deadline dengan kualitas seadanya.' },
+/* ===== DATA DEFAULT ===== */
+const defaultTestimonials = [
+  {
+    id: 1,
+    name: 'Bagas Wirawan',
+    role: 'Co-Founder',
+    company: 'Belanja Cepat',
+    photo: 'https://i.pravatar.cc/120?img=52',
+    rating: 5,
+    quote: 'Sprint pertama sempat meleset seminggu karena scope kami sendiri yang berubah. Tim Brand Identity jujur soal itu daripada diam-diam mengejar deadline dengan kualitas seadanya.',
+    createdAt: Date.now() - 1000 * 60 * 60 * 24 * 60
+  },
+  {
+    id: 2,
+    name: 'Nadia Puspita',
+    role: 'Head of Growth',
+    company: 'Sehat Yuk Health',
+    photo: 'https://i.pravatar.cc/120?img=47',
+    rating: 5,
+    quote: 'Conversion rate naik dari 1,8% ke 3,4% dalam dua bulan setelah landing page baru live. Bukan angka fantastis, tapi nyata dan bisa kami audit sendiri.',
+    createdAt: Date.now() - 1000 * 60 * 60 * 24 * 90
+  },
+  {
+    id: 3,
+    name: 'Rio Aditya',
+    role: 'CTO',
+    company: 'Pasar Digital ID',
+    photo: 'https://i.pravatar.cc/120?img=13',
+    rating: 4,
+    quote: 'Dokumentasi API-nya rapi, tapi ada satu endpoint yang harus kami minta perbaiki dua kali. Sisanya solid dan tim mereka responsif soal itu.',
+    createdAt: Date.now() - 1000 * 60 * 60 * 24 * 30
+  },
+  {
+    id: 4,
+    name: 'Salsabila Rahman',
+    role: 'Marketing Manager',
+    company: 'EduNusantara',
+    photo: 'https://i.pravatar.cc/120?img=32',
+    rating: 5,
+    quote: 'Yang bikin beda: mereka nanya dulu siapa target audiens kami sebelum mulai desain, bukan langsung kasih moodboard generik.',
+    createdAt: Date.now() - 1000 * 60 * 60 * 24 * 120
+  },
+  {
+    id: 5,
+    name: 'Fajar Ramadhan',
+    role: 'Operations Lead',
+    company: 'EcoTravel ID',
+    photo: 'https://i.pravatar.cc/120?img=59',
+    rating: 5,
+    quote: 'Tim internal kami yang paling gaptek pun bisa pakai sistem barunya tanpa training panjang. Itu ukuran sukses yang paling kami pedulikan.',
+    createdAt: Date.now() - 1000 * 60 * 60 * 24 * 150
+  },
+  {
+    id: 6,
+    name: 'Clara Angelina',
+    role: 'Founder',
+    company: 'Ruang Kerja App',
+    photo: 'https://i.pravatar.cc/120?img=44',
+    rating: 5,
+    quote: 'Dari ide di notes HP jadi MVP yang bisa dipakai investor buat demo, dalam waktu 7 minggu.',
+    createdAt: Date.now() - 1000 * 60 * 60 * 24 * 14
+  },
+  {
+    id: 7,
+    name: 'Dimas Prakoso',
+    role: 'Product Manager',
+    company: 'Ngaso Kuliner App',
+    photo: 'https://i.pravatar.cc/120?img=8',
+    rating: 5,
+    quote: 'Alur onboarding lama bikin 40% user drop di langkah kedua. Setelah dirombak bareng tim mereka, angka itu turun jadi sekitar 15%.',
+    createdAt: Date.now() - 1000 * 60 * 60 * 24 * 180
+  },
+  {
+    id: 8,
+    name: 'Intan Permata',
+    role: 'Founder',
+    company: 'Titik Kumpul Coworking',
+    photo: 'https://i.pravatar.cc/120?img=25',
+    rating: 5,
+    quote: 'Sistem booking ruang jadi satu pintu dengan pembayaran, staf kami nggak perlu lagi cek WhatsApp dan spreadsheet bergantian tiap pagi.',
+    createdAt: Date.now() - 1000 * 60 * 60 * 24 * 21
+  },
+  {
+    id: 9,
+    name: 'Yusuf Hidayat',
+    role: 'IT Manager',
+    company: 'Koperasi Sejahtera Bersama',
+    photo: 'https://i.pravatar.cc/120?img=61',
+    rating: 4,
+    quote: 'Migrasi data dari sistem lama sempat molor karena data kami sendiri berantakan, tapi tim mereka sabar bantu bersihin satu per satu.',
+    createdAt: Date.now() - 1000 * 60 * 60 * 24 * 45
+  },
+  {
+    id: 10,
+    name: 'Putri Ayu Lestari',
+    role: 'Brand Manager',
+    company: 'Kopi Nusantara',
+    photo: 'https://i.pravatar.cc/120?img=29',
+    rating: 5,
+    quote: 'Website baru kami jauh lebih cepat diakses, bahkan dari daerah dengan sinyal lemah. Pelanggan kami banyak yang notice perubahan itu.',
+    createdAt: Date.now() - 1000 * 60 * 60 * 24 * 75
+  },
+  {
+    id: 11,
+    name: 'Andra Wibisono',
+    role: 'Founder',
+    company: 'Sewa Alat Kita',
+    photo: 'https://i.pravatar.cc/120?img=15',
+    rating: 5,
+    quote: 'Fitur pencarian barangnya sekarang jauh lebih relevan. Tim mereka sempat riset dulu ke pengguna asli sebelum membangun fiturnya.',
+    createdAt: Date.now() - 1000 * 60 * 60 * 24 * 100
+  },
+  {
+    id: 12,
+    name: 'Melati Anggraini',
+    role: 'HR Manager',
+    company: 'Karyawan Prima',
+    photo: 'https://i.pravatar.cc/120?img=41',
+    rating: 4,
+    quote: 'Sistem absensi barunya membantu banget, meski butuh waktu untuk tim kami terbiasa. Support mereka sigap menjawab pertanyaan kami.',
+    createdAt: Date.now() - 1000 * 60 * 60 * 24 * 55
+  }
+]
 
-  { name: 'Nadia Puspita', role: 'Head of Growth', company: 'Sehat Yuk Health', photo: 'https://i.pravatar.cc/120?img=47', rating: 5,
-    quote: 'Conversion rate naik dari 1,8% ke 3,4% dalam dua bulan setelah landing page baru live. Bukan angka fantastis, tapi nyata dan bisa kami audit sendiri.' },
+/* ===== LOAD DARI LOCALSTORAGE / DEFAULT ===== */
+function loadTestimonials() {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY)
+    if (saved) {
+      const parsed = JSON.parse(saved)
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        return parsed.map((t) => ({ ...t, isNew: false }))
+      }
+    }
+  } catch (e) {
+    console.warn('Gagal load testimonials dari localStorage', e)
+  }
+  return defaultTestimonials.map((t) => ({ ...t, isNew: false }))
+}
 
-  { name: 'Rio Aditya', role: 'CTO', company: 'Pasar Digital ID', photo: 'https://i.pravatar.cc/120?img=13', rating: 4,
-    quote: 'Dokumentasi API-nya rapi, tapi ada satu endpoint yang harus kami minta perbaiki dua kali. Sisanya solid dan tim mereka responsif soal itu.' },
+const testimonials = ref(loadTestimonials())
 
-  { name: 'Salsabila Rahman', role: 'Marketing Manager', company: 'EduNusantara', photo: 'https://i.pravatar.cc/120?img=32', rating: 5,
-    quote: 'Yang bikin beda: mereka nanya dulu siapa target audiens kami sebelum mulai desain, bukan langsung kasih moodboard generik.' },
+/* ===== SIMPAN KE LOCALSTORAGE ===== */
+function saveTestimonials() {
+  try {
+    const toSave = testimonials.value.map(({ isNew, ...rest }) => rest)
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(toSave))
+  } catch (e) {
+    console.warn('Gagal simpan testimonials ke localStorage', e)
+  }
+}
 
-  { name: 'Fajar Ramadhan', role: 'Operations Lead', company: 'EcoTravel ID', photo: 'https://i.pravatar.cc/120?img=59', rating: 5,
-    quote: 'Tim internal kami yang paling gaptek pun bisa pakai sistem barunya tanpa training panjang. Itu ukuran sukses yang paling kami pedulikan.' },
+/* ===== MENU TITIK TIGA ===== */
+const openMenuId = ref(null)
 
-  { name: 'Clara Angelina', role: 'Founder', company: 'Ruang Kerja App', photo: 'https://i.pravatar.cc/120?img=44', rating: 5,
-    quote: 'Dari ide di notes HP jadi MVP yang bisa dipakai investor buat demo, dalam waktu 7 minggu.' },
+function toggleMenu(id) {
+  openMenuId.value = openMenuId.value === id ? null : id
+}
 
-  { name: 'Dimas Prakoso', role: 'Product Manager', company: 'Ngaso Kuliner App', photo: 'https://i.pravatar.cc/120?img=8', rating: 5,
-    quote: 'Alur onboarding lama bikin 40% user drop di langkah kedua. Setelah dirombak bareng tim mereka, angka itu turun jadi sekitar 15%.' },
+function closeMenu() {
+  openMenuId.value = null
+}
 
-  { name: 'Intan Permata', role: 'Founder', company: 'Titik Kumpul Coworking', photo: 'https://i.pravatar.cc/120?img=25', rating: 5,
-    quote: 'Sistem booking ruang jadi satu pintu dengan pembayaran, staf kami nggak perlu lagi cek WhatsApp dan spreadsheet bergantian tiap pagi.' },
+function handleClickOutside(event) {
+  if (!event.target.closest('.bi-card__menu')) {
+    closeMenu()
+  }
+}
 
-  { name: 'Yusuf Hidayat', role: 'IT Manager', company: 'Koperasi Sejahtera Bersama', photo: 'https://i.pravatar.cc/120?img=61', rating: 4,
-    quote: 'Migrasi data dari sistem lama sempat molor karena data kami sendiri berantakan, tapi tim mereka sabar bantu bersihin satu per satu.' },
+/* ===== HAPUS TESTIMONI ===== */
+function deleteTestimonial(id) {
+  closeMenu()
+  if (!confirm('Hapus ulasan ini?')) return
+  testimonials.value = testimonials.value.filter((t) => t.id !== id)
+  saveTestimonials()
+}
 
-  { name: 'Putri Ayu Lestari', role: 'Brand Manager', company: 'Kopi Nusantara', photo: 'https://i.pravatar.cc/120?img=29', rating: 5,
-    quote: 'Website baru kami jauh lebih cepat diakses, bahkan dari daerah dengan sinyal lemah. Pelanggan kami banyak yang notice perubahan itu.' },
+/* ===== INISIAL & WARNA AVATAR ===== */
+function getInitials(name) {
+  if (!name) return '?'
+  const parts = name.trim().split(/\s+/).filter(Boolean)
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase()
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
+}
 
-  { name: 'Andra Wibisono', role: 'Founder', company: 'Sewa Alat Kita', photo: 'https://i.pravatar.cc/120?img=15', rating: 5,
-    quote: 'Fitur pencarian barangnya sekarang jauh lebih relevan. Tim mereka sempat riset dulu ke pengguna asli sebelum membangun fiturnya.' },
+const avatarColors = [
+  '#E75119', '#EB2B0C', '#FB9F37', '#D97706',
+  '#059669', '#0284C7', '#7C3AED', '#DB2777'
+]
 
-  { name: 'Melati Anggraini', role: 'HR Manager', company: 'Karyawan Prima', photo: 'https://i.pravatar.cc/120?img=41', rating: 4,
-    quote: 'Sistem absensi barunya membantu banget, meski butuh waktu untuk tim kami terbiasa. Support mereka sigap menjawab pertanyaan kami.' },
+function getAvatarColor(name) {
+  if (!name) return avatarColors[0]
+  let hash = 0
+  for (let i = 0; i < name.length; i++) {
+    hash = name.charCodeAt(i) + ((hash << 5) - hash)
+  }
+  return avatarColors[Math.abs(hash) % avatarColors.length]
+}
 
-  { name: 'Bayu Setiawan', role: 'Co-Founder', company: 'Agri Terhubung', photo: 'https://i.pravatar.cc/120?img=11', rating: 5,
-    quote: 'Dashboard petani yang mereka buat sangat mudah dipahami, padahal sebagian besar pengguna kami baru pertama kali pakai aplikasi digital.' },
+/* ===== MODAL & FORM STATE ===== */
+const isModalOpen = ref(false)
+const form = ref({
+  name: '',
+  role: '',
+  company: '',
+  rating: 0,
+  quote: ''
+})
+const hoverRating = ref(0)
+const formSuccess = ref(false)
+const formError = ref('')
 
-  { name: 'Ratih Kusuma', role: 'CEO', company: 'Klinik Sehat Prima', photo: 'https://i.pravatar.cc/120?img=36', rating: 5,
-    quote: 'Sistem pendaftaran online mengurangi antrian di klinik kami sampai separuhnya. Pasien juga lebih senang karena tidak perlu menunggu lama.' },
+const canSubmit = computed(() => {
+  return (
+    form.value.name.length >= 2 &&
+    form.value.role.length >= 2 &&
+    form.value.company.length >= 2 &&
+    form.value.rating >= 1 &&
+    form.value.quote.length >= 20
+  )
+})
 
-  { name: 'Farhan Maulana', role: 'Business Analyst', company: 'Logistik Cepat', photo: 'https://i.pravatar.cc/120?img=20', rating: 4,
-    quote: 'Laporan real-time yang mereka bangun bantu kami ambil keputusan lebih cepat, walau di awal integrasinya butuh beberapa penyesuaian.' },
+function openModal() {
+  isModalOpen.value = true
+  formSuccess.value = false
+  formError.value = ''
+}
 
-  { name: 'Dewi Anjani', role: 'Founder', company: 'Griya Sewa Nusantara', photo: 'https://i.pravatar.cc/120?img=48', rating: 5,
-    quote: 'Sistem manajemen properti kami sekarang jauh lebih rapi, laporan sewa bulanan yang dulu manual sekarang otomatis dan langsung bisa diunduh.' }
-])
+function closeModal() {
+  isModalOpen.value = false
+  setTimeout(() => {
+    form.value = { name: '', role: '', company: '', rating: 0, quote: '' }
+    hoverRating.value = 0
+    formSuccess.value = false
+    formError.value = ''
+  }, 280)
+}
 
+function submitTestimonial() {
+  formError.value = ''
+  formSuccess.value = false
+
+  if (!canSubmit.value) {
+    formError.value = 'Mohon lengkapi semua field dan berikan rating minimal 1 bintang. Ulasan minimal 20 karakter.'
+    return
+  }
+
+  const newItem = {
+    id: Date.now(),
+    name: form.value.name,
+    role: form.value.role,
+    company: form.value.company,
+    photo: null,
+    rating: form.value.rating,
+    quote: form.value.quote,
+    createdAt: Date.now(),
+    isNew: true
+  }
+
+  testimonials.value.unshift(newItem)
+  saveTestimonials()
+
+  formSuccess.value = true
+
+  setTimeout(() => {
+    closeModal()
+  }, 1400)
+}
+
+/* ===== FORMAT WAKTU RELATIF ===== */
+function formatTime(timestamp) {
+  if (!timestamp) return ''
+  const diff = Date.now() - timestamp
+  const minutes = Math.floor(diff / 60000)
+  const hours = Math.floor(diff / 3600000)
+  const days = Math.floor(diff / 86400000)
+
+  if (minutes < 1) return 'baru saja'
+  if (minutes < 60) return `${minutes} menit lalu`
+  if (hours < 24) return `${hours} jam lalu`
+  if (days < 7) return `${days} hari lalu`
+  if (days < 30) return `${Math.floor(days / 7)} minggu lalu`
+  if (days < 365) return `${Math.floor(days / 30)} bulan lalu`
+  return `${Math.floor(days / 365)} tahun lalu`
+}
+
+/* ===== Lock body scroll ===== */
+watch(isModalOpen, (open) => {
+  document.body.style.overflow = open ? 'hidden' : ''
+})
+
+/* ===== REVEAL ANIMATION ===== */
 let observer = null
 
-onMounted(() => {
-  const els = document.querySelectorAll('.bi-page .reveal')
+function setupObserver() {
+  if (observer) observer.disconnect()
 
   observer = new IntersectionObserver(
     (entries) => {
@@ -179,21 +587,32 @@ onMounted(() => {
         }
       })
     },
-    { threshold: 0.15, rootMargin: '0px 0px -40px 0px' }
+    { threshold: 0.12, rootMargin: '0px 0px -40px 0px' }
   )
 
-  els.forEach((el) => observer.observe(el))
+  nextTick(() => {
+    document.querySelectorAll('.bi-page .reveal:not(.is-visible)').forEach((el) => {
+      observer.observe(el)
+    })
+  })
+}
+
+onMounted(() => {
+  setupObserver()
+  document.addEventListener('click', handleClickOutside)
 })
 
 onBeforeUnmount(() => {
   if (observer) observer.disconnect()
+  document.body.style.overflow = ''
+  document.removeEventListener('click', handleClickOutside)
 })
 </script>
 
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@500;600;700;800&display=swap');
 
-/* ===== Variables & base (warna tidak diubah) ===== */
+/* ===== Variables & base ===== */
 .bi-page {
   --color-yellow: #FCEF92;
   --color-orange: #FB9F37;
@@ -208,11 +627,6 @@ onBeforeUnmount(() => {
   --font-body: 'Inter', sans-serif;
   --container-width: 1160px;
   --radius: 12px;
-
-  /* PENTING: ganti sesuai tinggi navbar ASLI kamu.
-     Cek lewat DevTools -> klik elemen <nav> -> tab Computed -> lihat "height".
-     Cek juga di mode mobile (375px), karena navbar mobile biasanya
-     tingginya beda dari navbar desktop. */
   --navbar-height: 80px;
   --navbar-height-mobile: 64px;
 
@@ -223,9 +637,17 @@ onBeforeUnmount(() => {
   line-height: 1.6;
 }
 .bi-page * { box-sizing: border-box; }
-.bi-page h1, .bi-page h2, .bi-page h4 { font-family: var(--font-heading); font-weight: 600; margin: 0; line-height: 1.25; }
+.bi-page h1, .bi-page h2, .bi-page h3, .bi-page h4 {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  margin: 0;
+  line-height: 1.25;
+}
 .bi-page p { margin: 0; }
-.container { width: min(var(--container-width), calc(100% - 48px)); margin: 0 auto; }
+.container {
+  width: min(var(--container-width), calc(100% - 48px));
+  margin: 0 auto;
+}
 
 /* ===== Entrance animation ===== */
 .reveal {
@@ -234,7 +656,8 @@ onBeforeUnmount(() => {
   transition: opacity .6s ease, transform .6s ease;
   will-change: opacity, transform;
 }
-.reveal.is-visible {
+.reveal.is-visible,
+.bi-card.is-visible {
   opacity: 1;
   transform: translateY(0);
 }
@@ -244,33 +667,71 @@ onBeforeUnmount(() => {
 
 /* ===== Button ===== */
 .btn {
-  display: inline-flex; align-items: center; justify-content: center; gap: 7px;
-  padding: 10px 19px; border-radius: 9px; border: none; cursor: pointer;
-  font-family: var(--font-heading); font-weight: 600; font-size: 13px;
-  text-decoration: none; white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 10px 19px;
+  border-radius: 9px;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: 13px;
+  text-decoration: none;
+  white-space: nowrap;
   transition: transform .2s ease, opacity .2s ease, box-shadow .2s ease;
 }
 .btn:hover { transform: translateY(-2px); }
-.btn-primary { background: var(--color-red); color: white; box-shadow: 0 9px 20px rgba(235, 43, 12, .16); }
-.btn-primary:hover { opacity: .93; }
+.btn:disabled {
+  opacity: .55;
+  cursor: not-allowed;
+  transform: none;
+}
+.btn-primary {
+  background: var(--color-red);
+  color: white;
+  box-shadow: 0 9px 20px rgba(235, 43, 12, .16);
+}
+.btn-primary:hover:not(:disabled) { opacity: .93; }
 .btn__arrow { transition: transform .2s ease; }
-.btn-primary:hover .btn__arrow { transform: translateX(3px); }
-.btn-secondary { background: white; color: var(--color-text); border: 1px solid var(--color-border); }
+.btn-primary:hover:not(:disabled) .btn__arrow { transform: translateX(3px); }
+.btn-secondary {
+  background: white;
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+}
 .btn-secondary:hover { border-color: var(--color-red); color: var(--color-red); }
-.btn-cta { background: white; color: var(--color-red); padding: 11px 20px; }
+.btn-cta {
+  background: white;
+  color: var(--color-red);
+  padding: 11px 20px;
+}
 .btn-cta:hover { opacity: .92; }
 
 /* ===== Eyebrow ===== */
 .eyebrow {
-  display: inline-flex; align-items: center; gap: 7px;
-  font-family: var(--font-heading); font-weight: 600; font-size: 10px;
-  letter-spacing: .08em; text-transform: uppercase; color: var(--color-deep-orange);
-  margin-bottom: 12px; padding: 5px 11px 5px 8px; border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: 10px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--color-deep-orange);
+  margin-bottom: 12px;
+  padding: 5px 11px 5px 8px;
+  border-radius: 999px;
   background: rgba(251, 159, 55, .12);
 }
-.eyebrow__dot { width: 6px; height: 6px; border-radius: 50%; background: var(--color-red); box-shadow: 0 0 0 3px rgba(235, 43, 12, .12); }
-
-/* Varian eyebrow polos ala "Karya Kami": tanpa dot, tanpa background pill */
+.eyebrow__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-red);
+  box-shadow: 0 0 0 3px rgba(235, 43, 12, .12);
+}
 .eyebrow--plain {
   background: none;
   padding: 0;
@@ -294,7 +755,6 @@ onBeforeUnmount(() => {
   flex-direction: column;
   align-items: center;
 }
-
 .bi-hero__title {
   display: flex;
   flex-direction: column;
@@ -319,7 +779,6 @@ onBeforeUnmount(() => {
   background-clip: text;
   color: transparent;
 }
-
 .bi-hero__desc {
   max-width: 560px;
   font-size: 15px;
@@ -327,7 +786,6 @@ onBeforeUnmount(() => {
   color: var(--color-text-secondary);
   margin-bottom: 32px;
 }
-
 .bi-hero__actions {
   display: flex;
   gap: 12px;
@@ -341,48 +799,412 @@ onBeforeUnmount(() => {
 }
 
 /* ===== Stats ===== */
-.bi-stats { background: var(--color-surface); border-bottom: 1px solid var(--color-border); }
-.bi-stats__row { display: grid; grid-template-columns: repeat(3, 1fr); padding: 27px 0; }
-.bi-stat { display: flex; flex-direction: column; align-items: center; gap: 2px; text-align: center; border-right: 1px solid var(--color-border); }
+.bi-stats {
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+}
+.bi-stats__row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  padding: 27px 0;
+}
+.bi-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  text-align: center;
+  border-right: 1px solid var(--color-border);
+}
 .bi-stat:last-child { border-right: none; }
-.bi-stat__num { font-family: var(--font-heading); font-size: 25px; font-weight: 700; color: var(--color-deep-orange); }
-.bi-stat__label { font-size: 12px; color: var(--color-text-secondary); }
+.bi-stat__num {
+  font-family: var(--font-heading);
+  font-size: 25px;
+  font-weight: 700;
+  color: var(--color-deep-orange);
+}
+.bi-stat__label {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+}
 
 /* ===== Testimonial ===== */
 .bi-testi { padding: 75px 0; }
-.bi-testi__head { text-align: center; max-width: 560px; margin: 0 auto 42px; }
-.bi-testi__title { font-size: clamp(25px, 3vw, 32px); margin-bottom: 10px; }
-.bi-testi__desc { color: var(--color-text-secondary); font-size: 14px; }
+.bi-testi__head {
+  text-align: center;
+  max-width: 560px;
+  margin: 0 auto 42px;
+}
+.bi-testi__title {
+  font-size: clamp(25px, 3vw, 32px);
+  margin-bottom: 10px;
+}
+.bi-testi__desc {
+  color: var(--color-text-secondary);
+  font-size: 14px;
+  margin-bottom: 28px;
+}
+.bi-testi__cta {
+  margin-top: 8px;
+}
 
-.bi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
-
+/* ===== GRID & CARD ===== */
+.bi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+}
 .bi-card {
-  position: relative; background: var(--color-surface); border: 1px solid var(--color-border);
-  border-radius: 14px; padding: 22px 18px 18px; display: flex; flex-direction: column; gap: 12px;
+  position: relative;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  padding: 18px 16px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
   transition: transform .2s ease, box-shadow .2s ease, opacity .6s ease;
 }
-.bi-card:hover { transform: translateY(-4px); box-shadow: 0 18px 35px -24px rgba(26, 26, 26, .3); }
-.bi-card__quotemark { position: absolute; top: 6px; left: 14px; font-family: Georgia, serif; font-size: 44px; font-weight: 700; color: var(--color-orange); opacity: .32; line-height: 1; }
-.bi-card__quote { position: relative; z-index: 1; font-size: 13px; line-height: 1.7; color: var(--color-text); }
-.bi-card__stars { display: flex; gap: 2px; }
-.bi-star { color: var(--color-orange); font-size: 13px; }
-.bi-star--off { color: var(--color-border); }
-.bi-card__footer { display: flex; align-items: center; gap: 10px; padding-top: 12px; border-top: 1px solid var(--color-border); }
-.bi-card__avatar { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
-.bi-card__who { display: flex; flex-direction: column; font-size: 11px; }
-.bi-card__who strong { font-family: var(--font-heading); color: var(--color-deep-orange); font-size: 11.5px; }
-.bi-card__who span { color: var(--color-text-secondary); }
+.bi-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 18px 35px -24px rgba(26, 26, 26, .3);
+}
+
+/* ===== Menu titik tiga ===== */
+.bi-card__menu {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 2;
+}
+
+.bi-card__menu-trigger {
+  width: 28px;
+  height: 28px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--color-text-secondary);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity .2s ease, background .2s ease, border-color .2s ease, color .2s ease;
+}
+
+.bi-card:hover .bi-card__menu-trigger,
+.bi-card__menu-trigger[aria-expanded="true"] {
+  opacity: 1;
+}
+
+.bi-card__menu-trigger:hover,
+.bi-card__menu-trigger[aria-expanded="true"] {
+  background: rgba(26, 26, 26, 0.05);
+  border-color: var(--color-border);
+  color: var(--color-text);
+}
+
+.bi-card__menu-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  min-width: 120px;
+  padding: 6px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  box-shadow: 0 12px 28px rgba(26, 26, 26, 0.12);
+}
+
+.bi-card__menu-item {
+  width: 100%;
+  padding: 9px 12px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  font-family: var(--font-body);
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+  transition: background .15s ease, color .15s ease;
+}
+
+.bi-card__menu-item--danger {
+  color: var(--color-red);
+}
+
+.bi-card__menu-item--danger:hover {
+  background: rgba(235, 43, 12, 0.08);
+}
+
+.bi-card__header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.bi-card__avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+.bi-card__avatar--initials {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-family: var(--font-heading);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  user-select: none;
+}
+.bi-card__who {
+  display: flex;
+  flex-direction: column;
+  font-size: 11px;
+  min-width: 0;
+}
+.bi-card__who strong {
+  font-family: var(--font-heading);
+  color: var(--color-deep-orange);
+  font-size: 12.5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.bi-card__who span {
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.bi-card__meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.bi-card__stars {
+  display: flex;
+  gap: 2px;
+}
+.bi-star {
+  color: var(--color-orange);
+  font-size: 13px;
+  line-height: 1;
+}
+.bi-star--off {
+  color: var(--color-border);
+}
+.bi-card__time {
+  font-size: 11px;
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+}
+.bi-card__quote {
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--color-text);
+  flex: 1;
+}
 
 /* ===== CTA ===== */
 .bi-cta {
-  width: min(var(--container-width), calc(100% - 48px)); margin: 0 auto 70px; border-radius: 20px;
+  width: min(var(--container-width), calc(100% - 48px));
+  margin: 0 auto 70px;
+  border-radius: 20px;
   background: linear-gradient(120deg, var(--color-red), var(--color-deep-orange) 60%, var(--color-orange));
   padding: 50px 30px;
 }
-.bi-cta__inner { max-width: 560px; margin: 0 auto; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 11px; }
-.cta-small { color: var(--color-yellow); font-family: var(--font-heading); font-size: 10px; font-weight: 700; letter-spacing: .1em; }
-.bi-cta__inner h2 { font-size: clamp(23px, 3vw, 30px); color: white; }
-.bi-cta__inner p { color: rgba(255,255,255,.84); font-size: 13px; margin-bottom: 9px; }
+.bi-cta__inner {
+  max-width: 560px;
+  margin: 0 auto;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 11px;
+}
+.cta-small {
+  color: var(--color-yellow);
+  font-family: var(--font-heading);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .1em;
+}
+.bi-cta__inner h2 {
+  font-size: clamp(23px, 3vw, 30px);
+  color: white;
+}
+.bi-cta__inner p {
+  color: rgba(255,255,255,.84);
+  font-size: 13px;
+  margin-bottom: 9px;
+}
+
+/* ===== MODAL ===== */
+.bi-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(26, 26, 26, 0.48);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 20px;
+}
+.bi-modal {
+  background: var(--color-surface);
+  border-radius: 16px;
+  width: 100%;
+  max-width: 560px;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 28px 26px 26px;
+  box-shadow: 0 24px 60px -12px rgba(0, 0, 0, 0.25);
+  position: relative;
+}
+.bi-modal__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 22px;
+}
+.bi-modal__title {
+  font-size: 18px;
+  margin-bottom: 4px;
+}
+.bi-modal__subtitle {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+}
+.bi-modal__close {
+  background: none;
+  border: none;
+  font-size: 28px;
+  line-height: 1;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  padding: 0 4px;
+  transition: color .15s ease;
+  flex-shrink: 0;
+}
+.bi-modal__close:hover {
+  color: var(--color-red);
+}
+
+.bi-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.bi-form__row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+.bi-form__group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.bi-form__group label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text);
+  font-family: var(--font-heading);
+}
+.bi-form__group input,
+.bi-form__group textarea {
+  border: 1px solid var(--color-border);
+  border-radius: 9px;
+  padding: 10px 12px;
+  font-family: var(--font-body);
+  font-size: 13.5px;
+  color: var(--color-text);
+  background: #fff;
+  transition: border-color .2s ease, box-shadow .2s ease;
+  outline: none;
+  resize: vertical;
+  width: 100%;
+}
+.bi-form__group input:focus,
+.bi-form__group textarea:focus {
+  border-color: var(--color-orange);
+  box-shadow: 0 0 0 3px rgba(251, 159, 55, .18);
+}
+.bi-form__stars {
+  display: flex;
+  gap: 4px;
+}
+.bi-form-star {
+  background: none;
+  border: none;
+  font-size: 26px;
+  color: var(--color-border);
+  cursor: pointer;
+  padding: 0 2px;
+  line-height: 1;
+  transition: color .15s ease, transform .15s ease;
+}
+.bi-form-star:hover,
+.bi-form-star--active {
+  color: var(--color-orange);
+  transform: scale(1.12);
+}
+.bi-form__rating-text {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  margin-top: 2px;
+}
+.bi-form__actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+.bi-form__success {
+  font-size: 13px;
+  color: #1a7a3a;
+  background: #e8f7ee;
+  padding: 10px 14px;
+  border-radius: 8px;
+  margin-top: 4px;
+}
+.bi-form__error {
+  font-size: 13px;
+  color: #b42318;
+  background: #fef3f2;
+  padding: 10px 14px;
+  border-radius: 8px;
+  margin-top: 4px;
+}
+
+/* Modal transition */
+.modal-enter-active,
+.modal-leave-active {
+  transition: opacity 0.25s ease;
+}
+.modal-enter-active .bi-modal,
+.modal-leave-active .bi-modal {
+  transition: transform 0.25s ease, opacity 0.25s ease;
+}
+.modal-enter-from,
+.modal-leave-to {
+  opacity: 0;
+}
+.modal-enter-from .bi-modal,
+.modal-leave-to .bi-modal {
+  opacity: 0;
+  transform: translateY(16px) scale(0.97);
+}
 
 /* ===== Responsive ===== */
 @media (max-width: 1100px) {
@@ -404,14 +1226,33 @@ onBeforeUnmount(() => {
   .bi-hero__title-line { font-size: 19px; }
   .bi-hero__title-accent { font-size: 27px; letter-spacing: -0.8px; }
   .bi-hero__desc { font-size: 13px; line-height: 1.7; margin-bottom: 24px; }
-  .bi-hero .btn-primary, .bi-hero .btn-secondary { padding: 11px 18px; font-size: 13px; }
+  .bi-hero .btn-primary,
+  .bi-hero .btn-secondary { padding: 11px 18px; font-size: 13px; }
 
   .bi-stats__row { padding: 22px 0; }
   .bi-stat__num { font-size: 20px; }
   .bi-stat__label { font-size: 9px; }
+
   .bi-testi { padding: 60px 0; }
   .bi-grid { grid-template-columns: 1fr; }
-  .bi-cta { width: calc(100% - 30px); padding: 40px 22px; margin-bottom: 50px; }
+
+  .bi-form__row { grid-template-columns: 1fr; }
+
+  .bi-modal {
+    padding: 22px 18px 20px;
+    max-height: 92vh;
+  }
+
+  .bi-cta {
+    width: calc(100% - 30px);
+    padding: 40px 22px;
+    margin-bottom: 50px;
+  }
+
+  /* Di mobile menu titik tiga selalu terlihat */
+  .bi-card__menu-trigger {
+    opacity: 1;
+  }
 }
 
 @media (max-width: 430px) {
