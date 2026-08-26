@@ -49,9 +49,7 @@
     <section class="bi-testi" id="testimoni">
       <div class="container">
         <div class="bi-testi__head">
-          <span class="eyebrow eyebrow--plain reveal">
-            Cerita Klien
-          </span>
+          <span class="eyebrow eyebrow--plain reveal">Cerita Klien</span>
           <h2 class="bi-testi__title reveal" style="transition-delay:.08s">Cerita dari Klien Kami</h2>
           <p class="bi-testi__desc reveal" style="transition-delay:.16s">
             Kepercayaan dibangun dari hasil kerja, bukan janji. Berikut cerita
@@ -77,29 +75,6 @@
             :class="{ reveal: !t.isNew, 'is-visible': t.isNew }"
             :style="{ transitionDelay: t.isNew ? '0s' : `${(i % 4) * 0.08}s` }"
           >
-            <!-- Menu titik tiga -->
-            <div class="bi-card__menu">
-              <button
-                type="button"
-                class="bi-card__menu-trigger"
-                :aria-expanded="openMenuId === t.id"
-                aria-label="Menu ulasan"
-                @click.stop="toggleMenu(t.id)"
-              >
-                ⋮
-              </button>
-
-              <div v-if="openMenuId === t.id" class="bi-card__menu-dropdown">
-                <button
-                  type="button"
-                  class="bi-card__menu-item bi-card__menu-item--danger"
-                  @click="deleteTestimonial(t.id)"
-                >
-                  Hapus
-                </button>
-              </div>
-            </div>
-
             <div class="bi-card__header">
               <img
                 v-if="t.photo"
@@ -166,50 +141,24 @@
                 <h3 id="modal-title" class="bi-modal__title">Bagikan Ulasan Anda</h3>
                 <p class="bi-modal__subtitle">Bagikan rating dan cerita pengalaman Anda bersama kami.</p>
               </div>
-              <button
-                type="button"
-                class="bi-modal__close"
-                aria-label="Tutup"
-                @click="closeModal"
-              >
-                ×
-              </button>
+              <button type="button" class="bi-modal__close" aria-label="Tutup" @click="closeModal">×</button>
             </div>
 
             <form class="bi-form" @submit.prevent="submitTestimonial">
               <div class="bi-form__row">
                 <div class="bi-form__group">
                   <label for="name">Nama Lengkap</label>
-                  <input
-                    id="name"
-                    v-model.trim="form.name"
-                    type="text"
-                    placeholder="Contoh: Bagas Wirawan"
-                    required
-                    autofocus
-                  />
+                  <input id="name" v-model.trim="form.name" type="text" placeholder="Contoh: Bagas Wirawan" required autofocus />
                 </div>
                 <div class="bi-form__group">
                   <label for="role">Jabatan / Role</label>
-                  <input
-                    id="role"
-                    v-model.trim="form.role"
-                    type="text"
-                    placeholder="Contoh: Co-Founder"
-                    required
-                  />
+                  <input id="role" v-model.trim="form.role" type="text" placeholder="Contoh: Co-Founder" required />
                 </div>
               </div>
 
               <div class="bi-form__group">
                 <label for="company">Perusahaan / Brand</label>
-                <input
-                  id="company"
-                  v-model.trim="form.company"
-                  type="text"
-                  placeholder="Contoh: Belanja Cepat"
-                  required
-                />
+                <input id="company" v-model.trim="form.company" type="text" placeholder="Contoh: Belanja Cepat" required />
               </div>
 
               <div class="bi-form__group">
@@ -225,9 +174,7 @@
                     @click="form.rating = n"
                     @mouseenter="hoverRating = n"
                     @mouseleave="hoverRating = 0"
-                  >
-                    ★
-                  </button>
+                  >★</button>
                 </div>
                 <p class="bi-form__rating-text">
                   {{ form.rating ? `${form.rating} dari 5 bintang` : 'Pilih rating Anda' }}
@@ -250,17 +197,11 @@
                   Kirim Ulasan
                   <span class="btn__arrow">→</span>
                 </button>
-                <button type="button" class="btn btn-secondary" @click="closeModal">
-                  Batal
-                </button>
+                <button type="button" class="btn btn-secondary" @click="closeModal">Batal</button>
               </div>
 
-              <p v-if="formSuccess" class="bi-form__success">
-                Terima kasih! Ulasan Anda berhasil ditambahkan.
-              </p>
-              <p v-if="formError" class="bi-form__error">
-                {{ formError }}
-              </p>
+              <p v-if="formSuccess" class="bi-form__success">Terima kasih! Ulasan Anda berhasil ditambahkan.</p>
+              <p v-if="formError" class="bi-form__error">{{ formError }}</p>
             </form>
           </div>
         </div>
@@ -281,7 +222,6 @@ const stats = [
   { num: '4.9/5', label: 'Rating rata-rata' }
 ]
 
-/* ===== DATA DEFAULT ===== */
 const defaultTestimonials = [
   {
     id: 1,
@@ -405,7 +345,6 @@ const defaultTestimonials = [
   }
 ]
 
-/* ===== LOAD DARI LOCALSTORAGE / DEFAULT ===== */
 function loadTestimonials() {
   try {
     const saved = localStorage.getItem(STORAGE_KEY)
@@ -423,7 +362,6 @@ function loadTestimonials() {
 
 const testimonials = ref(loadTestimonials())
 
-/* ===== SIMPAN KE LOCALSTORAGE ===== */
 function saveTestimonials() {
   try {
     const toSave = testimonials.value.map(({ isNew, ...rest }) => rest)
@@ -433,32 +371,6 @@ function saveTestimonials() {
   }
 }
 
-/* ===== MENU TITIK TIGA ===== */
-const openMenuId = ref(null)
-
-function toggleMenu(id) {
-  openMenuId.value = openMenuId.value === id ? null : id
-}
-
-function closeMenu() {
-  openMenuId.value = null
-}
-
-function handleClickOutside(event) {
-  if (!event.target.closest('.bi-card__menu')) {
-    closeMenu()
-  }
-}
-
-/* ===== HAPUS TESTIMONI ===== */
-function deleteTestimonial(id) {
-  closeMenu()
-  if (!confirm('Hapus ulasan ini?')) return
-  testimonials.value = testimonials.value.filter((t) => t.id !== id)
-  saveTestimonials()
-}
-
-/* ===== INISIAL & WARNA AVATAR ===== */
 function getInitials(name) {
   if (!name) return '?'
   const parts = name.trim().split(/\s+/).filter(Boolean)
@@ -480,15 +392,8 @@ function getAvatarColor(name) {
   return avatarColors[Math.abs(hash) % avatarColors.length]
 }
 
-/* ===== MODAL & FORM STATE ===== */
 const isModalOpen = ref(false)
-const form = ref({
-  name: '',
-  role: '',
-  company: '',
-  rating: 0,
-  quote: ''
-})
+const form = ref({ name: '', role: '', company: '', rating: 0, quote: '' })
 const hoverRating = ref(0)
 const formSuccess = ref(false)
 const formError = ref('')
@@ -542,15 +447,11 @@ function submitTestimonial() {
 
   testimonials.value.unshift(newItem)
   saveTestimonials()
-
   formSuccess.value = true
 
-  setTimeout(() => {
-    closeModal()
-  }, 1400)
+  setTimeout(() => closeModal(), 1400)
 }
 
-/* ===== FORMAT WAKTU RELATIF ===== */
 function formatTime(timestamp) {
   if (!timestamp) return ''
   const diff = Date.now() - timestamp
@@ -567,12 +468,10 @@ function formatTime(timestamp) {
   return `${Math.floor(days / 365)} tahun lalu`
 }
 
-/* ===== Lock body scroll ===== */
 watch(isModalOpen, (open) => {
   document.body.style.overflow = open ? 'hidden' : ''
 })
 
-/* ===== REVEAL ANIMATION ===== */
 let observer = null
 
 function setupObserver() {
@@ -597,22 +496,17 @@ function setupObserver() {
   })
 }
 
-onMounted(() => {
-  setupObserver()
-  document.addEventListener('click', handleClickOutside)
-})
+onMounted(() => setupObserver())
 
 onBeforeUnmount(() => {
   if (observer) observer.disconnect()
   document.body.style.overflow = ''
-  document.removeEventListener('click', handleClickOutside)
 })
 </script>
 
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@500;600;700;800&display=swap');
 
-/* ===== Variables & base ===== */
 .bi-page {
   --color-yellow: #FCEF92;
   --color-orange: #FB9F37;
@@ -626,10 +520,8 @@ onBeforeUnmount(() => {
   --font-heading: 'Sora', sans-serif;
   --font-body: 'Inter', sans-serif;
   --container-width: 1160px;
-  --radius: 12px;
   --navbar-height: 80px;
   --navbar-height-mobile: 64px;
-
   min-height: 100vh;
   font-family: var(--font-body);
   color: var(--color-text);
@@ -649,12 +541,10 @@ onBeforeUnmount(() => {
   margin: 0 auto;
 }
 
-/* ===== Entrance animation ===== */
 .reveal {
   opacity: 0;
   transform: translateY(24px);
   transition: opacity .6s ease, transform .6s ease;
-  will-change: opacity, transform;
 }
 .reveal.is-visible,
 .bi-card.is-visible {
@@ -665,7 +555,6 @@ onBeforeUnmount(() => {
   .reveal { opacity: 1; transform: none; transition: none; }
 }
 
-/* ===== Button ===== */
 .btn {
   display: inline-flex;
   align-items: center;
@@ -683,11 +572,7 @@ onBeforeUnmount(() => {
   transition: transform .2s ease, opacity .2s ease, box-shadow .2s ease;
 }
 .btn:hover { transform: translateY(-2px); }
-.btn:disabled {
-  opacity: .55;
-  cursor: not-allowed;
-  transform: none;
-}
+.btn:disabled { opacity: .55; cursor: not-allowed; transform: none; }
 .btn-primary {
   background: var(--color-red);
   color: white;
@@ -702,14 +587,9 @@ onBeforeUnmount(() => {
   border: 1px solid var(--color-border);
 }
 .btn-secondary:hover { border-color: var(--color-red); color: var(--color-red); }
-.btn-cta {
-  background: white;
-  color: var(--color-red);
-  padding: 11px 20px;
-}
+.btn-cta { background: white; color: var(--color-red); padding: 11px 20px; }
 .btn-cta:hover { opacity: .92; }
 
-/* ===== Eyebrow ===== */
 .eyebrow {
   display: inline-flex;
   align-items: center;
@@ -740,7 +620,6 @@ onBeforeUnmount(() => {
   letter-spacing: .1em;
 }
 
-/* ===== Hero ===== */
 .bi-hero {
   padding-top: calc(var(--navbar-height) + 88px);
   padding-bottom: 76px;
@@ -798,7 +677,6 @@ onBeforeUnmount(() => {
   font-size: 14px;
 }
 
-/* ===== Stats ===== */
 .bi-stats {
   background: var(--color-surface);
   border-bottom: 1px solid var(--color-border);
@@ -828,7 +706,6 @@ onBeforeUnmount(() => {
   color: var(--color-text-secondary);
 }
 
-/* ===== Testimonial ===== */
 .bi-testi { padding: 75px 0; }
 .bi-testi__head {
   text-align: center;
@@ -844,11 +721,8 @@ onBeforeUnmount(() => {
   font-size: 14px;
   margin-bottom: 28px;
 }
-.bi-testi__cta {
-  margin-top: 8px;
-}
+.bi-testi__cta { margin-top: 8px; }
 
-/* ===== GRID & CARD ===== */
 .bi-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -869,77 +743,6 @@ onBeforeUnmount(() => {
   transform: translateY(-4px);
   box-shadow: 0 18px 35px -24px rgba(26, 26, 26, .3);
 }
-
-/* ===== Menu titik tiga ===== */
-.bi-card__menu {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  z-index: 2;
-}
-
-.bi-card__menu-trigger {
-  width: 28px;
-  height: 28px;
-  border: 1px solid transparent;
-  border-radius: 8px;
-  background: transparent;
-  color: var(--color-text-secondary);
-  font-size: 18px;
-  line-height: 1;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  opacity: 0;
-  transition: opacity .2s ease, background .2s ease, border-color .2s ease, color .2s ease;
-}
-
-.bi-card:hover .bi-card__menu-trigger,
-.bi-card__menu-trigger[aria-expanded="true"] {
-  opacity: 1;
-}
-
-.bi-card__menu-trigger:hover,
-.bi-card__menu-trigger[aria-expanded="true"] {
-  background: rgba(26, 26, 26, 0.05);
-  border-color: var(--color-border);
-  color: var(--color-text);
-}
-
-.bi-card__menu-dropdown {
-  position: absolute;
-  top: calc(100% + 4px);
-  right: 0;
-  min-width: 120px;
-  padding: 6px;
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: 10px;
-  box-shadow: 0 12px 28px rgba(26, 26, 26, 0.12);
-}
-
-.bi-card__menu-item {
-  width: 100%;
-  padding: 9px 12px;
-  border: none;
-  border-radius: 6px;
-  background: transparent;
-  font-family: var(--font-body);
-  font-size: 13px;
-  text-align: left;
-  cursor: pointer;
-  transition: background .15s ease, color .15s ease;
-}
-
-.bi-card__menu-item--danger {
-  color: var(--color-red);
-}
-
-.bi-card__menu-item--danger:hover {
-  background: rgba(235, 43, 12, 0.08);
-}
-
 .bi-card__header {
   display: flex;
   align-items: center;
@@ -989,18 +792,9 @@ onBeforeUnmount(() => {
   justify-content: space-between;
   gap: 8px;
 }
-.bi-card__stars {
-  display: flex;
-  gap: 2px;
-}
-.bi-star {
-  color: var(--color-orange);
-  font-size: 13px;
-  line-height: 1;
-}
-.bi-star--off {
-  color: var(--color-border);
-}
+.bi-card__stars { display: flex; gap: 2px; }
+.bi-star { color: var(--color-orange); font-size: 13px; line-height: 1; }
+.bi-star--off { color: var(--color-border); }
 .bi-card__time {
   font-size: 11px;
   color: var(--color-text-secondary);
@@ -1013,7 +807,6 @@ onBeforeUnmount(() => {
   flex: 1;
 }
 
-/* ===== CTA ===== */
 .bi-cta {
   width: min(var(--container-width), calc(100% - 48px));
   margin: 0 auto 70px;
@@ -1047,7 +840,6 @@ onBeforeUnmount(() => {
   margin-bottom: 9px;
 }
 
-/* ===== MODAL ===== */
 .bi-modal-overlay {
   position: fixed;
   inset: 0;
@@ -1068,7 +860,6 @@ onBeforeUnmount(() => {
   overflow-y: auto;
   padding: 28px 26px 26px;
   box-shadow: 0 24px 60px -12px rgba(0, 0, 0, 0.25);
-  position: relative;
 }
 .bi-modal__header {
   display: flex;
@@ -1077,14 +868,8 @@ onBeforeUnmount(() => {
   gap: 16px;
   margin-bottom: 22px;
 }
-.bi-modal__title {
-  font-size: 18px;
-  margin-bottom: 4px;
-}
-.bi-modal__subtitle {
-  font-size: 13px;
-  color: var(--color-text-secondary);
-}
+.bi-modal__title { font-size: 18px; margin-bottom: 4px; }
+.bi-modal__subtitle { font-size: 13px; color: var(--color-text-secondary); }
 .bi-modal__close {
   background: none;
   border: none;
@@ -1093,28 +878,16 @@ onBeforeUnmount(() => {
   color: var(--color-text-secondary);
   cursor: pointer;
   padding: 0 4px;
-  transition: color .15s ease;
-  flex-shrink: 0;
 }
-.bi-modal__close:hover {
-  color: var(--color-red);
-}
+.bi-modal__close:hover { color: var(--color-red); }
 
-.bi-form {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
+.bi-form { display: flex; flex-direction: column; gap: 16px; }
 .bi-form__row {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 14px;
 }
-.bi-form__group {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
+.bi-form__group { display: flex; flex-direction: column; gap: 6px; }
 .bi-form__group label {
   font-size: 12px;
   font-weight: 600;
@@ -1130,7 +903,6 @@ onBeforeUnmount(() => {
   font-size: 13.5px;
   color: var(--color-text);
   background: #fff;
-  transition: border-color .2s ease, box-shadow .2s ease;
   outline: none;
   resize: vertical;
   width: 100%;
@@ -1140,10 +912,7 @@ onBeforeUnmount(() => {
   border-color: var(--color-orange);
   box-shadow: 0 0 0 3px rgba(251, 159, 55, .18);
 }
-.bi-form__stars {
-  display: flex;
-  gap: 4px;
-}
+.bi-form__stars { display: flex; gap: 4px; }
 .bi-form-star {
   background: none;
   border: none;
@@ -1176,7 +945,6 @@ onBeforeUnmount(() => {
   background: #e8f7ee;
   padding: 10px 14px;
   border-radius: 8px;
-  margin-top: 4px;
 }
 .bi-form__error {
   font-size: 13px;
@@ -1184,86 +952,49 @@ onBeforeUnmount(() => {
   background: #fef3f2;
   padding: 10px 14px;
   border-radius: 8px;
-  margin-top: 4px;
 }
 
-/* Modal transition */
 .modal-enter-active,
-.modal-leave-active {
-  transition: opacity 0.25s ease;
-}
+.modal-leave-active { transition: opacity 0.25s ease; }
 .modal-enter-active .bi-modal,
-.modal-leave-active .bi-modal {
-  transition: transform 0.25s ease, opacity 0.25s ease;
-}
+.modal-leave-active .bi-modal { transition: transform 0.25s ease, opacity 0.25s ease; }
 .modal-enter-from,
-.modal-leave-to {
-  opacity: 0;
-}
+.modal-leave-to { opacity: 0; }
 .modal-enter-from .bi-modal,
 .modal-leave-to .bi-modal {
   opacity: 0;
   transform: translateY(16px) scale(0.97);
 }
 
-/* ===== Responsive ===== */
 @media (max-width: 1100px) {
   .bi-grid { grid-template-columns: repeat(2, 1fr); }
 }
-
 @media (max-width: 900px) {
   .bi-hero__inner { max-width: 640px; }
 }
-
 @media (max-width: 640px) {
   .container { width: min(100% - 30px, var(--container-width)); }
-
   .bi-hero {
     padding-top: calc(var(--navbar-height-mobile) + 60px);
     padding-bottom: 52px;
   }
-  .bi-hero__title { gap: 2px; margin-bottom: 16px; }
   .bi-hero__title-line { font-size: 19px; }
-  .bi-hero__title-accent { font-size: 27px; letter-spacing: -0.8px; }
-  .bi-hero__desc { font-size: 13px; line-height: 1.7; margin-bottom: 24px; }
-  .bi-hero .btn-primary,
-  .bi-hero .btn-secondary { padding: 11px 18px; font-size: 13px; }
-
+  .bi-hero__title-accent { font-size: 27px; }
+  .bi-hero__desc { font-size: 13px; }
   .bi-stats__row { padding: 22px 0; }
   .bi-stat__num { font-size: 20px; }
   .bi-stat__label { font-size: 9px; }
-
   .bi-testi { padding: 60px 0; }
   .bi-grid { grid-template-columns: 1fr; }
-
   .bi-form__row { grid-template-columns: 1fr; }
-
-  .bi-modal {
-    padding: 22px 18px 20px;
-    max-height: 92vh;
-  }
-
-  .bi-cta {
-    width: calc(100% - 30px);
-    padding: 40px 22px;
-    margin-bottom: 50px;
-  }
-
-  /* Di mobile menu titik tiga selalu terlihat */
-  .bi-card__menu-trigger {
-    opacity: 1;
-  }
+  .bi-modal { padding: 22px 18px 20px; max-height: 92vh; }
+  .bi-cta { width: calc(100% - 30px); padding: 40px 22px; margin-bottom: 50px; }
 }
-
 @media (max-width: 430px) {
   .bi-hero { padding-top: calc(var(--navbar-height-mobile) + 44px); }
   .bi-hero__title-line { font-size: 17px; }
   .bi-hero__title-accent { font-size: 24px; }
-  .bi-hero__desc { font-size: 12px; }
   .bi-hero__actions { width: 100%; }
   .bi-hero__actions .btn { width: 100%; }
-  .bi-stats__row { gap: 5px; }
-  .bi-stat__num { font-size: 18px; }
-  .bi-stat__label { font-size: 8px; }
 }
 </style>
