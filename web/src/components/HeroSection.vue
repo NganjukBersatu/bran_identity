@@ -3,7 +3,7 @@ import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 
 const slides = [
   {
-    src: '/team/team-4.jpg',
+    src: '/team/meeting.jpg',
     alt: 'Tim BRAN Identity sedang berdiskusi',
     objectPosition: 'center 20%',
     tag: 'Software House',
