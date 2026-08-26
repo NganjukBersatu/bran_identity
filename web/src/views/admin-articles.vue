@@ -8,6 +8,15 @@ const router = useRouter()
 const { articles, addArticle, updateArticle, deleteArticle } = useArticles()
 const { logout } = useAdminAuth()
 
+/* ===== TAB: 'artikel' | 'testimoni' ===== */
+const activeTab = ref('artikel')
+
+function setTab(tab) {
+  activeTab.value = tab
+  closeMenu()
+  closeForm()
+}
+
 const categories = ['Technology', 'Software Development', 'Business', 'Tips & Insight']
 
 function emptyForm() {
@@ -23,8 +32,6 @@ function emptyForm() {
 
 const form = ref(emptyForm())
 const showForm = ref(false)
-
-// null = mode "tambah artikel baru", angka = mode "edit artikel dengan id ini"
 const editingId = ref(null)
 
 function resetForm() {
@@ -45,7 +52,6 @@ function openEditForm(article) {
     excerpt: article.excerpt,
     image: article.image,
     readTime: article.readTime,
-    // gabungkan lagi array paragraf jadi teks per baris supaya bisa diedit di textarea
     content: (article.content || []).join('\n')
   }
   showForm.value = true
@@ -64,8 +70,6 @@ function handleSubmit() {
     excerpt: form.value.excerpt,
     image: form.value.image || 'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?auto=format&fit=crop&w=900&q=85',
     readTime: form.value.readTime,
-    // setiap baris baru di textarea jadi satu paragraf,
-    // sama seperti format di data/articles.js
     content: form.value.content
       .split('\n')
       .map((line) => line.trim())
@@ -93,7 +97,7 @@ function handleLogout() {
   router.push('/admin/login')
 }
 
-/* ---------- menu titik tiga (Edit / Hapus) per baris artikel ---------- */
+/* ---------- menu titik tiga ---------- */
 const openMenuId = ref(null)
 
 function toggleMenu(id) {
@@ -104,15 +108,50 @@ function closeMenu() {
   openMenuId.value = null
 }
 
-// klik di luar menu manapun otomatis menutup menu yang sedang terbuka
 function handleClickOutside(event) {
   if (!event.target.closest('.row-menu')) {
     closeMenu()
   }
 }
 
+/* ===== KELOLA TESTIMONI ===== */
+const TESTI_STORAGE_KEY = 'bi-testimonials'
+const testimonials = ref([])
+
+function loadAdminTestimonials() {
+  try {
+    const saved = localStorage.getItem(TESTI_STORAGE_KEY)
+    if (saved) {
+      const parsed = JSON.parse(saved)
+      if (Array.isArray(parsed)) {
+        testimonials.value = parsed
+        return
+      }
+    }
+  } catch (e) {}
+  testimonials.value = []
+}
+
+function saveAdminTestimonials() {
+  localStorage.setItem(TESTI_STORAGE_KEY, JSON.stringify(testimonials.value))
+}
+
+function deleteTestimonial(id) {
+  closeMenu()
+  if (!confirm('Hapus ulasan ini?')) return
+  testimonials.value = testimonials.value.filter((t) => t.id !== id)
+  saveAdminTestimonials()
+}
+
+function formatTestiTime(ts) {
+  if (!ts) return ''
+  const d = new Date(ts)
+  return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })
+}
+
 onMounted(() => {
   document.addEventListener('click', handleClickOutside)
+  loadAdminTestimonials()
 })
 
 onBeforeUnmount(() => {
@@ -124,95 +163,158 @@ onBeforeUnmount(() => {
   <main class="admin-page">
     <div class="admin-container">
 
+      <!-- HEADER -->
       <header class="admin-header">
         <div>
           <span class="eyebrow">Admin Panel</span>
-          <h1>Kelola Artikel Blog</h1>
+          <h1>Dashboard Admin</h1>
         </div>
         <button class="btn btn-outline" @click="handleLogout">Keluar</button>
       </header>
 
-      <div class="admin-toolbar">
-        <p>{{ articles.length }} artikel total</p>
-        <button class="btn btn-primary" @click="showForm ? closeForm() : openCreateForm()">
-          {{ showForm ? 'Tutup form' : '+ Tambah Artikel' }}
+      <!-- TABS -->
+      <nav class="admin-tabs">
+        <button
+          type="button"
+          class="admin-tab"
+          :class="{ 'admin-tab--active': activeTab === 'artikel' }"
+          @click="setTab('artikel')"
+        >
+          Artikel
+          <span class="admin-tab__count">{{ articles.length }}</span>
         </button>
+        <button
+          type="button"
+          class="admin-tab"
+          :class="{ 'admin-tab--active': activeTab === 'testimoni' }"
+          @click="setTab('testimoni')"
+        >
+          Testimoni
+          <span class="admin-tab__count">{{ testimonials.length }}</span>
+        </button>
+      </nav>
+
+      <!-- ================= TAB: ARTIKEL ================= -->
+      <div v-if="activeTab === 'artikel'">
+        <div class="admin-toolbar">
+          <p>{{ articles.length }} artikel total</p>
+          <button class="btn btn-primary" @click="showForm ? closeForm() : openCreateForm()">
+            {{ showForm ? 'Tutup form' : '+ Tambah Artikel' }}
+          </button>
+        </div>
+
+        <form v-if="showForm" @submit.prevent="handleSubmit" class="article-form">
+          <h2 class="form-title">
+            {{ editingId ? 'Edit Artikel' : 'Tambah Artikel Baru' }}
+          </h2>
+
+          <label>
+            Judul Artikel
+            <input v-model="form.title" type="text" required placeholder="Judul artikel..." />
+          </label>
+
+          <label>
+            Kategori
+            <select v-model="form.category" required>
+              <option v-for="c in categories" :key="c" :value="c">{{ c }}</option>
+            </select>
+          </label>
+
+          <label>
+            Ringkasan (excerpt)
+            <textarea v-model="form.excerpt" rows="2" required placeholder="Ringkasan singkat artikel..."></textarea>
+          </label>
+
+          <label>
+            URL Gambar
+            <input v-model="form.image" type="url" placeholder="https://..." />
+          </label>
+
+          <label>
+            Estimasi waktu baca
+            <input v-model="form.readTime" type="text" placeholder="5 min read" />
+          </label>
+
+          <label>
+            Isi Artikel (satu paragraf per baris)
+            <textarea v-model="form.content" rows="6" required placeholder="Paragraf pertama...&#10;Paragraf kedua...&#10;dst."></textarea>
+          </label>
+
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary">
+              {{ editingId ? 'Simpan Perubahan' : 'Simpan Artikel' }}
+            </button>
+            <button type="button" class="btn btn-outline" @click="closeForm">Batal</button>
+          </div>
+        </form>
+
+        <div class="article-table">
+          <div v-for="a in articles" :key="a.id" class="article-row">
+            <router-link :to="`/blog/${a.id}`" class="row-thumb-link" title="Lihat artikel">
+              <img :src="a.image" :alt="a.title" class="row-thumb" />
+            </router-link>
+            <div class="row-info">
+              <span class="row-category">{{ a.category }}</span>
+              <strong>{{ a.title }}</strong>
+              <span class="row-date">{{ a.date }} · {{ a.readTime }}</span>
+            </div>
+
+            <div class="row-menu">
+              <button
+                class="menu-trigger"
+                type="button"
+                @click.stop="toggleMenu(a.id)"
+                :aria-expanded="openMenuId === a.id"
+                aria-label="Menu artikel"
+              >⋮</button>
+
+              <div v-if="openMenuId === a.id" class="menu-dropdown">
+                <button type="button" class="menu-item" @click="openEditForm(a)">Edit</button>
+                <button type="button" class="menu-item menu-item-danger" @click="handleDelete(a.id)">Hapus</button>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <!-- FORM TAMBAH / EDIT ARTIKEL -->
-      <form v-if="showForm" @submit.prevent="handleSubmit" class="article-form">
-        <h2 class="form-title">
-          {{ editingId ? 'Edit Artikel' : 'Tambah Artikel Baru' }}
-        </h2>
-
-        <label>
-          Judul Artikel
-          <input v-model="form.title" type="text" required placeholder="Judul artikel..." />
-        </label>
-
-        <label>
-          Kategori
-          <select v-model="form.category" required>
-            <option v-for="c in categories" :key="c" :value="c">{{ c }}</option>
-          </select>
-        </label>
-
-        <label>
-          Ringkasan (excerpt)
-          <textarea v-model="form.excerpt" rows="2" required placeholder="Ringkasan singkat artikel..."></textarea>
-        </label>
-
-        <label>
-          URL Gambar
-          <input v-model="form.image" type="url" placeholder="https://..." />
-        </label>
-
-        <label>
-          Estimasi waktu baca
-          <input v-model="form.readTime" type="text" placeholder="5 min read" />
-        </label>
-
-        <label>
-          Isi Artikel (satu paragraf per baris)
-          <textarea v-model="form.content" rows="6" required placeholder="Paragraf pertama...&#10;Paragraf kedua...&#10;dst."></textarea>
-        </label>
-
-        <div class="form-actions">
-          <button type="submit" class="btn btn-primary">
-            {{ editingId ? 'Simpan Perubahan' : 'Simpan Artikel' }}
-          </button>
-          <button type="button" class="btn btn-outline" @click="closeForm">Batal</button>
+      <!-- ================= TAB: TESTIMONI ================= -->
+      <div v-if="activeTab === 'testimoni'">
+        <div class="admin-toolbar">
+          <p>{{ testimonials.length }} ulasan total</p>
         </div>
-      </form>
 
-      <!-- LIST ARTIKEL -->
-      <div class="article-table">
-        <div v-for="a in articles" :key="a.id" class="article-row">
-          <router-link :to="`/blog/${a.id}`" class="row-thumb-link" title="Lihat artikel">
-            <img :src="a.image" :alt="a.title" class="row-thumb" />
-          </router-link>
-          <div class="row-info">
-            <span class="row-category">{{ a.category }}</span>
-            <strong>{{ a.title }}</strong>
-            <span class="row-date">{{ a.date }} · {{ a.readTime }}</span>
+        <div class="article-table">
+          <div v-if="testimonials.length === 0" class="empty-state">
+            Belum ada ulasan.
           </div>
 
-          <div class="row-menu">
-            <button
-              class="menu-trigger"
-              type="button"
-              @click.stop="toggleMenu(a.id)"
-              :aria-expanded="openMenuId === a.id"
-              aria-label="Menu artikel"
-            >⋮</button>
+          <div v-for="t in testimonials" :key="t.id" class="article-row testi-row">
+            <div class="testi-avatar">
+              <img v-if="t.photo" :src="t.photo" :alt="t.name" />
+              <span v-else class="testi-initials">{{ (t.name || '?').slice(0, 2).toUpperCase() }}</span>
+            </div>
 
-            <div v-if="openMenuId === a.id" class="menu-dropdown">
-              <button type="button" class="menu-item" @click="openEditForm(a)">
-                Edit
-              </button>
-              <button type="button" class="menu-item menu-item-danger" @click="handleDelete(a.id)">
-                Hapus
-              </button>
+            <div class="row-info">
+              <strong>{{ t.name }}</strong>
+              <span class="row-date">{{ t.role }}, {{ t.company }} · {{ formatTestiTime(t.createdAt) }}</span>
+              <p class="testi-quote">{{ t.quote }}</p>
+              <span class="testi-stars">{{ '★'.repeat(t.rating || 0) }}{{ '☆'.repeat(5 - (t.rating || 0)) }}</span>
+            </div>
+
+            <div class="row-menu">
+              <button
+                class="menu-trigger"
+                type="button"
+                @click.stop="toggleMenu('testi-' + t.id)"
+                :aria-expanded="openMenuId === 'testi-' + t.id"
+                aria-label="Menu ulasan"
+              >⋮</button>
+
+              <div v-if="openMenuId === 'testi-' + t.id" class="menu-dropdown">
+                <button type="button" class="menu-item menu-item-danger" @click="deleteTestimonial(t.id)">
+                  Hapus
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -246,7 +348,7 @@ onBeforeUnmount(() => {
   align-items: flex-end;
   justify-content: space-between;
   gap: 20px;
-  margin-bottom: 28px;
+  margin-bottom: 24px;
   padding-bottom: 20px;
   border-bottom: 1px solid var(--color-border);
 }
@@ -262,7 +364,67 @@ onBeforeUnmount(() => {
   text-transform: uppercase;
 }
 
-h1 { margin: 0; font-family: var(--font-heading); font-size: 26px; font-weight: 600; }
+h1 {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: 26px;
+  font-weight: 600;
+}
+
+/* ===== TABS ===== */
+.admin-tabs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 24px;
+  padding: 4px;
+  background: #f0efeb;
+  border-radius: 12px;
+  width: fit-content;
+}
+
+.admin-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border: none;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--color-text-secondary);
+  font-family: var(--font-heading);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background .2s ease, color .2s ease, box-shadow .2s ease;
+}
+
+.admin-tab:hover {
+  color: var(--color-text);
+}
+
+.admin-tab--active {
+  background: var(--color-surface);
+  color: var(--color-text);
+  box-shadow: 0 2px 8px rgba(26, 26, 26, 0.08);
+}
+
+.admin-tab__count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: rgba(26, 26, 26, 0.06);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.admin-tab--active .admin-tab__count {
+  background: rgba(235, 43, 12, 0.12);
+  color: var(--color-red);
+}
 
 .admin-toolbar {
   display: flex;
@@ -292,7 +454,14 @@ h1 { margin: 0; font-family: var(--font-heading); font-size: 26px; font-weight: 
   color: var(--color-text);
 }
 
-label { display: flex; flex-direction: column; gap: 6px; font-size: 12px; font-weight: 600; color: var(--color-text-secondary); }
+label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+}
 
 input, select, textarea {
   padding: 10px 12px;
@@ -304,7 +473,10 @@ input, select, textarea {
   resize: vertical;
 }
 
-input:focus, select:focus, textarea:focus { outline: none; border-color: var(--color-red); }
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: var(--color-red);
+}
 
 .form-actions {
   display: flex;
@@ -325,10 +497,22 @@ input:focus, select:focus, textarea:focus { outline: none; border-color: var(--c
 .btn:hover { transform: translateY(-1px); }
 .btn-primary { background: var(--color-red); color: #fff; align-self: flex-start; }
 .btn-primary:hover { opacity: .93; }
-.btn-outline { background: transparent; border: 1px solid var(--color-border); color: var(--color-text); flex-shrink: 0; }
-.btn-outline:hover { border-color: var(--color-red); color: var(--color-red); }
+.btn-outline {
+  background: transparent;
+  border: 1px solid var(--color-border);
+  color: var(--color-text);
+  flex-shrink: 0;
+}
+.btn-outline:hover {
+  border-color: var(--color-red);
+  color: var(--color-red);
+}
 
-.article-table { display: flex; flex-direction: column; gap: 10px; }
+.article-table {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
 
 .article-row {
   display: grid;
@@ -350,14 +534,21 @@ input:focus, select:focus, textarea:focus { outline: none; border-color: var(--c
 }
 .row-thumb-link:hover { opacity: .8; }
 
-.row-thumb { width: 64px; height: 48px; object-fit: cover; border-radius: 6px; flex-shrink: 0; display: block; }
+.row-thumb {
+  width: 64px;
+  height: 48px;
+  object-fit: cover;
+  border-radius: 6px;
+  flex-shrink: 0;
+  display: block;
+}
 
 .row-info {
   display: flex;
   flex-direction: column;
   gap: 3px;
   font-size: 13px;
-  min-width: 0; /* penting: biar teks bisa wrap/truncate, tidak mendorong kolom lain */
+  min-width: 0;
 }
 .row-info strong {
   display: -webkit-box;
@@ -366,10 +557,17 @@ input:focus, select:focus, textarea:focus { outline: none; border-color: var(--c
   overflow: hidden;
   line-height: 1.35;
 }
-.row-category { color: var(--color-deep-orange); font-size: 10px; font-weight: 700; text-transform: uppercase; }
-.row-date { color: var(--color-text-secondary); font-size: 11px; }
+.row-category {
+  color: var(--color-deep-orange);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+.row-date {
+  color: var(--color-text-secondary);
+  font-size: 11px;
+}
 
-/* ===== Menu titik tiga (Edit / Hapus) ===== */
 .row-menu {
   position: relative;
   flex-shrink: 0;
@@ -428,7 +626,58 @@ input:focus, select:focus, textarea:focus { outline: none; border-color: var(--c
 .menu-item-danger { color: var(--color-red); }
 .menu-item-danger:hover { background: rgba(235, 43, 12, .08); }
 
-/* ===== Responsive ===== */
+/* Testimoni */
+.testi-row {
+  grid-template-columns: 48px 1fr auto;
+  align-items: flex-start;
+}
+
+.testi-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: #E75119;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.testi-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.testi-initials {
+  color: #fff;
+  font-family: var(--font-heading);
+  font-size: 13px;
+  font-weight: 700;
+}
+.testi-quote {
+  margin: 4px 0 0;
+  font-size: 12.5px;
+  color: var(--color-text-secondary);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  line-height: 1.45;
+}
+.testi-stars {
+  font-size: 12px;
+  color: #FB9F37;
+  margin-top: 2px;
+}
+.empty-state {
+  padding: 24px;
+  text-align: center;
+  color: var(--color-text-secondary);
+  font-size: 13px;
+  border: 1px dashed var(--color-border);
+  border-radius: 10px;
+}
+
 @media (max-width: 768px) {
   .admin-page { padding: 100px 16px 32px; }
 }
@@ -436,6 +685,9 @@ input:focus, select:focus, textarea:focus { outline: none; border-color: var(--c
 @media (max-width: 560px) {
   .admin-header { flex-direction: column; align-items: flex-start; gap: 12px; }
   h1 { font-size: 21px; }
+
+  .admin-tabs { width: 100%; }
+  .admin-tab { flex: 1; justify-content: center; }
 
   .admin-toolbar { flex-direction: column; align-items: flex-start; gap: 10px; }
   .admin-toolbar .btn { align-self: stretch; text-align: center; }
@@ -447,10 +699,10 @@ input:focus, select:focus, textarea:focus { outline: none; border-color: var(--c
     grid-template-columns: 56px 1fr auto;
     padding: 12px 14px;
   }
+  .testi-row { grid-template-columns: 44px 1fr auto; }
   .row-thumb { width: 56px; height: 44px; }
   .row-info { font-size: 12.5px; }
   .row-info strong { font-size: 13px; }
-  .menu-dropdown { min-width: 130px; }
 }
 
 @media (max-width: 400px) {
