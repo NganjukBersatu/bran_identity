@@ -3,12 +3,15 @@ import { ref, onMounted, onBeforeUnmount } from 'vue'
 
 // ganti array ini dengan logo klien asli (taruh file di /public/clients/)
 const clients = [
-  { name: 'Klien-1.jpg', src: '/clients/klien-1.jpg' },
-  { name: 'Klien-2.png', src: '/clients/klien-2.png' },
-  { name: 'Klien-3.jpg', src: '/clients/klien-3.jpg' },
-  { name: 'Klien-4.jpg', src: '/clients/klien-4.jpg' },
-  { name: 'Klien-5.jpg', src: '/clients/klien-5.jpg' },
+  { name: 'Klien-1', src: '/clients/klien-1.jpg' },
+  { name: 'Klien-2', src: '/clients/klien-2.png' },
+  { name: 'Klien-3', src: '/clients/klien-3.jpg' },
+  { name: 'Klien-4', src: '/clients/klien-4.jpg' },
+  { name: 'Klien-5', src: '/clients/klien-5.jpg' },
 ]
+
+// duplikasi biar animasi seamless (setelah habis langsung muncul lagi dari kanan)
+const logos = [...clients, ...clients]
 
 const sectionEl = ref(null)
 let observer
@@ -47,16 +50,20 @@ onBeforeUnmount(() => {
 <template>
   <section ref="sectionEl" class="logos">
     <div class="container">
-      <p class="logos__label reveal" data-reveal="fade-up">Dipercaya oleh berbagai bisnis</p>
-      <div class="logos__row">
-        <div
-          v-for="(logo, i) in clients"
-          :key="logo.name"
-          class="logos__card reveal"
-          data-reveal="fade-up"
-          :data-delay="80 + i * 70"
-        >
-          <img :src="logo.src" :alt="logo.name" loading="lazy" decoding="async" />
+      <p class="logos__label reveal" data-reveal="fade-up">
+        Dipercaya oleh berbagai bisnis
+      </p>
+
+      <!-- MARQUEE TRACK -->
+      <div class="logos__marquee reveal" data-reveal="fade-up" data-delay="100">
+        <div class="logos__track">
+          <div
+            v-for="(logo, i) in logos"
+            :key="`${logo.name}-${i}`"
+            class="logos__card"
+          >
+            <img :src="logo.src" :alt="logo.name" loading="lazy" decoding="async" />
+          </div>
         </div>
       </div>
     </div>
@@ -67,20 +74,31 @@ onBeforeUnmount(() => {
 .logos {
   padding: 64px 0;
   background: #fff;
+  overflow: hidden;
 }
 
 /* ---------- reveal animation ---------- */
 .reveal {
   opacity: 0;
-  transition: opacity .65s cubic-bezier(0.16, 1, 0.3, 1), transform .65s cubic-bezier(0.16, 1, 0.3, 1);
+  transition:
+    opacity 0.65s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.65s cubic-bezier(0.16, 1, 0.3, 1);
   will-change: opacity, transform;
 }
-.reveal[data-reveal="fade-up"] { transform: translateY(22px) scale(0.97); }
-.reveal.is-visible { opacity: 1; transform: translateY(0) scale(1); }
+.reveal[data-reveal="fade-up"] {
+  transform: translateY(22px) scale(0.97);
+}
+.reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
 
 @media (prefers-reduced-motion: reduce) {
   .reveal {
     transition: none;
+  }
+  .logos__track {
+    animation: none !important;
   }
 }
 
@@ -94,41 +112,68 @@ onBeforeUnmount(() => {
   margin-bottom: 40px;
 }
 
-.logos__row {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  align-items: center;
-  justify-items: center;
-  gap: 24px;
-  max-width: 980px;
-  margin: 0 auto;
+/* ===== MARQUEE ===== */
+.logos__marquee {
+  width: 100%;
+  overflow: hidden;
+  mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    #000 8%,
+    #000 92%,
+    transparent 100%
+  );
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    #000 8%,
+    #000 92%,
+    transparent 100%
+  );
 }
 
-/* card dibuat polos: tanpa background, border, shadow, atau padding
-   supaya yang tampil hanya logo-nya saja. Ukuran dibuat konsisten
-   lewat aspect-ratio, bukan height tetap, supaya logo landscape
-   maupun square tetap proporsional dan tidak "ngambang" kekecilan. */
+.logos__track {
+  display: flex;
+  align-items: center;
+  gap: 48px;
+  width: max-content;
+  animation: marquee 28s linear infinite;
+}
+
+/* pause saat hover */
+.logos__marquee:hover .logos__track {
+  animation-play-state: paused;
+}
+
+@keyframes marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
 .logos__card {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 100%;
-  aspect-ratio: 16 / 9;
-  max-width: 180px;
+  flex-shrink: 0;
+  width: 200px;      /* sebelumnya 160px */
+  height: 88px;      /* sebelumnya 72px */
   transition: transform 0.25s ease;
 }
 
 .logos__card:hover {
-  transform: translateY(-6px);
+  transform: translateY(-4px);
 }
 
 .logos__card img {
-  max-height: 72%;
-  max-width: 85%;
+  max-height: 70px;  /* sebelumnya 56px */
+  max-width: 170px;  /* sebelumnya 140px */
   width: auto;
   height: auto;
   object-fit: contain;
-  /* logo tampak abu-abu/redup saat idle, berwarna penuh & jernih saat hover */
   filter: grayscale(100%);
   opacity: 0.62;
   transition: filter 0.25s ease, opacity 0.25s ease, transform 0.25s ease;
@@ -144,15 +189,6 @@ onBeforeUnmount(() => {
    RESPONSIVE
 ========================================================= */
 
-/* TABLET BESAR — 1100px */
-@media (max-width: 1100px) {
-  .logos__row {
-    max-width: 860px;
-    gap: 20px;
-  }
-}
-
-/* TABLET — 900px: turun ke 4 kolom, logo dikecilkan sedikit */
 @media (max-width: 900px) {
   .logos {
     padding: 52px 0;
@@ -160,82 +196,63 @@ onBeforeUnmount(() => {
   .logos__label {
     margin-bottom: 32px;
   }
-  .logos__row {
-    grid-template-columns: repeat(4, 1fr);
-    max-width: 640px;
-    gap: 18px;
+  .logos__track {
+    gap: 36px;
+    animation-duration: 24s;
   }
   .logos__card {
-    max-width: 150px;
+    width: 170px;
+    height: 76px;
+  }
+  .logos__card img {
+    max-height: 58px;
+    max-width: 145px;
   }
 }
 
-/* TABLET KECIL — 768px */
-@media (max-width: 768px) {
+@media (max-width: 600px) {
   .logos {
-    padding: 44px 0;
+    padding: 40px 0;
   }
   .logos__label {
     font-size: 13px;
     margin-bottom: 28px;
   }
-  .logos__row {
-    grid-template-columns: repeat(3, 1fr);
-    max-width: 480px;
-    gap: 16px;
+  .logos__track {
+    gap: 28px;
+    animation-duration: 20s;
   }
   .logos__card {
-    max-width: 130px;
+    width: 120px;
+    height: 56px;
   }
-}
-
-/* MOBILE — 600px: grid 3 kolom rapi */
-@media (max-width: 600px) {
-  .logos {
-    padding: 40px 0;
-  }
-  .logos__row {
-    gap: 14px;
-  }
-  .logos__card {
-    max-width: 110px;
-  }
-  /* selalu tampilkan logo lebih jelas di HP, hover tidak relevan di touch device */
   .logos__card img {
+    max-height: 42px;
+    max-width: 100px;
     filter: grayscale(35%);
     opacity: 0.9;
   }
 }
 
-/* MOBILE KECIL — 480px */
-@media (max-width: 480px) {
+@media (max-width: 400px) {
   .logos {
     padding: 36px 0;
   }
   .logos__label {
     font-size: 11.5px;
     margin-bottom: 22px;
-    padding: 0 12px;
   }
-  .logos__row {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
-  }
-  .logos__card {
-    max-width: 96px;
-  }
-}
-
-/* HP SANGAT KECIL — 380px: 2 kolom supaya logo tidak terlalu kecil */
-@media (max-width: 380px) {
-  .logos__row {
-    grid-template-columns: repeat(2, 1fr);
-    max-width: 260px;
-    gap: 16px;
+  .logos__track {
+    gap: 22px;
+    animation-duration: 18s;
   }
   .logos__card {
-    max-width: 120px;
-    aspect-ratio: 16 / 9;
+    width: 120px;
+    height: 56px;
+  }
+  .logos__card img {
+    max-height: 42px;
+    max-width: 105px;
   }
 }
 </style>
