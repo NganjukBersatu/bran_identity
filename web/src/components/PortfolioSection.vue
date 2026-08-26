@@ -1,73 +1,16 @@
 <script setup>
 import { ref, computed, onMounted, onBeforeUnmount, nextTick } from 'vue'
+import { projects } from '../data/projects.js'
 
 const props = defineProps({
   limit: { type: Number, default: 4 },
   showViewAll: { type: Boolean, default: true },
 })
 
-// Data project ini DISAMAKAN dengan views/portfolio.vue (judul, kategori,
-// dan gambar sama persis) supaya Home & halaman Portfolio konsisten.
-// Kalau menambah/mengganti project, lakukan di KEDUA file ini.
-const projects = [
-  {
-    title: 'Toko Komputer — Landing Page',
-    category: 'Landing Page',
-    tag: 'Digital Store',
-    image:
-      'https://images.unsplash.com/photo-1517430816045-df4b7de11d1d?auto=format&fit=crop&w=800&q=85'
-  },
-  {
-    title: 'Onlineshop Jam Tangan',
-    category: 'Landing Page',
-    tag: 'E-Commerce',
-    image:
-      'https://images.unsplash.com/photo-1524805444758-089113d48a6d?auto=format&fit=crop&w=800&q=85'
-  },
-  {
-    title: 'Skin Care Business',
-    category: 'Web Design',
-    tag: 'Beauty & Care',
-    image:
-      'https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=800&q=85'
-  },
-  {
-    title: 'Healthy Care App',
-    category: 'App Design',
-    tag: 'Health Tech',
-    image:
-      'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=800&q=85'
-  },
-  {
-    title: 'PT Prabu Muda Bekarya',
-    category: 'Company Profile',
-    tag: 'Konstruksi',
-    image:
-      'https://images.unsplash.com/photo-1541888946425-d81bb19240f5?auto=format&fit=crop&w=800&q=85'
-  },
-  {
-    title: 'Abott Cargo — Landing Page',
-    category: 'Landing Page',
-    tag: 'Logistik',
-    image:
-      'https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&w=800&q=85'
-  },
-  {
-    title: 'PT Sumber Nusa Sejahtera',
-    category: 'Company Profile',
-    tag: 'Manufaktur',
-    image:
-      'https://images.unsplash.com/photo-1496247749665-49cf5b1022e9?auto=format&fit=crop&w=800&q=85'
-  },
-  {
-    title: 'Brand Identity — FinTrust',
-    category: 'Brand Identity',
-    tag: 'Finansial',
-    image:
-      'https://images.unsplash.com/photo-1561070791-2526d30994b5?auto=format&fit=crop&w=800&q=85'
-  }
-]
-
+// Data project sekarang diambil langsung dari src/data/projects.js —
+// SATU sumber data yang sama dipakai oleh Home, halaman Portfolio,
+// dan halaman Detail Portfolio. Kalau menambah/mengganti project,
+// cukup edit di src/data/projects.js saja (tidak perlu di 2 tempat lagi).
 const displayedProjects = computed(() =>
   props.limit ? projects.slice(0, props.limit) : projects
 )
@@ -119,14 +62,14 @@ onBeforeUnmount(() => {
 
       <div class="portfolio__grid">
         <router-link
-          to="/portfolio"
+          :to="`/portfolio/${p.slug}`"
           class="portfolio-card reveal reveal--up"
           v-for="(p, index) in displayedProjects"
-          :key="p.title"
+          :key="p.slug"
           :style="{ '--reveal-delay': `${160 + index * 80}ms` }"
         >
           <div class="portfolio-card__media">
-            <img :src="p.image" :alt="p.title" />
+            <img :src="p.coverImage || p.image" :alt="p.title" />
             <span class="portfolio-card__tag">{{ p.tag }}</span>
           </div>
           <div class="portfolio-card__body">

@@ -8,6 +8,7 @@ import { useAdminAuth } from '../composables/useAdminAuth.js'
 import HomeView from '../views/home.vue'
 import SolutionsView from '../views/solutions.vue'
 import PortfolioView from '../views/portfolio.vue'
+import PortfolioDetailView from '../views/portfolio-detail.vue'
 import TestimoniView from '../views/testimoni.vue'
 import BlogView from '../views/blog.vue'
 import blogRoutes from './blog.js'
@@ -60,6 +61,12 @@ const router = createRouter({
       path: '/portfolio',
       name: 'portfolio',
       component: PortfolioView,
+    },
+
+    {
+      path: '/portfolio/:slug',
+      name: 'portfolio-detail',
+      component: PortfolioDetailView,
     },
 
     {

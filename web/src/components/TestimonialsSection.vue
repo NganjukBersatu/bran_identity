@@ -4,21 +4,24 @@ import { ref, onMounted, onBeforeUnmount } from 'vue'
 const testimonials = ref([
   {
     quote: 'Timnya sangat komunikatif dan hasil kerjanya sesuai ekspektasi kami.',
-    name: 'Nama Klien',
-    role: 'Jabatan, Nama Perusahaan',
+    name: 'Andi Pratama',
+    role: 'Owner, Toko Komputer Jaya',
     rating: 5,
+    photo: 'https://randomuser.me/api/portraits/men/32.jpg',
   },
   {
     quote: 'Proses pengerjaan cepat, rapi, dan selalu update progress ke kami.',
-    name: 'Nama Klien Kedua',
-    role: 'Jabatan, Nama Perusahaan',
+    name: 'Sarah Wulandari',
+    role: 'Marketing Manager, Klinik Sehat Prima',
     rating: 5,
+    photo: 'https://randomuser.me/api/portraits/women/44.jpg',
   },
   {
     quote: 'Sangat membantu bisnis kami tumbuh lewat solusi digital yang tepat.',
-    name: 'Nama Klien Ketiga',
-    role: 'Jabatan, Nama Perusahaan',
+    name: 'Budi Santoso',
+    role: 'Direktur, PT Sumber Nusa Sejahtera',
     rating: 4,
+    photo: 'https://randomuser.me/api/portraits/men/67.jpg',
   },
 ])
 
@@ -29,6 +32,12 @@ function getInitials(name) {
     .slice(0, 2)
     .join('')
     .toUpperCase()
+}
+
+// Kalau foto gagal dimuat (link rusak / belum diisi), sembunyikan <img>
+// supaya fallback inisial di belakangnya otomatis terlihat.
+function onPhotoError(event) {
+  event.target.style.display = 'none'
 }
 
 let observer = null
@@ -83,7 +92,17 @@ onBeforeUnmount(() => {
           <p class="testimonial-card__quote">{{ t.quote }}</p>
 
           <div class="testimonial-card__footer">
-            <div class="testimonial-card__avatar">{{ getInitials(t.name) }}</div>
+            <div class="testimonial-card__avatar">
+              <img
+                v-if="t.photo"
+                :src="t.photo"
+                :alt="t.name"
+                class="testimonial-card__avatar-img"
+                loading="lazy"
+                @error="onPhotoError"
+              />
+              <span class="testimonial-card__avatar-fallback">{{ getInitials(t.name) }}</span>
+            </div>
             <div class="testimonial-card__who">
               <strong>{{ t.name }}</strong>
               <span>{{ t.role }}</span>
@@ -229,11 +248,14 @@ onBeforeUnmount(() => {
   border-top: 1px solid var(--color-border);
 }
 
+/* ===== Avatar (foto + fallback inisial) ===== */
 .testimonial-card__avatar {
+  position: relative;
   flex-shrink: 0;
   width: 40px;
   height: 40px;
   border-radius: 50%;
+  overflow: hidden;
   background: var(--color-text);
   color: var(--color-yellow);
   display: flex;
@@ -241,6 +263,22 @@ onBeforeUnmount(() => {
   justify-content: center;
   font-size: 13px;
   font-weight: 700;
+  border: 2px solid var(--color-surface);
+  box-shadow: 0 0 0 1.5px var(--color-orange);
+}
+
+.testimonial-card__avatar-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 1;
+}
+
+.testimonial-card__avatar-fallback {
+  position: relative;
+  z-index: 0;
 }
 
 .testimonial-card__who {
