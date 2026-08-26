@@ -1,5 +1,6 @@
 <script setup>
 import { ref, computed, onMounted, onBeforeUnmount, nextTick } from 'vue'
+import { projects } from '../data/projects.js'
 
 const pageRoot = ref(null)
 let observer = null
@@ -14,177 +15,6 @@ const categories = [
 ]
 
 const activeCategory = ref('Semua')
-
-const projects = [
-  {
-    title: 'Toko Komputer — Landing Page',
-    category: 'Landing Page',
-    tag: 'Digital Store',
-    image:
-      'https://images.unsplash.com/photo-1517430816045-df4b7de11d1d?auto=format&fit=crop&w=800&q=85'
-  },
-  {
-    title: 'Onlineshop Jam Tangan',
-    category: 'Landing Page',
-    tag: 'E-Commerce',
-    image:
-      'https://images.unsplash.com/photo-1524805444758-089113d48a6d?auto=format&fit=crop&w=800&q=85'
-  },
-  {
-    title: 'Skin Care Business',
-    category: 'Web Design',
-    tag: 'Beauty & Care',
-    image:
-      'https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=800&q=85'
-  },
-  {
-    title: 'Healthy Care App',
-    category: 'App Design',
-    tag: 'Health Tech',
-    image:
-      'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=800&q=85'
-  },
-  {
-    title: 'PT Prabu Muda Bekarya',
-    category: 'Company Profile',
-    tag: 'Konstruksi',
-    image:
-      'https://images.unsplash.com/photo-1541888946425-d81bb19240f5?auto=format&fit=crop&w=800&q=85'
-  },
-  {
-    title: 'Abott Cargo — Landing Page',
-    category: 'Landing Page',
-    tag: 'Logistik',
-    image:
-      'https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&w=800&q=85'
-  },
-  {
-    title: 'PT Sumber Nusa Sejahtera',
-    category: 'Company Profile',
-    tag: 'Manufaktur',
-    image:
-      'https://images.unsplash.com/photo-1496247749665-49cf5b1022e9?auto=format&fit=crop&w=800&q=85'
-  },
-  {
-    title: 'Brand Identity — FinTrust',
-    category: 'Brand Identity',
-    tag: 'Finansial',
-    image:
-      'https://images.unsplash.com/photo-1561070791-2526d30994b5?auto=format&fit=crop&w=800&q=85'
-  },
-  {
-    title: 'Kopi Nusantara — Rebranding',
-    category: 'Brand Identity',
-    tag: 'F&B',
-    image:
-      'https://images.unsplash.com/photo-1447933601403-0c6688de566e?auto=format&fit=crop&w=800&q=85'
-  },
-  {
-    title: 'Klinik Sehat Prima',
-    category: 'Web Design',
-    tag: 'Kesehatan',
-    image:
-      'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&w=800&q=85'
-  },
-  {
-    title: 'EduNusantara — Company Profile',
-    category: 'Company Profile',
-    tag: 'Pendidikan',
-    image:
-      'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=800&q=85'
-  },
-  {
-    title: 'Ruang Kerja App',
-    category: 'App Design',
-    tag: 'Produktivitas',
-    image:
-      'https://images.unsplash.com/photo-1497215728101-856f4ea42174?auto=format&fit=crop&w=800&q=85'
-  },
-  {
-    title: 'EcoTravel — Landing Page',
-    category: 'Landing Page',
-    tag: 'Travel',
-    image:
-      'https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&w=800&q=85'
-  },
-  {
-    title: 'Sewa Alat Kita',
-    category: 'Web Design',
-    tag: 'Rental',
-    image:
-      'https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?auto=format&fit=crop&w=800&q=85'
-  },
-  {
-    title: 'Brand Identity — Titik Kumpul',
-    category: 'Brand Identity',
-    tag: 'Coworking',
-    image:
-      'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=800&q=85'
-  },
-  {
-    title: 'Ngaso Kuliner App',
-    category: 'App Design',
-    tag: 'Food Delivery',
-    image:
-      'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=800&q=85'
-  },
-  {
-    title: 'Griya Sewa Nusantara',
-    category: 'Web Design',
-    tag: 'Properti',
-    image:
-      'https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=800&q=85'
-  },
-  {
-    title: 'Agri Terhubung — Landing Page',
-    category: 'Landing Page',
-    tag: 'AgriTech',
-    image:
-      'https://images.unsplash.com/photo-1500595046743-cd271d694d30?auto=format&fit=crop&w=800&q=85'
-  },
-  {
-    title: 'Koperasi Sejahtera Bersama',
-    category: 'Company Profile',
-    tag: 'Koperasi',
-    image:
-      'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=800&q=85'
-  },
-  {
-    title: 'Brand Identity — Pasar Digital ID',
-    category: 'Brand Identity',
-    tag: 'Marketplace',
-    image:
-      'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&w=800&q=85'
-  },
-  {
-    title: 'Karyawan Prima — Sistem HR',
-    category: 'App Design',
-    tag: 'HR Tech',
-    image:
-      'https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=800&q=85'
-  },
-  {
-    title: 'Logistik Cepat — Dashboard',
-    category: 'Web Design',
-    tag: 'Logistik',
-    image:
-      'https://images.unsplash.com/photo-1494412651409-8963ce7935a7?auto=format&fit=crop&w=800&q=85'
-  },
-  {
-    title: 'PT Karya Bangun Sentosa',
-    category: 'Company Profile',
-    tag: 'Konstruksi',
-    image:
-      'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=800&q=85'
-  },
-  {
-    title: 'Belanja Cepat — Landing Page',
-    category: 'Landing Page',
-    tag: 'E-Commerce',
-    image:
-      'https://images.unsplash.com/photo-1472851294608-062f824d29cc?auto=format&fit=crop&w=800&q=85'
-  }
-]
 
 const filteredProjects = computed(() => {
   if (activeCategory.value === 'Semua') return projects
@@ -268,18 +98,20 @@ onBeforeUnmount(() => {
       <div class="portfolio-grid">
         <article
           v-for="(project, index) in filteredProjects"
-          :key="project.title"
+          :key="project.slug"
           class="project-card reveal reveal--up"
           :style="{ '--reveal-delay': `${(index % 8) * 80}ms` }"
         >
-          <div class="project-thumb">
-            <img :src="project.image" :alt="project.title" />
-            <span class="project-thumb-tag">{{ project.tag }}</span>
-          </div>
-          <div class="project-info">
-            <span class="project-category">{{ project.category }}</span>
-            <h3>{{ project.title }}</h3>
-          </div>
+          <router-link :to="`/portfolio/${project.slug}`" class="project-link">
+            <div class="project-thumb">
+              <img :src="project.coverImage || project.image" :alt="project.title" />
+              <span class="project-thumb-tag">{{ project.tag }}</span>
+            </div>
+            <div class="project-info">
+              <span class="project-category">{{ project.category }}</span>
+              <h3>{{ project.title }}</h3>
+            </div>
+          </router-link>
         </article>
       </div>
 
@@ -418,6 +250,13 @@ onBeforeUnmount(() => {
   box-shadow: 0 16px 32px rgba(0, 0, 0, 0.08);
 }
 
+/* Supaya link tidak mengubah warna teks/underline default */
+.project-link {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+}
+
 .project-thumb {
   position: relative;
   height: 160px;
@@ -520,6 +359,7 @@ onBeforeUnmount(() => {
 
   .portfolio-grid {
     grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
   }
 }
 
@@ -596,12 +436,24 @@ onBeforeUnmount(() => {
   }
 
   .portfolio-grid {
-    grid-template-columns: 1fr;
-    gap: 16px;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
   }
 
   .project-thumb {
-    height: 190px;
+    height: 130px;
+  }
+
+  .project-info {
+    padding: 12px 12px 14px;
+  }
+
+  .project-category {
+    font-size: 11px;
+  }
+
+  .project-info h3 {
+    font-size: 14px;
   }
 
   .portfolio-cta {
@@ -638,12 +490,21 @@ onBeforeUnmount(() => {
     padding: 7px 14px;
   }
 
+  .portfolio-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  .project-thumb {
+    height: 110px;
+  }
+
   .project-info {
-    padding: 14px 14px 16px;
+    padding: 10px 10px 12px;
   }
 
   .project-info h3 {
-    font-size: 15.5px;
+    font-size: 13px;
   }
 }
 </style>

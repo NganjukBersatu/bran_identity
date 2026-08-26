@@ -1,5 +1,6 @@
 <script setup>
 import { computed, nextTick, onMounted, onBeforeUnmount, watch } from 'vue'
+import { useArticles } from '../composables/useArticles.js'
 
 const props = defineProps({
   limit: { type: Number, default: null },
@@ -9,19 +10,15 @@ const props = defineProps({
   searchQuery: { type: String, default: '' },
 })
 
-const posts = [
-  { date: '01 Jan', category: 'Tips', title: 'Judul Artikel Pertama', excerpt: 'Ringkasan singkat artikel yang membahas topik menarik seputar dunia digital.' },
-  { date: '15 Jan', category: 'Teknologi', title: 'Judul Artikel Kedua', excerpt: 'Ringkasan singkat artikel yang membahas topik menarik seputar dunia digital.' },
-  { date: '28 Jan', category: 'Bisnis', title: 'Judul Artikel Ketiga', excerpt: 'Ringkasan singkat artikel yang membahas topik menarik seputar dunia digital.' },
-  { date: '05 Feb', category: 'Tips', title: 'Judul Artikel Keempat', excerpt: 'Ringkasan singkat artikel yang membahas topik menarik seputar dunia digital.' },
-  { date: '18 Feb', category: 'Teknologi', title: 'Judul Artikel Kelima', excerpt: 'Ringkasan singkat artikel yang membahas topik menarik seputar dunia digital.' },
-  { date: '02 Mar', category: 'Bisnis', title: 'Judul Artikel Keenam', excerpt: 'Ringkasan singkat artikel yang membahas topik menarik seputar dunia digital.' },
-]
+// Data artikel sekarang diambil dari composable yang SAMA dengan
+// halaman Blog (src/composables/useArticles.js) — jadi Home dan
+// halaman Blog selalu konsisten dan otomatis sinkron.
+const { articles } = useArticles()
 
 // Pencocokan longgar dua arah, supaya tag hero (mis. "Tips Bisnis")
 // tetap match ke kategori artikel asli (mis. "Tips" / "Bisnis").
 const filteredPosts = computed(() => {
-  let list = posts
+  let list = articles.value
 
   if (props.activeCategory) {
     const tag = props.activeCategory.toLowerCase()
@@ -97,20 +94,15 @@ watch(filteredPosts, () => {
       </template>
 
       <div v-if="filteredPosts.length" class="blog__grid">
-        <a
-          href="#"
+        <router-link
+          :to="`/blog/${p.id}`"
           class="blog-card reveal"
           v-for="(p, i) in filteredPosts"
-          :key="p.title"
+          :key="p.id"
           :style="{ transitionDelay: (i % 3) * 0.1 + 's' }"
         >
           <div class="blog-card__media">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-              <path d="M4 5.5A1.5 1.5 0 015.5 4h13A1.5 1.5 0 0120 5.5v13a1.5 1.5 0 01-1.5 1.5h-13A1.5 1.5 0 014 18.5v-13z" />
-              <path d="M4 16l4.5-4.5a2 2 0 012.8 0L15 15" />
-              <path d="M14 13l1.5-1.5a2 2 0 012.8 0L20 13.5" />
-              <circle cx="9" cy="8.5" r="1.25" />
-            </svg>
+            <img :src="p.image" :alt="p.title" loading="lazy" />
           </div>
           <div class="blog-card__body">
             <div class="blog-card__meta">
@@ -121,7 +113,7 @@ watch(filteredPosts, () => {
             <p>{{ p.excerpt }}</p>
             <span class="blog-card__link">Baca selengkapnya →</span>
           </div>
-        </a>
+        </router-link>
       </div>
 
       <p v-else class="blog-empty">{{ emptyMessage }}</p>
@@ -185,17 +177,19 @@ watch(filteredPosts, () => {
 
 .blog-card__media {
   height: 140px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  overflow: hidden;
   background: linear-gradient(135deg, #fff7ed, #ffedd5);
-  color: var(--color-deep-orange, #ea580c);
 }
 
-.blog-card__media svg {
-  width: 40px;
-  height: 40px;
-  opacity: 0.7;
+.blog-card__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.4s ease;
+}
+.blog-card:hover .blog-card__media img {
+  transform: scale(1.06);
 }
 
 .blog-card__body {
@@ -278,7 +272,6 @@ watch(filteredPosts, () => {
   .blog__grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
 
   .blog-card__media { height: 70px; }
-  .blog-card__media svg { width: 22px; height: 22px; }
 
   .blog-card__body { padding: 10px; }
   .blog-card__meta { gap: 6px; margin-bottom: 6px; flex-wrap: wrap; }

@@ -11,7 +11,7 @@ const slides = [
     subtitle:
       'Kami bantu wujudkan ide jadi produk digital nyata — dari website, aplikasi mobile, hingga sistem internal perusahaan.',
     ctaLabel: 'Konsultasi Gratis',
-    ctaLink: '/layanan/konsultasi',
+    ctaLink: '/contact',
     badge: { company: 'PT Nusantara Digital', offer: 'Konsultasi awal gratis' },
   },
   {
@@ -23,7 +23,7 @@ const slides = [
     subtitle:
       'Setiap proyek kami mulai dari memahami proses bisnis Anda, supaya solusi yang dibangun benar-benar terpakai, bukan sekadar cantik dilihat.',
     ctaLabel: 'Lihat Proses Kerja Kami',
-    ctaLink: '/proses-kerja',
+    ctaLink: '/tentang-kami',
     badge: { company: 'Studio Kreasi Indo', offer: 'Diskon 20% proyek pertama' },
   },
   {
@@ -35,7 +35,7 @@ const slides = [
     subtitle:
       'Dari perencanaan, desain, pengembangan, hingga maintenance — kami dampingi bisnis Anda di setiap tahap pertumbuhan digital.',
     ctaLabel: 'Lihat Portofolio Kami',
-    ctaLink: '/portofolio',
+    ctaLink: '/portfolio',
     badge: { company: 'Warna Cipta Group', offer: 'Free maintenance 1 bulan' },
   },
 ]

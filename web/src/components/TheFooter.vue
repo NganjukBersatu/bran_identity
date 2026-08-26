@@ -1,6 +1,29 @@
 <script setup>
-const layanan = ['Web Development', 'Mobile App Development', 'UI/UX Design', 'System / ERP Development']
-const perusahaan = ['Tentang Kami', 'Portofolio', 'Karir', 'Blog']
+import { computed } from 'vue'
+
+const layanan = [
+  { label: 'Custom Software Development', to: '/solutions/custom-software' },
+  { label: 'Web Development', to: '/solutions/web-development' },
+  { label: 'Mobile App Development', to: '/solutions/mobile-app' },
+  { label: 'UI/UX Design', to: '/solutions/ui-ux-design' },
+  { label: 'Cloud & DevOps', to: '/solutions/cloud-devops' },
+  { label: 'Maintenance & Support', to: '/solutions/maintenance-support' },
+]
+
+const perusahaan = [
+  { label: 'Tentang Kami', to: '/tentang-kami' },
+  { label: 'Portofolio', to: '/portfolio' },
+  { label: 'Karir', to: null },
+  { label: 'Blog', to: '/blog' },
+]
+
+const legal = [
+  { label: 'Syarat & Ketentuan', to: null },
+  { label: 'Kebijakan Privasi', to: null },
+]
+
+const legalWithRoute = computed(() => legal.filter((item) => item.to))
+const legalWithoutRoute = computed(() => legal.filter((item) => !item.to))
 
 const socials = [
   {
@@ -15,7 +38,7 @@ const socials = [
   },
   {
     name: 'WhatsApp',
-    href: '#',
+    href: 'https://wa.me/6283838438195',
     path: 'M17.5 14.4c-.3-.15-1.77-.87-2.04-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.94 1.17-.17.2-.35.22-.65.07-.3-.15-1.26-.46-2.4-1.47-.89-.79-1.48-1.77-1.66-2.07-.17-.3-.02-.46.13-.61.14-.14.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.07-.15-.67-1.6-.92-2.2-.24-.58-.49-.5-.67-.5-.17-.01-.37-.01-.57-.01s-.52.07-.8.37c-.27.3-1.04 1.02-1.04 2.47s1.07 2.87 1.22 3.07c.15.2 2.1 3.2 5.08 4.49.71.3 1.26.48 1.7.62.71.22 1.36.19 1.87.12.57-.09 1.77-.72 2.02-1.42.25-.7.25-1.3.17-1.42-.07-.12-.27-.2-.57-.35zM12.02 2C6.5 2 2 6.48 2 12c0 1.88.52 3.64 1.44 5.15L2 22l4.98-1.31A9.96 9.96 0 0012.02 22C17.52 22 22 17.52 22 12S17.52 2 12.02 2z',
   },
 ]
@@ -47,14 +70,19 @@ const socials = [
       <div class="footer__col">
         <h4>Layanan</h4>
         <ul>
-          <li v-for="l in layanan" :key="l"><a href="#">{{ l }}</a></li>
+          <li v-for="l in layanan" :key="l.label">
+            <router-link :to="l.to">{{ l.label }}</router-link>
+          </li>
         </ul>
       </div>
 
       <div class="footer__col">
         <h4>Perusahaan</h4>
         <ul>
-          <li v-for="p in perusahaan" :key="p"><a href="#">{{ p }}</a></li>
+          <li v-for="p in perusahaan" :key="p.label">
+            <router-link v-if="p.to" :to="p.to">{{ p.label }}</router-link>
+            <span v-else class="footer__link-disabled">{{ p.label }}</span>
+          </li>
         </ul>
       </div>
 
@@ -63,25 +91,29 @@ const socials = [
         <ul class="footer__contact">
           <li>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 21s7-6.5 7-11.5A7 7 0 105 9.5C5 14.5 12 21 12 21z" /><circle cx="12" cy="9.5" r="2.5" /></svg>
-            <span>Jl. Contoh Alamat No. 1, Kota</span>
+            <span>Indonesia</span>
           </li>
           <li>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 16.9v3a2 2 0 01-2.2 2 19.8 19.8 0 01-8.6-3 19.5 19.5 0 01-6-6 19.8 19.8 0 01-3-8.7A2 2 0 014.2 2h3a2 2 0 012 1.7c.1.9.3 1.8.6 2.7a2 2 0 01-.4 2.1L8.1 9.9a16 16 0 006 6l1.4-1.3a2 2 0 012.1-.4c.9.3 1.8.5 2.7.6a2 2 0 011.7 2.1z" /></svg>
-            <span>+62 xxx-xxxx-xxxx</span>
+            <a href="https://wa.me/6283838438195">+62 838-3843-8195</a>
           </li>
           <li>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="4" width="20" height="16" rx="2" /><path d="M2 6l10 7L22 6" /></svg>
-            <span>hello@namasoftwarehouse.com</span>
+            <a href="mailto:hello@branidentity.com">hello@branidentity.com</a>
           </li>
         </ul>
       </div>
     </div>
 
     <div class="container footer__bottom">
-      <span>© 2026 Nama Software House. All rights reserved.</span>
+      <span>© 2026 Bran Identity. All rights reserved.</span>
       <div class="footer__legal">
-        <a href="#">Syarat & Ketentuan</a>
-        <a href="#">Kebijakan Privasi</a>
+        <router-link v-for="item in legalWithRoute" :key="item.label" :to="item.to">
+          {{ item.label }}
+        </router-link>
+        <span v-for="item in legalWithoutRoute" :key="item.label" class="footer__link-disabled">
+          {{ item.label }}
+        </span>
       </div>
     </div>
   </footer>
@@ -102,7 +134,7 @@ const socials = [
 
 .footer__grid {
   display: grid;
-  grid-template-columns: 1.6fr 1fr 1fr 1.2fr;
+  grid-template-columns: 1.5fr 1.3fr 1fr 1.2fr;
   gap: 40px;
 }
 
@@ -197,6 +229,11 @@ const socials = [
   color: #fff;
 }
 
+.footer__link-disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+
 .footer__contact li {
   display: flex;
   align-items: flex-start;
@@ -227,9 +264,11 @@ const socials = [
 .footer__legal {
   display: flex;
   gap: 20px;
+  flex-wrap: wrap;
 }
 
-.footer__legal a {
+.footer__legal a,
+.footer__legal span {
   color: #a8a6a0;
   text-decoration: none;
   transition: color 0.2s ease;
@@ -239,18 +278,34 @@ const socials = [
   color: #fff;
 }
 
-/* Responsive */
-@media (max-width: 900px) {
+@media (max-width: 1024px) {
+  .footer__grid {
+    grid-template-columns: 1fr 1fr 1fr;
+    row-gap: 36px;
+  }
+  .footer__brand {
+    grid-column: 1 / -1;
+  }
+  .footer__brand p {
+    max-width: 420px;
+  }
+}
+
+@media (max-width: 768px) {
+  .footer {
+    padding: 56px 0 20px;
+  }
   .footer__grid {
     grid-template-columns: 1fr 1fr;
-    row-gap: 40px;
+    row-gap: 32px;
+    gap: 28px;
   }
   .footer__brand {
     grid-column: 1 / -1;
   }
 }
 
-@media (max-width: 560px) {
+@media (max-width: 480px) {
   .footer {
     padding: 48px 0 20px;
   }
@@ -261,6 +316,9 @@ const socials = [
   .footer__bottom {
     flex-direction: column;
     align-items: flex-start;
+  }
+  .footer__legal {
+    gap: 16px;
   }
 }
 </style>
