@@ -2,8 +2,8 @@
   <header
     class="navbar"
     :class="{
-      'navbar-transparent': isHome && !isScrolled,
-      'navbar-scrolled': isScrolled || !isHome
+      'navbar-transparent': isHome && !isScrolled && !isAdminPage,
+      'navbar-scrolled': isScrolled || !isHome || isAdminPage
     }"
   >
     <div class="navbar-container">
@@ -77,8 +77,9 @@
 
       <!-- =========================
            DESKTOP NAVIGATION
+           (disembunyikan di halaman admin)
       ========================== -->
-      <nav class="desktop-nav">
+      <nav v-if="!isAdminPage" class="desktop-nav">
 
         <!-- HOME -->
         <router-link
@@ -212,8 +213,10 @@
 
       <!-- =========================
            MOBILE BUTTON
+           (disembunyikan di halaman admin)
       ========================== -->
       <button
+        v-if="!isAdminPage"
         class="mobile-toggle"
         type="button"
         aria-label="Toggle navigation"
@@ -230,10 +233,11 @@
 
     <!-- =========================
          MOBILE NAVIGATION
+         (disembunyikan di halaman admin)
     ========================== -->
     <transition name="mobile-menu">
       <div
-        v-if="mobileOpen"
+        v-if="mobileOpen && !isAdminPage"
         class="mobile-nav"
       >
 
@@ -419,6 +423,15 @@ const isHome = computed(() => {
 
 
 /* =========================
+   ADMIN PAGE CHECK
+========================= */
+
+const isAdminPage = computed(() => {
+  return route.path.startsWith('/admin')
+})
+
+
+/* =========================
    SOLUTION PAGE CHECK
 ========================= */
 
@@ -587,9 +600,7 @@ onUnmounted(() => {
   backdrop-filter: none;
 }
 
-/* Gradient tipis di belakang navbar transparan, independen dari
-   scrim hero — jaga-jaga supaya teks navbar tetap kebaca meski
-   bagian atas foto hero kebetulan terang. */
+/* Gradient tipis di belakang navbar transparan */
 .navbar-transparent::before {
   content: '';
 
@@ -611,7 +622,7 @@ onUnmounted(() => {
 
 
 /* =====================================================
-   SCROLLED / OTHER PAGE
+   SCROLLED / OTHER PAGE / ADMIN
 ===================================================== */
 
 .navbar-scrolled {

@@ -1,28 +1,17 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
 import { useArticles } from '../composables/useArticles.js'
 import { useAdminAuth } from '../composables/useAdminAuth.js'
 
 const router = useRouter()
-const { articles, addArticle, deleteArticle } = useArticles()
+const { articles, addArticle, updateArticle, deleteArticle } = useArticles()
 const { logout } = useAdminAuth()
 
 const categories = ['Technology', 'Software Development', 'Business', 'Tips & Insight']
 
-const form = ref({
-  title: '',
-  category: categories[0],
-  excerpt: '',
-  image: '',
-  readTime: '5 min read',
-  content: ''
-})
-
-const showForm = ref(false)
-
-function resetForm() {
-  form.value = {
+function emptyForm() {
+  return {
     title: '',
     category: categories[0],
     excerpt: '',
@@ -32,8 +21,44 @@ function resetForm() {
   }
 }
 
+const form = ref(emptyForm())
+const showForm = ref(false)
+
+// null = mode "tambah artikel baru", angka = mode "edit artikel dengan id ini"
+const editingId = ref(null)
+
+function resetForm() {
+  form.value = emptyForm()
+  editingId.value = null
+}
+
+function openCreateForm() {
+  resetForm()
+  showForm.value = true
+}
+
+function openEditForm(article) {
+  editingId.value = article.id
+  form.value = {
+    title: article.title,
+    category: article.category,
+    excerpt: article.excerpt,
+    image: article.image,
+    readTime: article.readTime,
+    // gabungkan lagi array paragraf jadi teks per baris supaya bisa diedit di textarea
+    content: (article.content || []).join('\n')
+  }
+  showForm.value = true
+  closeMenu()
+}
+
+function closeForm() {
+  showForm.value = false
+  resetForm()
+}
+
 function handleSubmit() {
-  addArticle({
+  const payload = {
     title: form.value.title,
     category: form.value.category,
     excerpt: form.value.excerpt,
@@ -45,13 +70,19 @@ function handleSubmit() {
       .split('\n')
       .map((line) => line.trim())
       .filter(Boolean)
-  })
+  }
 
-  resetForm()
-  showForm.value = false
+  if (editingId.value) {
+    updateArticle(editingId.value, payload)
+  } else {
+    addArticle(payload)
+  }
+
+  closeForm()
 }
 
 function handleDelete(id) {
+  closeMenu()
   if (confirm('Hapus artikel ini?')) {
     deleteArticle(id)
   }
@@ -61,6 +92,32 @@ function handleLogout() {
   logout()
   router.push('/admin/login')
 }
+
+/* ---------- menu titik tiga (Edit / Hapus) per baris artikel ---------- */
+const openMenuId = ref(null)
+
+function toggleMenu(id) {
+  openMenuId.value = openMenuId.value === id ? null : id
+}
+
+function closeMenu() {
+  openMenuId.value = null
+}
+
+// klik di luar menu manapun otomatis menutup menu yang sedang terbuka
+function handleClickOutside(event) {
+  if (!event.target.closest('.row-menu')) {
+    closeMenu()
+  }
+}
+
+onMounted(() => {
+  document.addEventListener('click', handleClickOutside)
+})
+
+onBeforeUnmount(() => {
+  document.removeEventListener('click', handleClickOutside)
+})
 </script>
 
 <template>
@@ -77,13 +134,17 @@ function handleLogout() {
 
       <div class="admin-toolbar">
         <p>{{ articles.length }} artikel total</p>
-        <button class="btn btn-primary" @click="showForm = !showForm">
+        <button class="btn btn-primary" @click="showForm ? closeForm() : openCreateForm()">
           {{ showForm ? 'Tutup form' : '+ Tambah Artikel' }}
         </button>
       </div>
 
-      <!-- FORM TAMBAH ARTIKEL -->
+      <!-- FORM TAMBAH / EDIT ARTIKEL -->
       <form v-if="showForm" @submit.prevent="handleSubmit" class="article-form">
+        <h2 class="form-title">
+          {{ editingId ? 'Edit Artikel' : 'Tambah Artikel Baru' }}
+        </h2>
+
         <label>
           Judul Artikel
           <input v-model="form.title" type="text" required placeholder="Judul artikel..." />
@@ -116,19 +177,44 @@ function handleLogout() {
           <textarea v-model="form.content" rows="6" required placeholder="Paragraf pertama...&#10;Paragraf kedua...&#10;dst."></textarea>
         </label>
 
-        <button type="submit" class="btn btn-primary">Simpan Artikel</button>
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">
+            {{ editingId ? 'Simpan Perubahan' : 'Simpan Artikel' }}
+          </button>
+          <button type="button" class="btn btn-outline" @click="closeForm">Batal</button>
+        </div>
       </form>
 
       <!-- LIST ARTIKEL -->
       <div class="article-table">
         <div v-for="a in articles" :key="a.id" class="article-row">
-          <img :src="a.image" :alt="a.title" class="row-thumb" />
+          <router-link :to="`/blog/${a.id}`" class="row-thumb-link" title="Lihat artikel">
+            <img :src="a.image" :alt="a.title" class="row-thumb" />
+          </router-link>
           <div class="row-info">
             <span class="row-category">{{ a.category }}</span>
             <strong>{{ a.title }}</strong>
             <span class="row-date">{{ a.date }} · {{ a.readTime }}</span>
           </div>
-          <button class="btn btn-danger" @click="handleDelete(a.id)">Hapus</button>
+
+          <div class="row-menu">
+            <button
+              class="menu-trigger"
+              type="button"
+              @click.stop="toggleMenu(a.id)"
+              :aria-expanded="openMenuId === a.id"
+              aria-label="Menu artikel"
+            >⋮</button>
+
+            <div v-if="openMenuId === a.id" class="menu-dropdown">
+              <button type="button" class="menu-item" @click="openEditForm(a)">
+                Edit
+              </button>
+              <button type="button" class="menu-item menu-item-danger" @click="handleDelete(a.id)">
+                Hapus
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -198,6 +284,14 @@ h1 { margin: 0; font-family: var(--font-heading); font-size: 26px; font-weight: 
   background: var(--color-surface);
 }
 
+.form-title {
+  margin: 0 0 2px;
+  font-family: var(--font-heading);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
 label { display: flex; flex-direction: column; gap: 6px; font-size: 12px; font-weight: 600; color: var(--color-text-secondary); }
 
 input, select, textarea {
@@ -211,6 +305,12 @@ input, select, textarea {
 }
 
 input:focus, select:focus, textarea:focus { outline: none; border-color: var(--color-red); }
+
+.form-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
 
 .btn {
   padding: 10px 18px;
@@ -227,8 +327,6 @@ input:focus, select:focus, textarea:focus { outline: none; border-color: var(--c
 .btn-primary:hover { opacity: .93; }
 .btn-outline { background: transparent; border: 1px solid var(--color-border); color: var(--color-text); flex-shrink: 0; }
 .btn-outline:hover { border-color: var(--color-red); color: var(--color-red); }
-.btn-danger { background: transparent; color: var(--color-red); border: 1px solid var(--color-border); flex-shrink: 0; }
-.btn-danger:hover { background: var(--color-red); color: #fff; }
 
 .article-table { display: flex; flex-direction: column; gap: 10px; }
 
@@ -243,7 +341,16 @@ input:focus, select:focus, textarea:focus { outline: none; border-color: var(--c
   background: var(--color-surface);
 }
 
-.row-thumb { width: 64px; height: 48px; object-fit: cover; border-radius: 6px; flex-shrink: 0; }
+.row-thumb-link {
+  display: block;
+  flex-shrink: 0;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: opacity .2s ease;
+}
+.row-thumb-link:hover { opacity: .8; }
+
+.row-thumb { width: 64px; height: 48px; object-fit: cover; border-radius: 6px; flex-shrink: 0; display: block; }
 
 .row-info {
   display: flex;
@@ -262,6 +369,65 @@ input:focus, select:focus, textarea:focus { outline: none; border-color: var(--c
 .row-category { color: var(--color-deep-orange); font-size: 10px; font-weight: 700; text-transform: uppercase; }
 .row-date { color: var(--color-text-secondary); font-size: 11px; }
 
+/* ===== Menu titik tiga (Edit / Hapus) ===== */
+.row-menu {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.menu-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--color-text-secondary);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  transition: background .2s ease, border-color .2s ease, color .2s ease;
+}
+.menu-trigger:hover,
+.menu-trigger[aria-expanded="true"] {
+  border-color: var(--color-red);
+  color: var(--color-red);
+  background: rgba(235, 43, 12, .06);
+}
+
+.menu-dropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  min-width: 140px;
+  padding: 6px;
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  background: var(--color-surface);
+  box-shadow: 0 12px 28px rgba(26, 26, 26, .12);
+}
+
+.menu-item {
+  padding: 9px 12px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--color-text);
+  font-family: var(--font-body);
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+  transition: background .15s ease, color .15s ease;
+}
+.menu-item:hover { background: rgba(26, 26, 26, .05); }
+.menu-item-danger { color: var(--color-red); }
+.menu-item-danger:hover { background: rgba(235, 43, 12, .08); }
+
 /* ===== Responsive ===== */
 @media (max-width: 768px) {
   .admin-page { padding: 100px 16px 32px; }
@@ -274,24 +440,17 @@ input:focus, select:focus, textarea:focus { outline: none; border-color: var(--c
   .admin-toolbar { flex-direction: column; align-items: flex-start; gap: 10px; }
   .admin-toolbar .btn { align-self: stretch; text-align: center; }
 
-  /* Row artikel: thumbnail + info sejajar di baris pertama,
-     tombol hapus turun ke baris kedua full width, dengan jarak yang cukup */
+  .form-actions { flex-direction: column; align-items: stretch; }
+  .form-actions .btn { align-self: stretch; text-align: center; }
+
   .article-row {
-    grid-template-columns: 56px 1fr;
-    grid-template-rows: auto auto;
-    row-gap: 10px;
-    column-gap: 12px;
+    grid-template-columns: 56px 1fr auto;
     padding: 12px 14px;
   }
   .row-thumb { width: 56px; height: 44px; }
   .row-info { font-size: 12.5px; }
   .row-info strong { font-size: 13px; }
-  .btn-danger {
-    grid-column: 1 / -1;
-    width: 100%;
-    text-align: center;
-    padding: 9px 16px;
-  }
+  .menu-dropdown { min-width: 130px; }
 }
 
 @media (max-width: 400px) {
