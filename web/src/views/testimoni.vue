@@ -72,8 +72,8 @@
             v-for="(t, i) in testimonials"
             :key="t.id"
             class="bi-card"
-            :class="{ reveal: !t.isNew, 'is-visible': t.isNew }"
-            :style="{ transitionDelay: t.isNew ? '0s' : `${(i % 4) * 0.08}s` }"
+            :class="{ reveal: !isNew(t.id), 'is-visible': isNew(t.id) }"
+            :style="{ transitionDelay: isNew(t.id) ? '0s' : `${(i % 4) * 0.08}s` }"
           >
             <div class="bi-card__header">
               <img
@@ -148,7 +148,7 @@
               <div class="bi-form__row">
                 <div class="bi-form__group">
                   <label for="name">Nama Lengkap</label>
-                  <input id="name" v-model.trim="form.name" type="text" placeholder="Contoh: Bagas Wirawan" required autofocus />
+                  <input id="name" v-model.trim="form.name" type="text" placeholder="Contoh: Adrian Tan" required autofocus />
                 </div>
                 <div class="bi-form__group">
                   <label for="role">Jabatan / Role</label>
@@ -158,7 +158,45 @@
 
               <div class="bi-form__group">
                 <label for="company">Perusahaan / Brand</label>
-                <input id="company" v-model.trim="form.company" type="text" placeholder="Contoh: Belanja Cepat" required />
+                <input id="company" v-model.trim="form.company" type="text" placeholder="Contoh: FlashCart" required />
+              </div>
+
+              <div class="bi-form__group">
+                <label>Foto Profil (opsional)</label>
+                <div class="bi-form__photo">
+                  <div class="bi-form__photo-preview">
+                    <img v-if="form.photo" :src="form.photo" alt="Preview foto" />
+                    <div
+                      v-else
+                      class="bi-form__photo-placeholder"
+                      :style="form.name ? { background: getAvatarColor(form.name) } : {}"
+                    >
+                      {{ form.name ? getInitials(form.name) : '?' }}
+                    </div>
+                  </div>
+                  <div class="bi-form__photo-actions">
+                    <input
+                      ref="photoInputRef"
+                      type="file"
+                      accept="image/*"
+                      class="bi-form__photo-input"
+                      @change="handlePhotoChange"
+                    />
+                    <button type="button" class="btn btn-secondary bi-form__photo-btn" @click="photoInputRef?.click()">
+                      {{ form.photo ? 'Ganti Foto' : 'Pilih Foto' }}
+                    </button>
+                    <button
+                      v-if="form.photo"
+                      type="button"
+                      class="bi-form__photo-remove"
+                      @click="removePhoto"
+                    >
+                      Hapus Foto
+                    </button>
+                  </div>
+                </div>
+                <p class="bi-form__photo-hint">JPG/PNG, maks 1MB. Kalau tidak diisi, kami pakai avatar inisial.</p>
+                <p v-if="photoError" class="bi-form__error">{{ photoError }}</p>
               </div>
 
               <div class="bi-form__group">
@@ -213,8 +251,12 @@
 
 <script setup>
 import { ref, computed, onMounted, onBeforeUnmount, watch, nextTick } from 'vue'
+import { useTestimonials } from '../composables/useTestimonials.js'
 
-const STORAGE_KEY = 'bi-testimonials'
+// Sumber data testimoni sekarang dibagi dengan admin dashboard lewat
+// composable ini, jadi testimoni yang ditambah di sini (atau di admin)
+// langsung muncul di kedua tempat.
+const { testimonials, addTestimonial } = useTestimonials()
 
 const stats = [
   { num: '120+', label: 'Proyek selesai' },
@@ -222,153 +264,11 @@ const stats = [
   { num: '4.9/5', label: 'Rating rata-rata' }
 ]
 
-const defaultTestimonials = [
-  {
-    id: 1,
-    name: 'Bagas Wirawan',
-    role: 'Co-Founder',
-    company: 'Belanja Cepat',
-    photo: 'https://i.pravatar.cc/120?img=52',
-    rating: 5,
-    quote: 'Sprint pertama sempat meleset seminggu karena scope kami sendiri yang berubah. Tim Brand Identity jujur soal itu daripada diam-diam mengejar deadline dengan kualitas seadanya.',
-    createdAt: Date.now() - 1000 * 60 * 60 * 24 * 60
-  },
-  {
-    id: 2,
-    name: 'Nadia Puspita',
-    role: 'Head of Growth',
-    company: 'Sehat Yuk Health',
-    photo: 'https://i.pravatar.cc/120?img=47',
-    rating: 5,
-    quote: 'Conversion rate naik dari 1,8% ke 3,4% dalam dua bulan setelah landing page baru live. Bukan angka fantastis, tapi nyata dan bisa kami audit sendiri.',
-    createdAt: Date.now() - 1000 * 60 * 60 * 24 * 90
-  },
-  {
-    id: 3,
-    name: 'Rio Aditya',
-    role: 'CTO',
-    company: 'Pasar Digital ID',
-    photo: 'https://i.pravatar.cc/120?img=13',
-    rating: 4,
-    quote: 'Dokumentasi API-nya rapi, tapi ada satu endpoint yang harus kami minta perbaiki dua kali. Sisanya solid dan tim mereka responsif soal itu.',
-    createdAt: Date.now() - 1000 * 60 * 60 * 24 * 30
-  },
-  {
-    id: 4,
-    name: 'Salsabila Rahman',
-    role: 'Marketing Manager',
-    company: 'EduNusantara',
-    photo: 'https://i.pravatar.cc/120?img=32',
-    rating: 5,
-    quote: 'Yang bikin beda: mereka nanya dulu siapa target audiens kami sebelum mulai desain, bukan langsung kasih moodboard generik.',
-    createdAt: Date.now() - 1000 * 60 * 60 * 24 * 120
-  },
-  {
-    id: 5,
-    name: 'Fajar Ramadhan',
-    role: 'Operations Lead',
-    company: 'EcoTravel ID',
-    photo: 'https://i.pravatar.cc/120?img=59',
-    rating: 5,
-    quote: 'Tim internal kami yang paling gaptek pun bisa pakai sistem barunya tanpa training panjang. Itu ukuran sukses yang paling kami pedulikan.',
-    createdAt: Date.now() - 1000 * 60 * 60 * 24 * 150
-  },
-  {
-    id: 6,
-    name: 'Clara Angelina',
-    role: 'Founder',
-    company: 'Ruang Kerja App',
-    photo: 'https://i.pravatar.cc/120?img=44',
-    rating: 5,
-    quote: 'Dari ide di notes HP jadi MVP yang bisa dipakai investor buat demo, dalam waktu 7 minggu.',
-    createdAt: Date.now() - 1000 * 60 * 60 * 24 * 14
-  },
-  {
-    id: 7,
-    name: 'Dimas Prakoso',
-    role: 'Product Manager',
-    company: 'Ngaso Kuliner App',
-    photo: 'https://i.pravatar.cc/120?img=8',
-    rating: 5,
-    quote: 'Alur onboarding lama bikin 40% user drop di langkah kedua. Setelah dirombak bareng tim mereka, angka itu turun jadi sekitar 15%.',
-    createdAt: Date.now() - 1000 * 60 * 60 * 24 * 180
-  },
-  {
-    id: 8,
-    name: 'Intan Permata',
-    role: 'Founder',
-    company: 'Titik Kumpul Coworking',
-    photo: 'https://i.pravatar.cc/120?img=25',
-    rating: 5,
-    quote: 'Sistem booking ruang jadi satu pintu dengan pembayaran, staf kami nggak perlu lagi cek WhatsApp dan spreadsheet bergantian tiap pagi.',
-    createdAt: Date.now() - 1000 * 60 * 60 * 24 * 21
-  },
-  {
-    id: 9,
-    name: 'Yusuf Hidayat',
-    role: 'IT Manager',
-    company: 'Koperasi Sejahtera Bersama',
-    photo: 'https://i.pravatar.cc/120?img=61',
-    rating: 4,
-    quote: 'Migrasi data dari sistem lama sempat molor karena data kami sendiri berantakan, tapi tim mereka sabar bantu bersihin satu per satu.',
-    createdAt: Date.now() - 1000 * 60 * 60 * 24 * 45
-  },
-  {
-    id: 10,
-    name: 'Putri Ayu Lestari',
-    role: 'Brand Manager',
-    company: 'Kopi Nusantara',
-    photo: 'https://i.pravatar.cc/120?img=29',
-    rating: 5,
-    quote: 'Website baru kami jauh lebih cepat diakses, bahkan dari daerah dengan sinyal lemah. Pelanggan kami banyak yang notice perubahan itu.',
-    createdAt: Date.now() - 1000 * 60 * 60 * 24 * 75
-  },
-  {
-    id: 11,
-    name: 'Andra Wibisono',
-    role: 'Founder',
-    company: 'Sewa Alat Kita',
-    photo: 'https://i.pravatar.cc/120?img=15',
-    rating: 5,
-    quote: 'Fitur pencarian barangnya sekarang jauh lebih relevan. Tim mereka sempat riset dulu ke pengguna asli sebelum membangun fiturnya.',
-    createdAt: Date.now() - 1000 * 60 * 60 * 24 * 100
-  },
-  {
-    id: 12,
-    name: 'Melati Anggraini',
-    role: 'HR Manager',
-    company: 'Karyawan Prima',
-    photo: 'https://i.pravatar.cc/120?img=41',
-    rating: 4,
-    quote: 'Sistem absensi barunya membantu banget, meski butuh waktu untuk tim kami terbiasa. Support mereka sigap menjawab pertanyaan kami.',
-    createdAt: Date.now() - 1000 * 60 * 60 * 24 * 55
-  }
-]
-
-function loadTestimonials() {
-  try {
-    const saved = localStorage.getItem(STORAGE_KEY)
-    if (saved) {
-      const parsed = JSON.parse(saved)
-      if (Array.isArray(parsed) && parsed.length > 0) {
-        return parsed.map((t) => ({ ...t, isNew: false }))
-      }
-    }
-  } catch (e) {
-    console.warn('Gagal load testimonials dari localStorage', e)
-  }
-  return defaultTestimonials.map((t) => ({ ...t, isNew: false }))
-}
-
-const testimonials = ref(loadTestimonials())
-
-function saveTestimonials() {
-  try {
-    const toSave = testimonials.value.map(({ isNew, ...rest }) => rest)
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(toSave))
-  } catch (e) {
-    console.warn('Gagal simpan testimonials ke localStorage', e)
-  }
+// ID testimoni yang baru saja ditambahkan di sesi ini, supaya langsung
+// tampil (skip animasi scroll-reveal) tanpa perlu disimpan ke data itu sendiri.
+const newIds = ref(new Set())
+function isNew(id) {
+  return newIds.value.has(id)
 }
 
 function getInitials(name) {
@@ -393,10 +293,46 @@ function getAvatarColor(name) {
 }
 
 const isModalOpen = ref(false)
-const form = ref({ name: '', role: '', company: '', rating: 0, quote: '' })
+const form = ref({ name: '', role: '', company: '', photo: '', rating: 0, quote: '' })
 const hoverRating = ref(0)
 const formSuccess = ref(false)
 const formError = ref('')
+
+const photoInputRef = ref(null)
+const photoError = ref('')
+const MAX_PHOTO_BYTES = 1024 * 1024 // 1MB
+
+function handlePhotoChange(event) {
+  photoError.value = ''
+  const file = event.target.files?.[0]
+  if (!file) return
+
+  if (!file.type.startsWith('image/')) {
+    photoError.value = 'File harus berupa gambar (JPG/PNG).'
+    event.target.value = ''
+    return
+  }
+  if (file.size > MAX_PHOTO_BYTES) {
+    photoError.value = 'Ukuran foto maksimal 1MB.'
+    event.target.value = ''
+    return
+  }
+
+  const reader = new FileReader()
+  reader.onload = () => {
+    form.value.photo = reader.result
+  }
+  reader.onerror = () => {
+    photoError.value = 'Gagal membaca file foto, coba foto lain.'
+  }
+  reader.readAsDataURL(file)
+}
+
+function removePhoto() {
+  form.value.photo = ''
+  photoError.value = ''
+  if (photoInputRef.value) photoInputRef.value.value = ''
+}
 
 const canSubmit = computed(() => {
   return (
@@ -412,15 +348,18 @@ function openModal() {
   isModalOpen.value = true
   formSuccess.value = false
   formError.value = ''
+  photoError.value = ''
 }
 
 function closeModal() {
   isModalOpen.value = false
   setTimeout(() => {
-    form.value = { name: '', role: '', company: '', rating: 0, quote: '' }
+    form.value = { name: '', role: '', company: '', photo: '', rating: 0, quote: '' }
     hoverRating.value = 0
     formSuccess.value = false
     formError.value = ''
+    photoError.value = ''
+    if (photoInputRef.value) photoInputRef.value.value = ''
   }, 280)
 }
 
@@ -433,20 +372,16 @@ function submitTestimonial() {
     return
   }
 
-  const newItem = {
-    id: Date.now(),
+  const newItem = addTestimonial({
     name: form.value.name,
     role: form.value.role,
     company: form.value.company,
-    photo: null,
+    photo: form.value.photo || null,
     rating: form.value.rating,
-    quote: form.value.quote,
-    createdAt: Date.now(),
-    isNew: true
-  }
+    quote: form.value.quote
+  })
 
-  testimonials.value.unshift(newItem)
-  saveTestimonials()
+  newIds.value.add(newItem.id)
   formSuccess.value = true
 
   setTimeout(() => closeModal(), 1400)
@@ -912,6 +847,64 @@ onBeforeUnmount(() => {
   border-color: var(--color-orange);
   box-shadow: 0 0 0 3px rgba(251, 159, 55, .18);
 }
+.bi-form__photo {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.bi-form__photo-preview {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+  border: 1px solid var(--color-border);
+}
+.bi-form__photo-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.bi-form__photo-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-border);
+  color: #fff;
+  font-family: var(--font-heading);
+  font-size: 15px;
+  font-weight: 700;
+}
+.bi-form__photo-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.bi-form__photo-input { display: none; }
+.bi-form__photo-btn {
+  padding: 8px 14px;
+  font-size: 12.5px;
+}
+.bi-form__photo-remove {
+  background: none;
+  border: none;
+  color: var(--color-red);
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+}
+.bi-form__photo-remove:hover { text-decoration: underline; }
+.bi-form__photo-hint {
+  font-size: 11px;
+  color: var(--color-text-secondary);
+  margin-top: 6px;
+}
+
 .bi-form__stars { display: flex; gap: 4px; }
 .bi-form-star {
   background: none;

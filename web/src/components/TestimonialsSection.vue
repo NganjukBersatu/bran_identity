@@ -3,25 +3,25 @@ import { ref, onMounted, onBeforeUnmount } from 'vue'
 
 const testimonials = ref([
   {
-    quote: 'Timnya sangat komunikatif dan hasil kerjanya sesuai ekspektasi kami.',
-    name: 'Andi Pratama',
-    role: 'Owner, Toko Komputer Jaya',
+    quote: 'Sprint pertama sempat meleset seminggu karena scope kami sendiri yang berubah. Tim Brand Identity jujur soal itu.',
+    name: 'Adrian Tan',
+    role: 'Co-Founder, FlashCart',
     rating: 5,
-    photo: 'https://randomuser.me/api/portraits/men/32.jpg',
+    photo: '/testimoni/adriantan.jpg',
   },
   {
-    quote: 'Proses pengerjaan cepat, rapi, dan selalu update progress ke kami.',
-    name: 'Sarah Wulandari',
-    role: 'Marketing Manager, Klinik Sehat Prima',
+    quote: 'Conversion rate naik dari 1,8% ke 3,4% dalam dua bulan setelah landing page baru live. Nyata dan bisa diaudit.',
+    name: 'Nadia Puspita',
+    role: 'Head of Growth, Vitalis Health',
     rating: 5,
-    photo: 'https://randomuser.me/api/portraits/women/44.jpg',
+    photo: '/testimoni/nadiapuspita.jpg',
   },
   {
-    quote: 'Sangat membantu bisnis kami tumbuh lewat solusi digital yang tepat.',
-    name: 'Budi Santoso',
-    role: 'Direktur, PT Sumber Nusa Sejahtera',
+    quote: 'Dokumentasi API-nya rapi. Ada satu endpoint yang sempat diperbaiki, sisanya solid dan responsif.',
+    name: 'Marcus Hale',
+    role: 'CTO, NexaMarket',
     rating: 4,
-    photo: 'https://randomuser.me/api/portraits/men/67.jpg',
+    photo: '/testimoni/marcushale.jpg',
   },
 ])
 
@@ -34,8 +34,6 @@ function getInitials(name) {
     .toUpperCase()
 }
 
-// Kalau foto gagal dimuat (link rusak / belum diisi), sembunyikan <img>
-// supaya fallback inisial di belakangnya otomatis terlihat.
 function onPhotoError(event) {
   event.target.style.display = 'none'
 }
@@ -144,7 +142,7 @@ onBeforeUnmount(() => {
   text-align: center;
 }
 
-/* ===== Entrance animation (same behaviour as the Testimoni page) ===== */
+/* ===== Entrance animation ===== */
 .reveal {
   opacity: 0;
   transform: translateY(24px);
@@ -248,7 +246,7 @@ onBeforeUnmount(() => {
   border-top: 1px solid var(--color-border);
 }
 
-/* ===== Avatar (foto + fallback inisial) ===== */
+/* ===== Avatar ===== */
 .testimonial-card__avatar {
   position: relative;
   flex-shrink: 0;
@@ -332,14 +330,14 @@ onBeforeUnmount(() => {
   transform: translateX(3px);
 }
 
-/* ===== Tablet: 2 columns ===== */
+/* ===== Tablet ===== */
 @media (max-width: 900px) {
   .testimonials__grid {
     grid-template-columns: 1fr 1fr;
   }
 }
 
-/* ===== Mobile: 1 column, readable, no clamping ===== */
+/* ===== Mobile ===== */
 @media (max-width: 600px) {
   .testimonials {
     padding: 60px 0;
