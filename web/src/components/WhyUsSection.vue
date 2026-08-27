@@ -83,7 +83,7 @@ onBeforeUnmount(() => {
       <!-- IMAGE -->
       <div class="whyus__photo">
         <img
-          src="/team/team-2.jpg"
+          src="/team/timkami (2).jpg"
           alt="Foto tim kami"
           loading="lazy"
         />

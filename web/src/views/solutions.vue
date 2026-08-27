@@ -8,7 +8,7 @@
     <section class="solutions-hero">
       <div class="hero-image-wrap reveal reveal--fade">
         <img
-          src="/team/team-2.jpg"
+          src="/team/tim2.jpg"
           alt="Tim Bran Identity"
           class="hero-image"
         />

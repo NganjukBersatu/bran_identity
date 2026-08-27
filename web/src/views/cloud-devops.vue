@@ -3,7 +3,7 @@
     <!-- ============ HERO (konsisten di semua halaman) ============ -->
     <section class="hero">
       <div class="hero-media" aria-hidden="true">
-        <img src="/team/team-4.jpg" alt="" class="hero-img" @error="onImgError" />
+        <img src="/team/timwork.jpg" alt="" class="hero-img" @error="onImgError" />
         <div v-if="imgFailed" class="hero-img-fallback"></div>
         <div class="hero-fade"></div>
       </div>

@@ -3,7 +3,7 @@ import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 
 const slides = [
   {
-    src: '/team/meeting.jpg',
+    src: '/team/tim1.jpg',
     alt: 'Tim BRAN Identity sedang berdiskusi',
     objectPosition: 'center 20%',
     tag: 'Software House',
@@ -15,7 +15,7 @@ const slides = [
     badge: { company: 'PT Nusantara Digital', offer: 'Konsultasi awal gratis' },
   },
   {
-    src: '/team/team-5.jpg',
+    src: '/team/tim2.jpg',
     alt: 'Tim BRAN Identity mengerjakan proyek',
     objectPosition: 'center 25%',
     tag: 'Cara Kami Bekerja',
@@ -27,7 +27,7 @@ const slides = [
     badge: { company: 'Studio Kreasi Indo', offer: 'Diskon 20% proyek pertama' },
   },
   {
-    src: '/team/team-3.jpg',
+    src: '/team/timkantor.png',
     alt: 'Tim BRAN Identity di kantor',
     objectPosition: 'center 15%',
     tag: 'Tim & Layanan',
