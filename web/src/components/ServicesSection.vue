@@ -173,7 +173,7 @@ onBeforeUnmount(() => {
 <style scoped>
 .services-section {
   width: 100%;
-  padding: 140px 20px 90px;
+  padding: 48px 20px 60px; /* ← dikurangi dari 140px biar teks naik */
   background: #fffaf0;
   overflow: hidden;
   position: relative;
@@ -203,7 +203,7 @@ onBeforeUnmount(() => {
 }
 
 /* Header */
-.services-header { text-align: center; margin-bottom: 48px; }
+.services-header { text-align: center; margin-bottom: 36px; }
 .services-eyebrow { margin: 0 0 12px; font-size: 14px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; color: #f93827; }
 .services-header h2 { margin: 0; color: #15191f; font-size: clamp(28px, 4vw, 46px); line-height: 1.15; font-weight: 800; }
 .services-header h2 span { color: #f15a24; }
@@ -273,7 +273,7 @@ onBeforeUnmount(() => {
   position: relative;
   display: flex;
   align-items: center;
-  margin-top: 42px;
+  margin-top: 30px;
   padding: 30px 42px;
   border-radius: 20px;
   overflow: hidden;
@@ -294,7 +294,7 @@ onBeforeUnmount(() => {
 .cta-button span { font-size: 19px; }
 
 /* View all */
-.view-all { margin-top: 35px; text-align: center; }
+.view-all { margin-top: 24px; text-align: center; }
 .view-all-button { display: inline-flex; align-items: center; gap: 10px; padding: 12px 25px; border: 1px solid #f15a24; border-radius: 9px; color: #f15a24; font-size: 14px; font-weight: 700; text-decoration: none; transition: all 0.25s ease; }
 .view-all-button span { font-size: 18px; }
 
@@ -321,7 +321,7 @@ onBeforeUnmount(() => {
 
 /* Tablet kecil — transisi lebih halus sebelum ke 1 kolom */
 @media (max-width: 768px) {
-  .services-section { padding: 100px 18px 80px; }
+  .services-section { padding: 60px 18px 80px; } /* ← dikurangi juga */
   .service-card { min-height: 280px; padding: 30px 26px; }
   .service-icon { width: 66px; height: 66px; margin-bottom: 20px; }
   .service-icon svg { width: 27px; height: 27px; }
@@ -330,7 +330,7 @@ onBeforeUnmount(() => {
 
 /* Mobile besar (2 → 1 kolom lebih awal supaya kartu tidak terlalu sempit) */
 @media (max-width: 600px) {
-  .services-section { padding: 65px 16px; }
+  .services-section { padding: 48px 16px 65px; } /* ← dikurangi */
   .services-header { margin-bottom: 35px; }
   .services-header h2 { font-size: clamp(26px, 7vw, 32px); }
   .services-description { font-size: 14px; }
@@ -371,7 +371,7 @@ onBeforeUnmount(() => {
 
 /* Extra small mobile */
 @media (max-width: 360px) {
-  .services-section { padding: 55px 12px; }
+  .services-section { padding: 40px 12px 55px; } /* ← dikurangi */
   .services-header h2 { font-size: 22px; }
   .service-card { padding: 20px 18px; }
   .cta-content h3 { font-size: 17px; }
@@ -379,7 +379,7 @@ onBeforeUnmount(() => {
 
 /* Landscape / short viewport (mis. HP diputar) */
 @media (max-height: 480px) and (orientation: landscape) {
-  .services-section { padding: 60px 16px 50px; }
+  .services-section { padding: 40px 16px 50px; } /* ← dikurangi */
   .services-header { margin-bottom: 28px; }
 }
 </style>

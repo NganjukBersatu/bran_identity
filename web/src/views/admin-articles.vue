@@ -1,8 +1,9 @@
 <script setup>
-import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
 import { useArticles } from '../composables/useArticles.js'
 import { useAdminAuth } from '../composables/useAdminAuth.js'
+import { useTestimonials } from '../composables/useTestimonials.js'
 
 const router = useRouter()
 const { articles, addArticle, updateArticle, deleteArticle } = useArticles()
@@ -15,6 +16,7 @@ function setTab(tab) {
   activeTab.value = tab
   closeMenu()
   closeForm()
+  closeTestiForm() // dipakai untuk tutup form Edit kalau sedang terbuka
 }
 
 const categories = ['Technology', 'Software Development', 'Business', 'Tips & Insight']
@@ -97,7 +99,7 @@ function handleLogout() {
   router.push('/admin/login')
 }
 
-/* ---------- menu titik tiga ---------- */
+/* ---------- menu titik tiga (dipakai artikel & testimoni) ---------- */
 const openMenuId = ref(null)
 
 function toggleMenu(id) {
@@ -115,32 +117,94 @@ function handleClickOutside(event) {
 }
 
 /* ===== KELOLA TESTIMONI ===== */
-const TESTI_STORAGE_KEY = 'bi-testimonials'
-const testimonials = ref([])
+// Sumber data yang SAMA dengan halaman testimoni publik — apapun yang
+// ditambah/diubah/dihapus di sini langsung tercermin di halaman publik.
+const { testimonials, addTestimonial, updateTestimonial, deleteTestimonial } = useTestimonials()
 
-function loadAdminTestimonials() {
-  try {
-    const saved = localStorage.getItem(TESTI_STORAGE_KEY)
-    if (saved) {
-      const parsed = JSON.parse(saved)
-      if (Array.isArray(parsed)) {
-        testimonials.value = parsed
-        return
-      }
-    }
-  } catch (e) {}
-  testimonials.value = []
+function emptyTestiForm() {
+  return {
+    name: '',
+    role: '',
+    company: '',
+    photo: '',
+    rating: 5,
+    quote: ''
+  }
 }
 
-function saveAdminTestimonials() {
-  localStorage.setItem(TESTI_STORAGE_KEY, JSON.stringify(testimonials.value))
+const testiForm = ref(emptyTestiForm())
+const showTestiForm = ref(false)
+const editingTestiId = ref(null)
+const testiHoverRating = ref(0)
+
+const canSubmitTesti = computed(() => {
+  return (
+    testiForm.value.name.trim().length >= 2 &&
+    testiForm.value.role.trim().length >= 2 &&
+    testiForm.value.company.trim().length >= 2 &&
+    testiForm.value.rating >= 1 &&
+    testiForm.value.quote.trim().length >= 10
+  )
+})
+
+function resetTestiForm() {
+  testiForm.value = emptyTestiForm()
+  editingTestiId.value = null
+  testiHoverRating.value = 0
 }
 
-function deleteTestimonial(id) {
+function openEditTestiForm(t) {
+  editingTestiId.value = t.id
+  testiForm.value = {
+    name: t.name,
+    role: t.role,
+    company: t.company,
+    photo: t.photo || '',
+    rating: t.rating,
+    quote: t.quote
+  }
+  showTestiForm.value = true
   closeMenu()
-  if (!confirm('Hapus ulasan ini?')) return
-  testimonials.value = testimonials.value.filter((t) => t.id !== id)
-  saveAdminTestimonials()
+}
+
+function closeTestiForm() {
+  showTestiForm.value = false
+  resetTestiForm()
+}
+
+function submitTestiForm() {
+  if (!canSubmitTesti.value) return
+
+  const payload = {
+    name: testiForm.value.name.trim(),
+    role: testiForm.value.role.trim(),
+    company: testiForm.value.company.trim(),
+    photo: testiForm.value.photo.trim() || null,
+    rating: testiForm.value.rating,
+    quote: testiForm.value.quote.trim()
+  }
+
+  if (editingTestiId.value) {
+    updateTestimonial(editingTestiId.value, payload)
+  } else {
+    addTestimonial(payload)
+  }
+
+  closeTestiForm()
+}
+
+function handleDeleteTesti(id) {
+  closeMenu()
+  if (confirm('Hapus ulasan ini?')) {
+    deleteTestimonial(id)
+  }
+}
+
+function getInitials(name) {
+  if (!name) return '?'
+  const parts = name.trim().split(/\s+/).filter(Boolean)
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase()
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
 }
 
 function formatTestiTime(ts) {
@@ -151,7 +215,6 @@ function formatTestiTime(ts) {
 
 onMounted(() => {
   document.addEventListener('click', handleClickOutside)
-  loadAdminTestimonials()
 })
 
 onBeforeUnmount(() => {
@@ -280,8 +343,68 @@ onBeforeUnmount(() => {
       <!-- ================= TAB: TESTIMONI ================= -->
       <div v-if="activeTab === 'testimoni'">
         <div class="admin-toolbar">
-          <p>{{ testimonials.length }} ulasan total</p>
+          <p>{{ testimonials.length }} ulasan total · penambahan ulasan baru dilakukan lewat halaman testimoni publik</p>
         </div>
+
+        <form v-if="showTestiForm" @submit.prevent="submitTestiForm" class="article-form">
+          <h2 class="form-title">Edit Testimoni</h2>
+
+          <div class="testi-form-grid">
+            <label>
+              Nama Lengkap
+              <input v-model.trim="testiForm.name" type="text" required placeholder="Contoh: Adrian Tan" />
+            </label>
+
+            <label>
+              Jabatan / Role
+              <input v-model.trim="testiForm.role" type="text" required placeholder="Contoh: Co-Founder" />
+            </label>
+          </div>
+
+          <label>
+            Perusahaan / Brand
+            <input v-model.trim="testiForm.company" type="text" required placeholder="Contoh: FlashCart" />
+          </label>
+
+          <label>
+            URL Foto (opsional — kosongkan untuk pakai avatar inisial)
+            <input v-model.trim="testiForm.photo" type="url" placeholder="https://... atau /testimoni/namafile.jpg" />
+          </label>
+
+          <div v-if="testiForm.photo" class="testi-photo-preview">
+            <img :src="testiForm.photo" :alt="testiForm.name" />
+            <span>Preview foto</span>
+          </div>
+
+          <label>
+            Rating
+            <div class="bi-form__stars" role="radiogroup" aria-label="Pilih rating">
+              <button
+                v-for="n in 5"
+                :key="n"
+                type="button"
+                class="bi-form-star"
+                :class="{ 'bi-form-star--active': n <= (testiHoverRating || testiForm.rating) }"
+                :aria-label="`${n} bintang`"
+                @click="testiForm.rating = n"
+                @mouseenter="testiHoverRating = n"
+                @mouseleave="testiHoverRating = 0"
+              >★</button>
+            </div>
+          </label>
+
+          <label>
+            Ulasan / Cerita
+            <textarea v-model.trim="testiForm.quote" rows="4" required placeholder="Ceritakan pengalaman klien bekerja sama dengan kami..."></textarea>
+          </label>
+
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary" :disabled="!canSubmitTesti">
+              Simpan Perubahan
+            </button>
+            <button type="button" class="btn btn-outline" @click="closeTestiForm">Batal</button>
+          </div>
+        </form>
 
         <div class="article-table">
           <div v-if="testimonials.length === 0" class="empty-state">
@@ -291,7 +414,7 @@ onBeforeUnmount(() => {
           <div v-for="t in testimonials" :key="t.id" class="article-row testi-row">
             <div class="testi-avatar">
               <img v-if="t.photo" :src="t.photo" :alt="t.name" />
-              <span v-else class="testi-initials">{{ (t.name || '?').slice(0, 2).toUpperCase() }}</span>
+              <span v-else class="testi-initials">{{ getInitials(t.name) }}</span>
             </div>
 
             <div class="row-info">
@@ -311,7 +434,8 @@ onBeforeUnmount(() => {
               >⋮</button>
 
               <div v-if="openMenuId === 'testi-' + t.id" class="menu-dropdown">
-                <button type="button" class="menu-item menu-item-danger" @click="deleteTestimonial(t.id)">
+                <button type="button" class="menu-item" @click="openEditTestiForm(t)">Edit</button>
+                <button type="button" class="menu-item menu-item-danger" @click="handleDeleteTesti(t.id)">
                   Hapus
                 </button>
               </div>
@@ -328,6 +452,7 @@ onBeforeUnmount(() => {
 .admin-page {
   --color-red: #EB2B0C;
   --color-deep-orange: #E75119;
+  --color-orange: #FB9F37;
   --color-bg: #FAFAFA;
   --color-surface: #FFFFFF;
   --color-text: #1A1A1A;
@@ -495,8 +620,9 @@ input:focus, select:focus, textarea:focus {
   transition: opacity .2s ease, transform .2s ease;
 }
 .btn:hover { transform: translateY(-1px); }
+.btn:disabled { opacity: .55; cursor: not-allowed; transform: none; }
 .btn-primary { background: var(--color-red); color: #fff; align-self: flex-start; }
-.btn-primary:hover { opacity: .93; }
+.btn-primary:hover:not(:disabled) { opacity: .93; }
 .btn-outline {
   background: transparent;
   border: 1px solid var(--color-border);
@@ -626,7 +752,45 @@ input:focus, select:focus, textarea:focus {
 .menu-item-danger { color: var(--color-red); }
 .menu-item-danger:hover { background: rgba(235, 43, 12, .08); }
 
-/* Testimoni */
+/* Testimoni: form fields */
+.testi-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+.testi-photo-preview {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 11px;
+  color: var(--color-text-secondary);
+  margin-top: -4px;
+}
+.testi-photo-preview img {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid var(--color-border);
+}
+.bi-form__stars { display: flex; gap: 4px; }
+.bi-form-star {
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: var(--color-border);
+  cursor: pointer;
+  padding: 0 2px;
+  line-height: 1;
+  transition: color .15s ease, transform .15s ease;
+}
+.bi-form-star:hover,
+.bi-form-star--active {
+  color: var(--color-orange);
+  transform: scale(1.1);
+}
+
+/* Testimoni: list row */
 .testi-row {
   grid-template-columns: 48px 1fr auto;
   align-items: flex-start;
@@ -680,6 +844,10 @@ input:focus, select:focus, textarea:focus {
 
 @media (max-width: 768px) {
   .admin-page { padding: 100px 16px 32px; }
+}
+
+@media (max-width: 640px) {
+  .testi-form-grid { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 560px) {
