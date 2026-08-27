@@ -4,7 +4,7 @@
     <section class="hero">
       <div class="hero-media" aria-hidden="true">
         <img
-          src="/team/team-5.jpg"
+          src="/team/webdevelopment.jpg"
           alt=""
           class="hero-img"
           @error="onImgError"

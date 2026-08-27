@@ -4,7 +4,7 @@ export const projects = [
     title: 'Toko Komputer — Landing Page',
     category: 'Landing Page',
     tag: 'Digital Store',
-    client: 'Nama Client',
+    client: 'Puguh Santoso',
     date: '2025-01-10',
     duration: '2 Minggu',
     services: ['UI/UX Design', 'Frontend Development'],
@@ -12,10 +12,9 @@ export const projects = [
     liveUrl: '',
     description:
       'Landing page untuk toko komputer online yang fokus pada kecepatan loading dan kemudahan navigasi produk.',
-    coverImage:
-      'https://images.unsplash.com/photo-1517430816045-df4b7de11d1d?auto=format&fit=crop&w=1200&q=85',
+    coverImage: '/portfolio/tokokomputer.jpg',
     gallery: [
-      'https://images.unsplash.com/photo-1517430816045-df4b7de11d1d?auto=format&fit=crop&w=900&q=85'
+      '/portfolio/tokokomputer.jpg'
     ]
   },
   {
@@ -23,7 +22,7 @@ export const projects = [
     title: 'Onlineshop Jam Tangan',
     category: 'Landing Page',
     tag: 'E-Commerce',
-    client: 'Nama Client',
+    client: 'Indri Ananda',
     date: '2025-01-20',
     duration: '2 Minggu',
     services: ['Landing Page Design', 'Copywriting'],
@@ -42,7 +41,7 @@ export const projects = [
     title: 'Skin Care Business',
     category: 'Web Design',
     tag: 'Beauty & Care',
-    client: 'Nama Client',
+    client: 'Salsa Beauty',
     date: '2025-02-05',
     duration: '3 Minggu',
     services: ['Web Design', 'Frontend Development'],
@@ -50,10 +49,9 @@ export const projects = [
     liveUrl: '',
     description:
       'Website company untuk bisnis skin care dengan tampilan bersih dan fokus pada kepercayaan pelanggan.',
-    coverImage:
-      'https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=1200&q=85',
+    coverImage: '/portfolio/skincare.jpg',
     gallery: [
-      'https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=900&q=85'
+      '/portfolio/skincare.jpg'
     ]
   },
   {
@@ -61,7 +59,7 @@ export const projects = [
     title: 'Healthy Care App',
     category: 'App Design',
     tag: 'Health Tech',
-    client: 'Nama Client',
+    client: 'Rs.Medika Sehat',
     date: '2025-02-18',
     duration: '4 Minggu',
     services: ['UI/UX Design', 'App Prototyping'],
@@ -69,10 +67,9 @@ export const projects = [
     liveUrl: '',
     description:
       'Desain aplikasi kesehatan untuk memudahkan pengguna memantau kondisi tubuh dan konsultasi dokter.',
-    coverImage:
-      'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=1200&q=85',
+    coverImage: '/portfolio/dokter.jpg',
     gallery: [
-      'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=900&q=85'
+      '/portfolio/dokter.jpg'
     ]
   },
   {
