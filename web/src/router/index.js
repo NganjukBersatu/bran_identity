@@ -14,6 +14,7 @@ import BlogView from '../views/blog.vue'
 import blogRoutes from './blog.js'
 import TentangKamiView from '../views/tentangkami.vue'
 import ContactUs from '../views/ContactUs.vue'
+import PricingView from '../views/pricing.vue'
 
 // ===============================
 // SOLUTIONS DETAIL
@@ -50,6 +51,12 @@ const router = createRouter({
     // ==========================================
     // MENU NAVBAR
     // ==========================================
+
+    {
+      path: '/pricing',
+      name: 'pricing',
+      component: PricingView,
+    },
 
     {
       path: '/solutions',

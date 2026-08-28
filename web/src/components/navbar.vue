@@ -92,6 +92,17 @@
         </router-link>
 
 
+        <!-- HARGA / PRICING -->
+        <router-link
+          to="/pricing"
+          class="nav-link"
+          :class="{ active: route.path === '/pricing' }"
+          @click="closeDropdown"
+        >
+          Harga
+        </router-link>
+
+
         <!-- SOLUTION -->
         <div
           class="nav-dropdown"
@@ -249,6 +260,17 @@
           @click="closeMenu"
         >
           Home
+        </router-link>
+
+
+        <!-- HARGA / PRICING -->
+        <router-link
+          to="/pricing"
+          class="mobile-nav-link"
+          :class="{ active: route.path === '/pricing' }"
+          @click="closeMenu"
+        >
+          Harga
         </router-link>
 
 
