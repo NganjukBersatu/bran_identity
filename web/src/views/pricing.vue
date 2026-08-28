@@ -199,7 +199,7 @@
       <p class="pricing-footnote">
         Butuh kombinasi layanan atau skema kerja khusus? Ceritakan kebutuhan Anda,
         kami buatkan penawaran Paket Custom yang sesuai.
-        <a href="#contact" class="footnote-link">Hubungi kami &rarr;</a>
+        <router-link to="/contact" class="footnote-link">Hubungi kami &rarr;</router-link>
       </p>
     </div>
   </section>
