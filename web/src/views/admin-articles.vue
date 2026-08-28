@@ -679,6 +679,7 @@ input:focus, select:focus, textarea:focus {
 .row-info strong {
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
   line-height: 1.35;
@@ -824,6 +825,7 @@ input:focus, select:focus, textarea:focus {
   color: var(--color-text-secondary);
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
   line-height: 1.45;
