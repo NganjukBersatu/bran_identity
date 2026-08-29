@@ -13,7 +13,6 @@ const layanan = [
 const perusahaan = [
   { label: 'Tentang Kami', to: '/tentang-kami' },
   { label: 'Portofolio', to: '/portfolio' },
-  { label: 'Karir', to: null },
   { label: 'Blog', to: '/blog' },
 ]
 
