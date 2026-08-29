@@ -87,13 +87,6 @@ function handleSubmit() {
   closeForm()
 }
 
-function handleDelete(id) {
-  closeMenu()
-  if (confirm('Hapus artikel ini?')) {
-    deleteArticle(id)
-  }
-}
-
 function handleLogout() {
   logout()
   router.push('/admin/login')
@@ -193,13 +186,6 @@ function submitTestiForm() {
   closeTestiForm()
 }
 
-function handleDeleteTesti(id) {
-  closeMenu()
-  if (confirm('Hapus ulasan ini?')) {
-    deleteTestimonial(id)
-  }
-}
-
 function getInitials(name) {
   if (!name) return '?'
   const parts = name.trim().split(/\s+/).filter(Boolean)
@@ -213,12 +199,76 @@ function formatTestiTime(ts) {
   return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })
 }
 
+/* ===== MODAL KONFIRMASI HAPUS (pengganti window.confirm) ===== */
+const confirmModal = ref({
+  show: false,
+  type: null,   // 'artikel' | 'testimoni'
+  id: null,
+  title: '',
+  message: ''
+})
+
+const isDeleting = ref(false)
+
+function openConfirmModal(type, id, title, message) {
+  closeMenu()
+  confirmModal.value = { show: true, type, id, title, message }
+}
+
+function closeConfirmModal() {
+  if (isDeleting.value) return
+  confirmModal.value = { show: false, type: null, id: null, title: '', message: '' }
+}
+
+async function confirmModalAction() {
+  if (isDeleting.value) return
+  isDeleting.value = true
+
+  // sedikit delay biar animasi loading kelihatan halus, bukan cuma "kedip"
+  await new Promise((resolve) => setTimeout(resolve, 350))
+
+  if (confirmModal.value.type === 'artikel') {
+    deleteArticle(confirmModal.value.id)
+  } else if (confirmModal.value.type === 'testimoni') {
+    deleteTestimonial(confirmModal.value.id)
+  }
+
+  isDeleting.value = false
+  confirmModal.value = { show: false, type: null, id: null, title: '', message: '' }
+}
+
+function handleDelete(id) {
+  openConfirmModal(
+    'artikel',
+    id,
+    'Hapus artikel ini?',
+    'Artikel yang sudah dihapus tidak bisa dikembalikan lagi.'
+  )
+}
+
+function handleDeleteTesti(id) {
+  openConfirmModal(
+    'testimoni',
+    id,
+    'Hapus ulasan ini?',
+    'Ulasan yang sudah dihapus tidak bisa dikembalikan lagi.'
+  )
+}
+
+function handleModalKeydown(event) {
+  if (!confirmModal.value.show) return
+  if (event.key === 'Escape') closeConfirmModal()
+  if (event.key === 'Enter') confirmModalAction()
+}
+
 onMounted(() => {
   document.addEventListener('click', handleClickOutside)
+  document.addEventListener('keydown', handleModalKeydown)
 })
 
 onBeforeUnmount(() => {
   document.removeEventListener('click', handleClickOutside)
+  document.removeEventListener('keydown', handleModalKeydown)
 })
 </script>
 
@@ -445,6 +495,61 @@ onBeforeUnmount(() => {
       </div>
 
     </div>
+
+    <!-- ================= MODAL KONFIRMASI HAPUS ================= -->
+    <Teleport to="body">
+      <Transition name="confirm-fade">
+        <div
+          v-if="confirmModal.show"
+          class="confirm-overlay"
+          @click.self="closeConfirmModal"
+        >
+          <Transition name="confirm-pop" appear>
+            <div
+              v-if="confirmModal.show"
+              class="confirm-box"
+              role="alertdialog"
+              aria-modal="true"
+              :aria-label="confirmModal.title"
+            >
+              <div class="confirm-icon">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 8V13" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                  <circle cx="12" cy="16.5" r="1.1" fill="currentColor" />
+                  <path
+                    d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z"
+                    stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"
+                  />
+                </svg>
+              </div>
+
+              <h3 class="confirm-title">{{ confirmModal.title }}</h3>
+              <p class="confirm-message">{{ confirmModal.message }}</p>
+
+              <div class="confirm-actions">
+                <button
+                  type="button"
+                  class="confirm-btn confirm-btn-cancel"
+                  :disabled="isDeleting"
+                  @click="closeConfirmModal"
+                >
+                  Batal
+                </button>
+                <button
+                  type="button"
+                  class="confirm-btn confirm-btn-danger"
+                  :disabled="isDeleting"
+                  @click="confirmModalAction"
+                >
+                  <span v-if="isDeleting" class="confirm-spinner"></span>
+                  {{ isDeleting ? 'Menghapus...' : 'Ya, Hapus' }}
+                </button>
+              </div>
+            </div>
+          </Transition>
+        </div>
+      </Transition>
+    </Teleport>
   </main>
 </template>
 
@@ -879,5 +984,152 @@ input:focus, select:focus, textarea:focus {
   .admin-page { padding: 92px 12px 28px; }
   .article-row { padding: 10px 12px; column-gap: 10px; }
   .row-thumb { width: 50px; height: 40px; }
+}
+
+/* ===================================================== */
+/* ===============  MODAL KONFIRMASI HAPUS  ============= */
+/* ===================================================== */
+.confirm-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(26, 20, 16, 0.55);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+.confirm-box {
+  --color-red: #EB2B0C;
+  --color-deep-orange: #E75119;
+  --color-orange: #FB9F37;
+  --color-text: #1A1A1A;
+  --color-text-secondary: #5F5E5A;
+  --color-border: #E5E3DC;
+  --font-heading: 'Sora', sans-serif;
+  --font-body: 'Inter', sans-serif;
+
+  width: 100%;
+  max-width: 360px;
+  padding: 30px 28px 26px;
+  border-radius: 18px;
+  background: #FFFFFF;
+  text-align: center;
+  box-shadow: 0 24px 60px rgba(26, 16, 8, 0.28);
+}
+
+.confirm-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  margin: 0 auto 16px;
+  border-radius: 50%;
+  background: linear-gradient(145deg, rgba(251, 159, 55, 0.18), rgba(235, 43, 12, 0.14));
+  color: var(--color-red);
+}
+.confirm-icon svg {
+  width: 28px;
+  height: 28px;
+}
+
+.confirm-title {
+  margin: 0 0 6px;
+  font-family: var(--font-heading);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.confirm-message {
+  margin: 0 0 22px;
+  font-family: var(--font-body);
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--color-text-secondary);
+}
+
+.confirm-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.confirm-btn {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 11px 16px;
+  border-radius: 10px;
+  border: none;
+  font-family: var(--font-heading);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity .2s ease, transform .15s ease, box-shadow .2s ease;
+}
+.confirm-btn:hover:not(:disabled) { transform: translateY(-1px); }
+.confirm-btn:disabled { opacity: .7; cursor: not-allowed; transform: none; }
+
+.confirm-btn-cancel {
+  background: #F3F2EE;
+  color: var(--color-text);
+}
+.confirm-btn-cancel:hover:not(:disabled) { background: #E9E7E1; }
+
+.confirm-btn-danger {
+  background: linear-gradient(135deg, var(--color-red), var(--color-deep-orange));
+  color: #fff;
+  box-shadow: 0 8px 18px rgba(235, 43, 12, 0.28);
+}
+.confirm-btn-danger:hover:not(:disabled) {
+  box-shadow: 0 10px 22px rgba(235, 43, 12, 0.36);
+}
+
+.confirm-spinner {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.45);
+  border-top-color: #fff;
+  animation: confirm-spin .7s linear infinite;
+}
+
+@keyframes confirm-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Transitions */
+.confirm-fade-enter-active,
+.confirm-fade-leave-active {
+  transition: opacity .2s ease;
+}
+.confirm-fade-enter-from,
+.confirm-fade-leave-to {
+  opacity: 0;
+}
+
+.confirm-pop-enter-active {
+  transition: transform .28s cubic-bezier(.34, 1.56, .64, 1), opacity .2s ease;
+}
+.confirm-pop-leave-active {
+  transition: transform .16s ease, opacity .16s ease;
+}
+.confirm-pop-enter-from {
+  opacity: 0;
+  transform: scale(.85) translateY(8px);
+}
+.confirm-pop-leave-to {
+  opacity: 0;
+  transform: scale(.92);
+}
+
+@media (max-width: 400px) {
+  .confirm-box { padding: 26px 20px 22px; }
 }
 </style>

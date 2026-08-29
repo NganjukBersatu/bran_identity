@@ -30,8 +30,6 @@ function handleSubmit() {
 
       <!-- LEFT -->
       <section class="login-left">
-        <div class="left-decoration-circle"></div>
-
         <div class="left-content">
           <div class="admin-label">
             <span class="admin-icon">&gt;</span>
@@ -46,30 +44,38 @@ function handleSubmit() {
           </p>
         </div>
 
-        <!-- Mini laptop -->
-        <div class="laptop">
-          <div class="laptop-screen">
-            <div class="dashboard-mini">
-              <div class="mini-title">
-                <span></span>
-                Dashboard
-              </div>
-              <div class="mini-body">
-                <div class="mini-sidebar">
-                  <i></i><i></i><i></i><i></i>
+        <!-- Pembungkus bulatan dekorasi + laptop.
+             Di desktop posisinya tetap sama seperti sebelumnya
+             (absolute terhadap .login-left).
+             Di mobile, pembungkus ini jadi kolom sendiri di
+             SAMPING teks (lihat media query di bawah). -->
+        <div class="left-visual">
+          <div class="left-decoration-circle"></div>
+
+          <div class="laptop">
+            <div class="laptop-screen">
+              <div class="dashboard-mini">
+                <div class="mini-title">
+                  <span></span>
+                  Dashboard
                 </div>
-                <div class="mini-content">
-                  <div class="mini-chart">
-                    <div class="chart-line"></div>
+                <div class="mini-body">
+                  <div class="mini-sidebar">
+                    <i></i><i></i><i></i><i></i>
                   </div>
-                  <div class="mini-buttons">
-                    <span></span><span></span><span></span>
+                  <div class="mini-content">
+                    <div class="mini-chart">
+                      <div class="chart-line"></div>
+                    </div>
+                    <div class="mini-buttons">
+                      <span></span><span></span><span></span>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
+            <div class="laptop-base"></div>
           </div>
-          <div class="laptop-base"></div>
         </div>
       </section>
 
@@ -204,6 +210,13 @@ function handleSubmit() {
   bottom: -28px;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.22);
+}
+
+/* Pembungkus visual (bulatan + laptop). Di desktop transparan
+   terhadap layout — anak-anaknya tetap absolute terhadap .login-left,
+   sama persis seperti sebelumnya. */
+.left-visual {
+  display: contents;
 }
 
 .left-decoration-circle {
@@ -599,32 +612,63 @@ function handleSubmit() {
     border-radius: 16px;
   }
 
+  /* Panel kiri jadi flex-row: teks di kiri, laptop di kanan
+     (bukan lagi ditumpuk vertikal pakai absolute) */
   .login-left {
     width: 100%;
-    height: 300px;
-    min-height: 300px;
-    padding: 28px 26px;
+    height: auto;
+    min-height: 0;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 28px 22px;
   }
 
   .login-left::after { display: none; }
+  .login-left::before { display: none; }
 
-  .login-left h1 {
-    margin-top: 30px;
-    font-size: 27px;
+  .left-content {
+    flex: 1;
+    min-width: 0;
   }
 
-  .left-description { max-width: 280px; }
+  .login-left h1 {
+    margin: 16px 0 10px;
+    font-size: 24px;
+  }
 
-  .laptop {
-    left: 50%;
-    bottom: 18px;
-    transform: translateX(-50%) scale(0.85);
-    transform-origin: center bottom;
+  .left-description {
+    width: auto;
+    max-width: 100%;
+    font-size: 12.5px;
+    line-height: 1.6;
+  }
+
+  /* Wadah visual jadi kolom nyata di samping teks */
+  .left-visual {
+    display: block;
+    position: relative;
+    flex-shrink: 0;
+    width: 155px;
+    height: 172px;
   }
 
   .left-decoration-circle {
-    right: 20px;
-    top: 80px;
+    left: 50%;
+    right: auto;
+    top: 4px;
+    transform: translateX(-50%);
+    width: 114px;
+    height: 114px;
+    z-index: 1;
+  }
+
+  .laptop {
+    left: 50%;
+    bottom: 0;
+    z-index: 2;
+    transform: translateX(-50%) scale(0.62);
+    transform-origin: center bottom;
   }
 
   .login-right {
@@ -645,22 +689,34 @@ function handleSubmit() {
   .login-wrapper { border-radius: 14px; }
 
   .login-left {
-    height: 275px;
-    min-height: 275px;
-    padding: 24px 22px;
+    padding: 22px 16px;
+    gap: 12px;
   }
 
   .login-left h1 {
-    margin-top: 28px;
-    font-size: 25px;
+    margin: 12px 0 8px;
+    font-size: 19px;
   }
 
   .left-description {
-    width: 220px;
     font-size: 11px;
   }
 
-  .laptop { transform: translateX(-50%) scale(0.72); }
+  .admin-label span:last-child { font-size: 9.5px; }
+
+  .left-visual {
+    width: 118px;
+    height: 132px;
+  }
+
+  .left-decoration-circle {
+    width: 86px;
+    height: 86px;
+  }
+
+  .laptop {
+    transform: translateX(-50%) scale(0.47);
+  }
 
   .login-right { padding: 34px 22px; }
   .login-right h2 { font-size: 22px; }
