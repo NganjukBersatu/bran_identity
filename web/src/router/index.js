@@ -15,6 +15,7 @@ import blogRoutes from './blog.js'
 import TentangKamiView from '../views/tentangkami.vue'
 import ContactUs from '../views/ContactUs.vue'
 import PricingView from '../views/pricing.vue'
+import PaketdetailView from '../views/Paketdetail.vue'
 
 // ===============================
 // SOLUTIONS DETAIL
@@ -56,6 +57,14 @@ const router = createRouter({
       path: '/pricing',
       name: 'pricing',
       component: PricingView,
+    },
+
+    // Halaman detail 1 paket, KHUSUS 1 layanan
+    // Contoh: /paket/web-development/a  → Paket A untuk Web Development saja
+    {
+      path: '/paket/:serviceSlug/:packageId',
+      name: 'Paketdetail',
+      component: PaketdetailView,
     },
 
     {
