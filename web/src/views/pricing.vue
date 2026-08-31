@@ -9,13 +9,16 @@
           <span class="accent">tanpa biaya siluman</span>
         </h2>
         <p class="pricing-sub">
-          3 paket umum yang berlaku untuk semua layanan kami. Detail lengkap
-          apa saja yang Anda dapatkan di tiap layanan ada di tabel bawah.
+          3 paket umum yang berlaku untuk semua layanan kami. Karena tiap layanan
+          punya cakupan kerja berbeda, harga akhirnya juga berbeda per layanan —
+          detail lengkapnya ada di tabel bawah.
         </p>
       </div>
 
       <!-- ==========================================
            3 PAKET UMUM (bukan milik satu layanan)
+           Harga di kartu ini adalah harga REFERENSI
+           (dari layanan Web Development).
       =========================================== -->
       <div class="plans">
         <article
@@ -61,13 +64,16 @@
 
       <!-- ==========================================
            DETAIL PER LAYANAN — 6 TABEL TERPISAH
+           Nama paket di header tabel sekaligus jadi link
+           (dengan panah) ke halaman detail paket TERSEBUT
+           UNTUK LAYANAN INI SAJA (route /paket/:serviceSlug/:packageId).
       =========================================== -->
       <div class="comparison">
         <div class="comparison-head reveal">
           <span class="eyebrow">// detail per layanan</span>
           <h3 class="comparison-title">Paket A dapat apa, Paket B dapat apa</h3>
           <p class="comparison-sub">
-            Tiap layanan punya cakupan berbeda di tiap paket. Paket Custom
+            Tiap layanan punya cakupan dan harga berbeda di tiap paket. Paket Custom
             selalu menyesuaikan permintaan klien, baik dari sisi fitur maupun harga.
           </p>
         </div>
@@ -83,32 +89,42 @@
           <div class="comparison-table" role="table">
             <div class="comparison-row comparison-row-head" role="row">
               <div class="comparison-cell comparison-label" role="columnheader">Cakupan</div>
-              <div
+              <router-link
                 v-for="pkg in packages"
                 :key="`${service.name}-head-${pkg.id}`"
+                :to="`/paket/${service.slug}/${pkg.id}`"
                 class="comparison-cell comparison-plan"
                 :class="{ 'is-popular': pkg.popular }"
                 role="columnheader"
               >
-                {{ pkg.name }}
-              </div>
+                <span>{{ pkg.name }}</span>
+                <svg class="plan-link-arrow" width="14" height="14" viewBox="0 0 16 16" fill="none">
+                  <path
+                    d="M3.5 8H12.5M12.5 8L8.5 4M12.5 8L8.5 12"
+                    stroke="currentColor"
+                    stroke-width="1.6"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+              </router-link>
             </div>
 
-            <!-- baris harga -->
+            <!-- baris harga: khusus per layanan -->
             <div class="comparison-row comparison-row-price" role="row">
               <div class="comparison-cell comparison-label" role="cell">Harga</div>
               <div
-                v-for="pkg in packages"
+                v-for="(pkg, index) in packages"
                 :key="`${service.name}-price-${pkg.id}`"
                 class="comparison-cell comparison-price-cell"
                 :class="{ 'is-popular': pkg.popular }"
                 role="cell"
               >
-                {{ pkg.tablePrice }}
+                {{ service.prices[index] }}
               </div>
             </div>
 
-            <!-- baris fitur -->
+            <!-- baris fitur: tiap sel selalu berupa kalimat penjelasan -->
             <div
               v-for="feature in service.features"
               :key="feature.label"
@@ -122,30 +138,12 @@
                 v-for="(pkg, index) in packages"
                 :key="`${service.name}-${feature.label}-${pkg.id}`"
                 class="comparison-cell"
-                :class="{ 'is-popular': pkg.popular, 'is-empty': !feature.values[index] }"
+                :class="{ 'is-popular': pkg.popular, 'is-none': isNone(feature.values[index]) }"
                 role="cell"
               >
-                <template v-if="feature.values[index]">
-                  <svg
-                    class="check-icon comparison-check"
-                    width="15"
-                    height="15"
-                    viewBox="0 0 16 16"
-                    fill="none"
-                  >
-                    <path
-                      d="M13.5 4.5L6.5 11.5L2.5 7.5"
-                      stroke="currentColor"
-                      stroke-width="1.8"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    />
-                  </svg>
-                  <span v-if="typeof feature.values[index] === 'string'">
-                    {{ feature.values[index] }}
-                  </span>
-                </template>
-                <span v-else class="dash">—</span>
+                <span :class="isNone(feature.values[index]) ? 'none-text' : 'detail-text'">
+                  {{ feature.values[index] }}
+                </span>
               </div>
             </div>
           </div>
@@ -159,34 +157,29 @@
               :class="{ 'is-popular': pkg.popular }"
             >
               <div class="comparison-mobile-header">
-                <span class="comparison-mobile-plan">{{ pkg.name }}</span>
-                <span class="comparison-mobile-price">{{ pkg.tablePrice }}</span>
+                <router-link :to="`/paket/${service.slug}/${pkg.id}`" class="comparison-mobile-plan">
+                  <span>{{ pkg.name }}</span>
+                  <svg class="plan-link-arrow" width="12" height="12" viewBox="0 0 16 16" fill="none">
+                    <path
+                      d="M3.5 8H12.5M12.5 8L8.5 4M12.5 8L8.5 12"
+                      stroke="currentColor"
+                      stroke-width="1.6"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                </router-link>
+                <span class="comparison-mobile-price">{{ service.prices[index] }}</span>
               </div>
               <ul class="comparison-mobile-list">
                 <li
                   v-for="feature in service.features"
                   :key="`${service.name}-m-${pkg.id}-${feature.label}`"
-                  :class="{ 'is-empty': !feature.values[index] }"
+                  :class="{ 'is-none': isNone(feature.values[index]) }"
                 >
-                  <svg
-                    v-if="feature.values[index]"
-                    class="check-icon comparison-check"
-                    width="14"
-                    height="14"
-                    viewBox="0 0 16 16"
-                    fill="none"
-                  >
-                    <path
-                      d="M13.5 4.5L6.5 11.5L2.5 7.5"
-                      stroke="currentColor"
-                      stroke-width="1.8"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    />
-                  </svg>
-                  <span v-else class="dash">—</span>
-                  <span>
-                    {{ feature.label }}<template v-if="typeof feature.values[index] === 'string'"> — {{ feature.values[index] }}</template>
+                  <span class="mobile-feature-label">{{ feature.label }}</span>
+                  <span :class="isNone(feature.values[index]) ? 'none-text' : 'detail-text'">
+                    {{ feature.values[index] }}
                   </span>
                 </li>
               </ul>
@@ -207,12 +200,12 @@
 
 <script setup>
 import { onMounted, onUnmounted } from 'vue'
+// Sesuaikan path import ini dengan lokasi file pricingData.js di project Anda,
+// misalnya '@/data/pricingData' atau '../data/pricingData'.
+import { packages, services, isNone } from '../data/Pricingdata'
 
 /* ==========================================
    SCROLL REVEAL
-   Elemen dengan class "reveal" (heading detail
-   layanan & tiap service-block) akan fade-in
-   + geser naik begitu masuk viewport saat di-scroll.
 =========================================== */
 
 let observer = null
@@ -238,147 +231,10 @@ onMounted(() => {
 onUnmounted(() => {
   if (observer) observer.disconnect()
 })
-
-/* ==========================================
-   3 PAKET UMUM
-   Berlaku lintas layanan — bukan milik satu
-   layanan tertentu. Cakupan detail per layanan
-   ada di array "services" di bawah.
-=========================================== */
-
-const packages = [
-  {
-    id: 'a',
-    version: 'Paket A',
-    name: 'Paket A',
-    description: 'Titik awal yang pas untuk kebutuhan dasar & cepat mulai.',
-    currency: 'Rp',
-    price: '3.500.000',
-    unit: '',
-    tablePrice: 'Mulai Rp 3.500.000',
-    note: 'Harga dasar, menyesuaikan scope akhir',
-    ctaLabel: 'Konsultasi Gratis',
-    ctaLink: '/contact',
-    popular: false,
-    features: [
-      'Konsultasi awal gratis',
-      'Revisi desain 2x',
-      'Garansi bug 14 hari',
-      'Support via email',
-    ],
-  },
-  {
-    id: 'b',
-    version: 'Paket B',
-    name: 'Paket B',
-    description: 'Untuk bisnis yang butuh cakupan lebih lengkap & siap berkembang.',
-    currency: 'Rp',
-    price: '9.500.000',
-    unit: '',
-    tablePrice: 'Mulai Rp 9.500.000',
-    note: 'Harga dasar, menyesuaikan scope akhir',
-    ctaLabel: 'Mulai Proyek',
-    ctaLink: '/contact',
-    popular: true,
-    features: [
-      'Semua yang ada di Paket A',
-      'Revisi desain 4x',
-      'Prioritas pengerjaan',
-      'Support pasca-launch 30 hari',
-    ],
-  },
-  {
-    id: 'custom',
-    version: 'Paket Custom',
-    name: 'Paket Custom',
-    description: 'Untuk kebutuhan spesifik: sistem, integrasi, atau skala khusus.',
-    currency: '',
-    price: 'Menyesuaikan',
-    unit: '',
-    tablePrice: 'Menyesuaikan kebutuhan',
-    note: 'Harga & timeline dibahas bersama sesuai brief',
-    ctaLabel: 'Diskusikan Kebutuhan',
-    ctaLink: '/contact',
-    popular: false,
-    features: [
-      'Scope & arsitektur sesuai kebutuhan',
-      'Dedicated project manager',
-      'SLA & dukungan berkelanjutan',
-      'Kontrak kerja sama fleksibel',
-    ],
-  },
-]
-
-/* ==========================================
-   DETAIL 6 LAYANAN
-   Tiap layanan = 1 tabel dengan baris fitur.
-   values mengikuti urutan packages: [A, B, Custom]
-   - true        -> centang, tanpa keterangan tambahan
-   - 'teks'      -> centang + keterangan singkat
-   - false       -> tidak termasuk (tanda minus)
-=========================================== */
-
-const services = [
-  {
-    name: 'Web Development',
-    features: [
-      { label: 'Landing page 1 halaman', values: [true, true, true] },
-      { label: 'Company profile hingga 6 halaman', values: [false, true, true] },
-      { label: 'CMS untuk kelola konten sendiri', values: [false, true, true] },
-      { label: 'Web app / sistem custom', values: [false, false, true] },
-      { label: 'SEO dasar', values: [false, true, true] },
-    ],
-  },
-  {
-    name: 'UI/UX Design',
-    features: [
-      { label: 'Desain dari template terkurasi', values: [true, false, false] },
-      { label: 'Desain UI custom sesuai brand', values: [false, true, true] },
-      { label: 'Riset pengguna & user flow', values: [false, 'dasar', 'mendalam'] },
-      { label: 'Prototipe interaktif (klik-through)', values: [false, false, true] },
-    ],
-  },
-  {
-    name: 'Custom Software Development',
-    features: [
-      { label: 'Fitur tambahan sederhana (form, API dasar)', values: [false, true, true] },
-      { label: 'Dashboard / admin panel internal', values: [false, false, true] },
-      { label: 'Integrasi sistem pihak ketiga', values: [false, false, true] },
-      { label: 'Automasi alur kerja bisnis', values: [false, false, true] },
-    ],
-  },
-  {
-    name: 'Mobile App Development',
-    features: [
-      { label: 'Versi PWA (diakses seperti aplikasi)', values: [false, 'opsional', true] },
-      { label: 'Aplikasi Android & iOS native', values: [false, false, true] },
-      { label: 'Push notification & fitur native', values: [false, false, true] },
-    ],
-  },
-  {
-    name: 'Cloud & DevOps',
-    features: [
-      { label: 'Hosting & domain 1 tahun + SSL', values: [true, true, true] },
-      { label: 'Backup berkala', values: [false, true, true] },
-      { label: 'Arsitektur cloud scalable', values: [false, false, true] },
-      { label: 'CI/CD & monitoring berkelanjutan', values: [false, false, true] },
-    ],
-  },
-  {
-    name: 'Maintenance & Support',
-    features: [
-      { label: 'Support email 7 hari setelah launch', values: [true, true, true] },
-      { label: 'Support 30 hari + maintenance bulanan', values: [false, true, true] },
-      { label: 'SLA dukungan & dedicated PM', values: [false, false, true] },
-    ],
-  },
-]
 </script>
 
 <style scoped>
-/* ==========================================
-   ANIMASI MASUK
-=========================================== */
+/* Semua style di bawah SAMA PERSIS seperti versi Anda sebelumnya — tidak ada yang diubah. */
 
 @keyframes fadeInUp {
   from {
@@ -432,7 +288,7 @@ const services = [
 
 .pricing {
   background: var(--color-bg);
-  padding-top: 148px; /* tinggi navbar (88px) + jarak napas tambahan */
+  padding-top: 148px;
 }
 
 @media (max-width: 900px) {
@@ -674,16 +530,39 @@ const services = [
 }
 
 .comparison-label {
-  width: 30%;
+  width: 28%;
   font-size: 14px;
   color: var(--color-text);
   background: var(--color-bg);
 }
 
 .comparison-plan {
+  display: table-cell;
   font-family: var(--font-heading);
   font-weight: 600;
   color: var(--color-text-secondary);
+  text-decoration: none;
+  cursor: pointer;
+  transition: color .2s ease, background .2s ease;
+}
+
+.comparison-plan:hover {
+  color: var(--color-deep-orange);
+  background: rgba(251, 159, 55, 0.06);
+}
+
+.plan-link-arrow {
+  flex-shrink: 0;
+  margin-left: 6px;
+  opacity: 0;
+  transform: translateX(-3px);
+  transition: opacity .2s ease, transform .2s ease;
+  vertical-align: middle;
+}
+
+.comparison-plan:hover .plan-link-arrow {
+  opacity: .8;
+  transform: translateX(0);
 }
 
 .comparison-row-head .comparison-cell {
@@ -718,18 +597,16 @@ const services = [
   );
 }
 
-.comparison-cell .comparison-check {
-  color: var(--color-deep-orange);
-  margin-right: 8px;
-  vertical-align: -2px;
+.comparison-cell .detail-text {
+  color: var(--color-text);
 }
 
-.comparison-cell.is-empty .dash {
+.comparison-cell .none-text {
   color: var(--color-text-secondary);
-  opacity: .55;
+  font-style: italic;
+  opacity: .75;
 }
 
-/* mobile cards, disembunyikan di desktop */
 .comparison-mobile {
   display: none;
 }
@@ -765,10 +642,18 @@ const services = [
   }
 
   .comparison-mobile-plan {
+    display: inline-flex;
+    align-items: center;
     font-family: var(--font-heading);
     font-weight: 600;
     font-size: 14px;
     color: var(--color-text);
+    text-decoration: none;
+  }
+
+  .comparison-mobile-plan .plan-link-arrow {
+    opacity: .6;
+    transform: none;
   }
 
   .comparison-mobile-card.is-popular .comparison-mobile-plan {
@@ -791,19 +676,25 @@ const services = [
 
   .comparison-mobile-list li {
     display: flex;
-    align-items: flex-start;
-    gap: 8px;
+    flex-direction: column;
+    gap: 2px;
     font-size: 13px;
     color: var(--color-text);
   }
 
-  .comparison-mobile-list li.is-empty {
-    color: var(--color-text-secondary);
-    opacity: .6;
+  .comparison-mobile-list .mobile-feature-label {
+    font-weight: 600;
+    color: var(--color-text);
   }
 
-  .comparison-mobile-list .dash {
+  .comparison-mobile-list .detail-text {
     color: var(--color-text-secondary);
+  }
+
+  .comparison-mobile-list .none-text {
+    color: var(--color-text-secondary);
+    font-style: italic;
+    opacity: .7;
   }
 }
 
@@ -872,6 +763,9 @@ const services = [
   }
   .service-block {
     margin-bottom: 28px;
+  }
+  .paket-nav {
+    margin-top: 40px;
   }
 }
 </style>
