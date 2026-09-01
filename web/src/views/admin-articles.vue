@@ -65,7 +65,21 @@ function closeForm() {
   resetForm()
 }
 
+/*
+  PERBAIKAN: sebelumnya fungsi ini hanya dipanggil lewat native form
+  "submit" event (type="submit" + @submit.prevent). Kalau ada field
+  required lain yang tidak valid, atau ada elemen overlay yang menutupi
+  hitbox tombol, klik jadi terasa "tidak ngefek" tanpa pesan error yang
+  jelas ke user. Sekarang fungsi ini juga langsung dipanggil lewat
+  @click di tombol (type="button"), jadi tidak bergantung pada event
+  submit browser sama sekali.
+*/
 function handleSubmit() {
+  if (!form.value.title.trim() || !form.value.excerpt.trim() || !form.value.content.trim()) {
+    alert('Judul, ringkasan, dan isi artikel wajib diisi.')
+    return
+  }
+
   const payload = {
     title: form.value.title,
     category: form.value.category,
@@ -316,6 +330,13 @@ onBeforeUnmount(() => {
           </button>
         </div>
 
+        <!--
+          PERBAIKAN: @submit.prevent tetap dipertahankan (jaga-jaga kalau
+          user menekan Enter di salah satu input), tapi tombol simpan di
+          bawah TIDAK lagi type="submit" — dia type="button" dengan
+          @click langsung memanggil handleSubmit, supaya klik tidak
+          pernah bergantung pada validasi/submit native browser.
+        -->
         <form v-if="showForm" @submit.prevent="handleSubmit" class="article-form">
           <h2 class="form-title">
             {{ editingId ? 'Edit Artikel' : 'Tambah Artikel Baru' }}
@@ -354,7 +375,7 @@ onBeforeUnmount(() => {
           </label>
 
           <div class="form-actions">
-            <button type="submit" class="btn btn-primary">
+            <button type="button" class="btn btn-primary" @click="handleSubmit">
               {{ editingId ? 'Simpan Perubahan' : 'Simpan Artikel' }}
             </button>
             <button type="button" class="btn btn-outline" @click="closeForm">Batal</button>
@@ -449,7 +470,12 @@ onBeforeUnmount(() => {
           </label>
 
           <div class="form-actions">
-            <button type="submit" class="btn btn-primary" :disabled="!canSubmitTesti">
+            <button
+              type="button"
+              class="btn btn-primary"
+              :disabled="!canSubmitTesti"
+              @click="submitTestiForm"
+            >
               Simpan Perubahan
             </button>
             <button type="button" class="btn btn-outline" @click="closeTestiForm">Batal</button>
@@ -674,6 +700,8 @@ h1 {
   border: 1px solid var(--color-border);
   border-radius: 14px;
   background: var(--color-surface);
+  position: relative;
+  z-index: 1;
 }
 
 .form-title {
@@ -712,6 +740,8 @@ input:focus, select:focus, textarea:focus {
   display: flex;
   align-items: center;
   gap: 10px;
+  position: relative;
+  z-index: 2;
 }
 
 .btn {
@@ -723,6 +753,7 @@ input:focus, select:focus, textarea:focus {
   font-weight: 600;
   cursor: pointer;
   transition: opacity .2s ease, transform .2s ease;
+  position: relative;
 }
 .btn:hover { transform: translateY(-1px); }
 .btn:disabled { opacity: .55; cursor: not-allowed; transform: none; }

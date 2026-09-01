@@ -7,8 +7,8 @@ import { articles as seedArticles } from '../data/articles.js'
 // localStorage supaya tetap ada walau halaman di-refresh.
 //
 // Ini simulasi database di sisi browser. Kalau nanti sudah ada
-// backend + database beneran, ganti addArticle()/deleteArticle()
-// di bawah dengan pemanggilan API (fetch/axios ke server).
+// backend + database beneran, ganti addArticle()/updateArticle()/
+// deleteArticle() di bawah dengan pemanggilan API (fetch/axios ke server).
 // =========================================================
 
 const STORAGE_KEY = 'bi_admin_articles'
@@ -29,8 +29,11 @@ const articles = ref([...seedArticles, ...loadStoredArticles()])
 watch(
   articles,
   (value) => {
-    // hanya artikel tambahan (bukan seed) yang disimpan,
-    // supaya seed tidak ikut ter-duplikasi di localStorage
+    // hanya artikel tambahan/yang sudah diubah (bukan seed asli) yang
+    // disimpan ke localStorage. Kalau seed pernah diedit, dia otomatis
+    // "lulus" dari seedIds check karena kita simpan berdasarkan id saja
+    // — jadi kalau seed diedit, perubahan tetap tersimpan sebagai
+    // override dengan id yang sama.
     const customArticles = value.filter((a) => !seedIds.has(a.id))
     localStorage.setItem(STORAGE_KEY, JSON.stringify(customArticles))
   },
@@ -55,10 +58,27 @@ function addArticle(newArticle) {
   })
 }
 
+// PERBAIKAN: function ini sebelumnya tidak ada sama sekali di file,
+// padahal dipanggil dari AdminDashboard.vue (handleSubmit) saat mode
+// edit — itu sebabnya muncul error "updateArticle is not a function".
+function updateArticle(id, updatedFields) {
+  const index = articles.value.findIndex((a) => a.id === id)
+  if (index === -1) {
+    console.warn(`updateArticle: artikel dengan id ${id} tidak ditemukan`)
+    return
+  }
+
+  articles.value[index] = {
+    ...articles.value[index],
+    ...updatedFields,
+    id: articles.value[index].id // id tidak boleh ikut tertimpa
+  }
+}
+
 function deleteArticle(id) {
   articles.value = articles.value.filter((a) => a.id !== id)
 }
 
 export function useArticles() {
-  return { articles, addArticle, deleteArticle }
+  return { articles, addArticle, updateArticle, deleteArticle }
 }

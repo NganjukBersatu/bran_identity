@@ -786,13 +786,22 @@ onBeforeUnmount(() => {
   z-index: 9999;
   padding: 20px;
 }
+
+/*
+  PERBAIKAN:
+  - Modal tidak lagi scroll internal (overflow-y: auto + max-height dihapus)
+    supaya border-radius di 4 sudutnya tidak pernah terpotong oleh scrollbar.
+  - overflow: hidden dipakai supaya lengkungan tetap rapi walau ada elemen
+    anak yang menyentuh tepi (misal saat fokus/box-shadow input).
+  - Modal sekarang tumbuh mengikuti tinggi kontennya; halaman/body-lah yang
+    akan scroll kalau konten modal lebih tinggi dari layar.
+*/
 .bi-modal {
   background: var(--color-surface);
-  border-radius: 16px;
+  border-radius: 20px;
+  overflow: hidden;
   width: 100%;
   max-width: 560px;
-  max-height: 90vh;
-  overflow-y: auto;
   padding: 28px 26px 26px;
   box-shadow: 0 24px 60px -12px rgba(0, 0, 0, 0.25);
 }
@@ -980,7 +989,7 @@ onBeforeUnmount(() => {
   .bi-testi { padding: 60px 0; }
   .bi-grid { grid-template-columns: 1fr; }
   .bi-form__row { grid-template-columns: 1fr; }
-  .bi-modal { padding: 22px 18px 20px; max-height: 92vh; }
+  .bi-modal { padding: 22px 18px 20px; }
   .bi-cta { width: calc(100% - 30px); padding: 40px 22px; margin-bottom: 50px; }
 }
 @media (max-width: 430px) {
